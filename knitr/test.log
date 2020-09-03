@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/W32TeX) (preloaded format=pdflatex 2020.8.27)  27 AUG 2020 20:07
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/W32TeX) (preloaded format=pdflatex 2020.8.27)  3 SEP 2020 11:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**Testing.tex
-(./Testing.tex
+**test.tex
+(./test.tex
 LaTeX2e <2020-02-02> patch level 5
 L3 programming layer <2020-08-07>
 (c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/artic
@@ -79,28 +79,64 @@ Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
 .sty
 Package: alltt 1997/06/16 v2.0g defines alltt environment
 )
+(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/r
+otating.sty
+Package: rotating 2016/08/11 v2.16d rotated objects in LaTeX
+
+(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/ifthe
+n.sty
+Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
+)
+\c@r@tfl@t=\count176
+\rotFPtop=\skip50
+\rotFPbot=\skip51
+\rot@float@box=\box45
+\rot@mess@toks=\toks16
+)
+(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/latex
+sym.sty
+Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
+\symlasy=\mathgroup4
+LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
+(Font)                  U/lasy/m/n --> U/lasy/b/n on input line 52.
+)
+(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/tools/dcol
+umn.sty
+Package: dcolumn 2014/10/28 v1.06 decimal alignment package (DPC)
+
+(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/tools/arra
+y.sty
+Package: array 2019/08/31 v2.4l Tabular extension package (FMi)
+\col@sep=\dimen141
+\ar@mcellbox=\box46
+\extrarowheight=\dimen142
+\NC@list=\toks17
+\extratabsurround=\skip52
+\backup@length=\skip53
+\ar@cellbox=\box47
+))
 (c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3backend/
 l3backend-pdfmode.def
 File: l3backend-pdfmode.def 2020-08-07 L3 backend support: PDF mode
-\l__kernel_color_stack_int=\count176
-\l__pdf_internal_box=\box45
-) (./Testing.aux)
-\openout1 = `Testing.aux'.
+\l__kernel_color_stack_int=\count177
+\l__pdf_internal_box=\box48
+) (./test.aux)
+\openout1 = `test.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 53.
-LaTeX Font Info:    ... okay on input line 53.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 53.
-LaTeX Font Info:    ... okay on input line 53.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 53.
-LaTeX Font Info:    ... okay on input line 53.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 53.
-LaTeX Font Info:    ... okay on input line 53.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 53.
-LaTeX Font Info:    ... okay on input line 53.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 53.
-LaTeX Font Info:    ... okay on input line 53.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 53.
-LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 96.
+LaTeX Font Info:    ... okay on input line 96.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 96.
+LaTeX Font Info:    ... okay on input line 96.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 96.
+LaTeX Font Info:    ... okay on input line 96.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 96.
+LaTeX Font Info:    ... okay on input line 96.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 96.
+LaTeX Font Info:    ... okay on input line 96.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 96.
+LaTeX Font Info:    ... okay on input line 96.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 96.
+LaTeX Font Info:    ... okay on input line 96.
 
 (c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/epstopdf-p
 kg/epstopdf-base.sty
@@ -115,18 +151,18 @@ e
 )) [1
 
 {c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updm
-ap/pdftex.map}] (./Testing.aux) ) 
+ap/pdftex.map}] (./test.aux) ) 
 Here is how much of TeX's memory you used:
- 961 strings out of 482841
- 15494 string characters out of 5954362
- 246144 words of memory out of 5000000
- 16359 multiletter control sequences out of 15000+600000
+ 1167 strings out of 482841
+ 18433 string characters out of 5954362
+ 249422 words of memory out of 5000000
+ 16550 multiletter control sequences out of 15000+600000
  535088 words of font info for 29 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 36i,5n,33p,250b,105s stack positions out of 5000i,500n,10000p,200000b,80000s
-<c:/Users/Kristine Dinh/AppData/Roaming/TinyTe
-X/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
-Output written on Testing.pdf (1 page, 11852 bytes).
+ 36i,5n,33p,247b,105s stack positions out of 5000i,500n,10000p,200000b,80000s
+<c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
+Output written on test.pdf (1 page, 13623 bytes).
 PDF statistics:
  12 PDF objects out of 1000 (max. 8388607)
  7 compressed objects within 1 object stream

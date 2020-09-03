@@ -1,0 +1,286 @@
+% Stat 794: Knitr lab
+% Illustrating knitr to present analyses of College data from ISLR text
+% Packages required: knitr, xtable, stargazer, ISLR
+% To use, make sure to call library(knitr) first in console
+% To run and create a .tex file: knit('knitr_lab_ClassVersion.Rnw') in R
+
+% To show at start of class:
+% -- Step through preface briefly and show where to enter name
+% -- LaTeX preface (preface.tex) vs. Knitr preface (knitr_ClassVersion.Rnw);
+%    briefly delineate two approaches to report writing
+% -- Code in place for regression analysis and prediction
+% -- There are 6 tasks to complete with sample code and hints where needed
+% -- Suggest cutting an pasting R code into console first to debug
+% -- Tasks 1, 2, 4, and 5 ask you to compose text discussing the output 
+%    for that task.
+
+
+% Preface required in the knitr RnW file
+\documentclass{article}
+
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{latexsym}
+\usepackage{color}
+% \usepackage{listings} % allows for importing code scripts into the tex file
+\usepackage{dcolumn}
+
+% Approximately 1 inch borders all around
+\setlength\topmargin{-.56in}
+\setlength\evensidemargin{0in}
+\setlength\oddsidemargin{0in}
+\setlength\textwidth{6.49in}
+\setlength\textheight{8.6in}
+
+% Options for code listing; from Patrick DeJesus, October 2016
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+% \lstdefinestyle{mystyle}{
+% 	backgroundcolor=\color{backcolour},   commentstyle=\color{codegreen},
+% 	keywordstyle=\color{magenta},
+% 	numberstyle=\tiny\color{codegray},
+% 	stringstyle=\color{codepurple},
+% 	basicstyle=\footnotesize,
+% 	breakatwhitespace=false,         
+% 	breaklines=true,                 
+% 	captionpos=b,                    
+% 	keepspaces=true,                 
+% 	numbers=left,                    
+% 	numbersep=5pt,                  
+% 	showspaces=false,                
+% 	showstringspaces=false,
+% 	showtabs=false,                  
+% 	tabsize=2
+% }
+% %"mystyle" code listing set
+% \lstset{style=mystyle}
+% %\lstset{inputpath=appendix/}
+
+
+\title{Stat 794, Example Application of \texttt{knitr}} 
+\author{Kristine Dinh}
+\date{\today}
+
+\begin{document} 
+\maketitle
+
+% Code to start knitr
+<<include=FALSE>>=
+  library(knitr)
+opts_chunk$set(
+  concordance=TRUE
+)
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Code snippet to load in libraries and data  
+% THIS IS HOW R-CODE IS READ INTO LaTeX DOC WITH knitr
+% Environment:  
+% <<...>>=  
+% [Code here] 
+% @
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<load data, include=FALSE>>=
+# Load in libraries, load in data and set up variables
+library(ISLR)
+library(stargazer)
+library(xtable)
+
+rm(list=ls(all=TRUE)) # remove all previous objects from memory
+
+# Set up data for the illustration
+# For illustration purposes we will use the College data set from the ISLR text
+# Create an indicator of Elite College status (see exercise 8 in Ch. 2 of ISLR text)
+Elite=rep("No",nrow(College))
+Elite[College$Top10perc >50]="Yes"
+Elite=as.factor(Elite)
+College=data.frame(College ,Elite)
+numvars = length(College) # number of variables in the College data set
+n = dim(College)[1]
+@
+
+  
+% Code snippet to run the regression analysis, including prediction for two new Universities
+<<college apps regression, echo=FALSE>>=
+# Fit a model
+fm1 = lm(Apps~Private+Elite+Accept+Outstate+Room.Board+Grad.Rate, data = College)
+# predcit a new school not in the data set
+new1 = data.frame(Private="No", Elite="No", Accept=5000, Outstate=8000, Room.Board=6000, Grad.Rate=0.6)
+newpred1 = signif(predict(fm1, new1, interval="prediction"), 2)
+new2 = data.frame(Private="Yes", Elite="Yes", Accept=1000, Outstate=16000, Room.Board=4000, Grad.Rate=0.90)
+newpred2 = signif(predict(fm1, new2, interval="prediction"), 2)
+@
+
+
+%%%%%%%%%%%%%%
+% Lab Tasks
+%%%%%%%%%%%%%%
+
+%% Task 1: Present an R dump of the summary of the regression fit
+% [Place knitr code chunk here]
+<<summary of the regression fit>>=
+
+stargazer(fm1, title = "Summary of Regression")
+
+@
+
+% \Sexpr{...} allows us to run R-code or grab R elements inside the text.
+% Try it out!  Write a sentence using \Sexpr to grab the predicted values for 
+% the new schools (variables newpred1 and newpred2 from above).
+Predicted values for the new schools are: \Sexpr{newpred1} and \Sexpr{newpred2} 
+
+%% Task 2: Insert a pairwise scatterplot into your document
+% For plots, start by setting up the LaTeX figure environment,
+% then place R code to knit, then set up LaTeX code to complete figure environment.
+% Below I give the code for this task.  You will practice with this code in Task 5.
+\begin{figure}
+\begin{center}
+<<echo=FALSE, out.width='4in'>>=
+y = data.frame(College$Apps,College$Private,College$Elite,College$Accept,College$Outstate,College$Room.Board,College$Grad.Rate)
+pairs(y)
+@
+\caption{Pairwise scatterplot of variables}
+\label{pairwise_scatterplot}
+\end{center}
+\end{figure}
+
+% Write a short blurb of text to cite your figure.  To cite use the \ref function an call the label assigned: Figure~\ref{pairs}.
+When exploring the relationship between each variable, a pairwise scatterplot was created, see Figure~\ref{pairwise_scatterplot}. As seen in plot, Outstate and Room Board are highly correlated.
+
+
+%% Task 3: Use stargazer to present summary statistics of the College data set
+<<descrips, r, results="asis", echo=FALSE>>=
+#############
+# Recall the stargazer table created in the online video:
+#  stargazer(College, title="Summary statistics for the ISLR College data set.", label="descrips")
+# Now try the following options to re-format your table:
+#  summary.stat option: use to get rid of the sample size N column and add 25th and 75th percentiles
+#  covariate.labels option: present more informative variable labels, rather than variable names
+#  float.env option: force LaTeX to present table in landscape (sidewaystable)
+#############
+
+stargazer(College, 
+          title="Summary statistics for the ISLR College data set.", 
+          label="descrips", 
+          summary.stat = c("mean", "median", "sd", "min", "p25", "p75", "max"), 
+          covariate.labels = c("Private Flag"
+                               , "Application Count"
+                               , "Acceptance Count"
+                               , "Enrollment Count"
+                               , "Top 10 Percent in High School"
+                               , "Top 25 Percent in High School"
+                               , "Full-time Undergrad"
+                               , "Part-time Undergrad"
+                               , "Out-of-state tuition"
+                               , "Room and board Costs"
+                               , "Estimated Book Costs"
+                               , "Estimated Personal Costs"
+                               , "Percent of Faculty with PhD"
+                               , "Percent of Faculty with termianl Degree"
+                               , "Student/Faculty Ratio"
+                               , "Percent of alumni donated"
+                               , "Instructional expenditure per student"
+                               , "Graduation rate"), 
+          float.env = "sidewaystable")
+
+#############
+
+# For the curious: check out the stargazer help screen for the plethora of options!
+# For example, stargazer can present a regression inferences table.  Try the following code:
+#   stargazer(fm1, title="Regression inferences", dep.var.labels="Number of Applications", label="inf",
+#          keep.stat="n", ci=TRUE, ci.level=0.95, single.row=TRUE,
+#          covariate.labels=c("Private", "Elite", "Number Accept", "Out-of-state tuition",
+#                             "Room and board", "Grad rate"))
+@
+
+
+%% Task 4: Create a table of predictions using xtable
+% I provide the code below for a base table.  
+% The task is then to add additional columns to the table and create the LaTeX code using xtable.
+% Note that we use results="asis" to force knitr to present the table code for compiling in LaTeX
+<<predictions, results="asis", echo=FALSE>>=
+# create the table and store in 'x'
+univ = rbind("University 1", "University 2")
+elite = rbind("No", "Yes")
+gradrate = rbind(new1[,6], new2[,6])
+preds = rbind(newpred1[,1], newpred2[,1])
+lwr = rbind(newpred1[,2], newpred2[,2])
+upr = rbind(newpred1[,3], newpred2[,3])
+# Tasks:
+# 1) Add columns of out of state tuition, elite status, and graduation rate to the table.
+# 2) Use xtable to create and output LaTeX code for the table.  Here is the code from the online video:
+#  fm.table = xtable(fm1, digits=2, 
+#                  caption="Inferences from regressing number of applications on whether the college is private or public,
+#                  whether the college is elite or not, acceptance rate, out of state tuition, room and board, and 
+#                  graduation rate.",
+#                  label="reginf")
+#  align(fm.table) <- "|l|rrrr|"  # place vertical lines on left and right of table, and after first column of var names 
+#  print(fm.table)
+# Note: consider the include.rownames option in the print command to remove row names.
+##############
+
+x <- data.frame(univ
+                , elite
+                , gradrate
+                , preds
+                , lwr
+                , upr
+                , outstate = rbind(new1[,"Outstate"], new2[,"Outstate"]))
+
+fm.table <- xtable(x, 
+                   digits = 2,
+                   caption = "Prediction Table", 
+                   label = "pred_table")
+
+align(fm.table) <- "|l|rrrrrrr|"
+
+print(fm.table)
+
+@
+
+% Write a short blurb citing your tables.  As with figures, to cite this table use the \ref function and call the label assigned: Table~\ref{desrips2} for the descriptive statistics table and Table~\ref{modelinf} for the inference table.
+As seen in Table~\ref{pred_table}, University 1 recieved more applications than University 2. 
+
+% 
+% 
+% %% Task 5: Create an appendix of plots
+% % We will create a 2x2 graphic of regression diagnostics
+% \newpage
+% \noindent \Large{{\bf Appendix A: Supplementary Plots}}
+% \begin{figure}[h!]
+% \begin{center}
+% %%%%%%%%%%%%%%%%
+% % Here is code for the default regression diagnostics from R
+% % Write knitr code to present a 2x2 graphic for this appendix.
+% % Suggestion: use the knitr code environment from the scatterplot matrix of Task 2
+% %
+% %  par(mfrow=c(2,2))
+% %  plot(fm1)
+% %
+% %%%%%%%%%%%%%%%%%%%
+% % [PLACE KNITR CODE CHUNK HERE]
+% 
+% <<echo=FALSE, out.width='4in'>>=
+% y = data.frame(College$Apps,College$Private,College$Elite,College$Accept,College$Outstate,College$Room.Board,College$Grad.Rate)
+% pairs(y)
+% @
+% 
+% \caption{Pairwise scatterplot of variables}
+% \label{pairwise_scatterplot}
+% \end{center}
+% \end{figure}
+% 
+% % Write a short blurb citing the figure and stating what it is.
+% When exploring the relationship between each variable, a pairwise scatterplot was created, see Figure~\{pairwise_scatterplot}. As seen in plot, Outstate and Room Board are highly correlated. 
+
+%% Task 6: Create an appendix of code
+% Here is the LaTeX code from the online video.
+% Recall that this is straight LaTeX, no knitr code chunk needed!
+%  \newpage
+%  \noindent \Large{{\bf Appendix B: R Code}}
+%  \lstinputlisting[language=R, caption = CAPTION HERE]{CODE FILE NAME HERE}
+
+
+\end{document}

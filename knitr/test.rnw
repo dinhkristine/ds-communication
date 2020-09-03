@@ -1,0 +1,50 @@
+% Stat 794: Knitr lab
+% Illustrating knitr to present analyses of College data from ISLR text
+% Packages required: knitr, xtable, stargazer, ISLR
+% To use, make sure to call library(knitr) first in console
+% To run and create a .tex file: knit('knitr_lab_ClassVersion.Rnw') in R
+
+% To show at start of class:
+  % -- Step through preface briefly and show where to enter name
+% -- LaTeX preface (preface.tex) vs. Knitr preface (knitr_ClassVersion.Rnw);
+%    briefly delineate two approaches to report writing
+% -- Code in place for regression analysis and prediction
+% -- There are 6 tasks to complete with sample code and hints where needed
+% -- Suggest cutting an pasting R code into console first to debug
+% -- Tasks 1, 2, 4, and 5 ask you to compose text discussing the output 
+%    for that task.
+
+
+% Preface required in the knitr RnW file
+\documentclass{article}
+
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{dcolumn}
+
+% Approximately 1 inch borders all around
+\setlength\topmargin{-.56in}
+\setlength\evensidemargin{0in}
+\setlength\oddsidemargin{0in}
+\setlength\textwidth{6.49in}
+\setlength\textheight{8.6in}
+
+% Options for code listing; from Patrick DeJesus, October 2016
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+
+
+\title{Stat 794, Example Application of \texttt{knitr}} 
+\author{Kristine Dinh}
+\date{\today}
+
+\begin{document} 
+
+Hello this is my testing document
+
+\end{document}
