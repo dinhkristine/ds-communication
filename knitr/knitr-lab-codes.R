@@ -1,5 +1,4 @@
 
-# Load in libraries, load in data and set up variables
 library(ISLR)
 library(stargazer)
 library(xtable)
@@ -16,8 +15,6 @@ College=data.frame(College ,Elite)
 numvars = length(College) # number of variables in the College data set
 n = dim(College)[1]
 
-
-
 # Fit a model
 fm1 = lm(Apps~Private+Elite+Accept+Outstate+Room.Board+Grad.Rate, data = College)
 # predcit a new school not in the data set
@@ -26,33 +23,41 @@ newpred1 = signif(predict(fm1, new1, interval="prediction"), 2)
 new2 = data.frame(Private="Yes", Elite="Yes", Accept=1000, Outstate=16000, Room.Board=4000, Grad.Rate=0.90)
 newpred2 = signif(predict(fm1, new2, interval="prediction"), 2)
 
-stargazer(fm1, title = "Summary of Regression")
+fm.table <- xtable(fm1, digits=2, 
+                   caption = "Summary of Regression",
+                   label="reginf")
 
+align(fm.table) <- "|l|rrrr|"  
 
+print(fm.table)
+
+y = data.frame(College$Apps,College$Private,College$Elite,College$Accept,College$Outstate,College$Room.Board,College$Grad.Rate)
+pairs(y)
 
 stargazer(College, 
-        title="Summary statistics for the ISLR College data set.", 
-        label="descrips", 
-        summary.stat = c("mean", "median", "sd", "min", "p25", "p75", "max"), 
-        covariate.labels = c("Private Flag"
-                             , "Application Count"
-                             , "Acceptance Count"
-                             , "Enrollment Count"
-                             , "Top 10 Percent in High School"
-                             , "Top 25 Percent in High School"
-                             , "Full-time Undergrad"
-                             , "Part-time Undergrad"
-                             , "Out-of-state tuition"
-                             , "Room and board Costs"
-                             , "Estimated Book Costs"
-                             , "Estimated Personal Costs"
-                             , "Percent of Faculty with PhD"
-                             , "Percent of Faculty with termianl Degree"
-                             , "Student/Faculty Ratio"
-                             , "Percent of alumni donated"
-                             , "Instructional expenditure per student"
-                             , "Graduation rate"), 
-        float.env = "sidewaystable")
+          title="Summary statistics of all variables for the ISLR College data set.", 
+          label="descrips", 
+          summary.stat = c("mean", "median", "sd", "min", "p25", "p75", "max"), 
+          covariate.labels = c("Private Flag"
+                               , "Application Count"
+                               , "Acceptance Count"
+                               , "Enrollment Count"
+                               , "Top 10 Percent in High School"
+                               , "Top 25 Percent in High School"
+                               , "Full-time Undergrad"
+                               , "Part-time Undergrad"
+                               , "Out-of-state tuition"
+                               , "Room and board Costs"
+                               , "Estimated Book Costs"
+                               , "Estimated Personal Costs"
+                               , "Percent of Faculty with PhD"
+                               , "Percent of Faculty with terminal Degree"
+                               , "Student/Faculty Ratio"
+                               , "Percent of alumni donated"
+                               , "Instructional expenditure per student"
+                               , "Graduation rate"), 
+          float.env = "sidewaystable", 
+          table.placement = "H")
 
 
 # create the table and store in 'x'
@@ -64,22 +69,24 @@ lwr = rbind(newpred1[,2], newpred2[,2])
 upr = rbind(newpred1[,3], newpred2[,3])
 
 x <- data.frame(univ
-              , elite
-              , gradrate
-              , preds
-              , lwr
-              , upr
-              , outstate = rbind(new1[,"Outstate"], new2[,"Outstate"]))
+                , elite
+                , gradrate
+                , preds
+                , lwr
+                , upr
+                , outstate = rbind(new1[,"Outstate"], new2[,"Outstate"]))
 
 fm.table <- xtable(x, 
-                 digits = 2,
-                 caption = "Prediction Table", 
-                 label = "pred_table")
+                   digits = 2,
+                   caption = "Prediction Table", 
+                   label = "pred_table", 
+                   table.placement="H")
 
 align(fm.table) <- "|l|rrrrrrr|"
 
 print(fm.table)
 
+## diagnostic
 
 par(mfrow=c(2,2))
 plot(fm1)

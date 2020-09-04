@@ -24,6 +24,7 @@
 \usepackage{color}
 \usepackage{listings} % allows for importing code scripts into the tex file
 \usepackage{dcolumn}
+\usepackage{float}
 
 % Approximately 1 inch borders all around
 \setlength\topmargin{-.56in}
@@ -119,41 +120,37 @@ newpred2 = signif(predict(fm1, new2, interval="prediction"), 2)
 %%%%%%%%%%%%%%
 
 %% Task 1: Present an R dump of the summary of the regression fit
+
+An R dump of the summary of the regression fit for application count.
 % [Place knitr code chunk here]
-<<summary of the regression fit>>=
+<<summary of the regression fit, echo = FALSE>>=
 
-fm.table <- xtable(fm1, digits=2, 
-                   caption = "Summary of Regression",
-                   label="reginf")
-
-align(fm.table) <- "|l|rrrr|"  
-
-print(fm.table)
+summary(fm1)
 
 @
 
 % \Sexpr{...} allows us to run R-code or grab R elements inside the text.
 % Try it out!  Write a sentence using \Sexpr to grab the predicted values for 
 % the new schools (variables newpred1 and newpred2 from above).
-Predicted values for the new schools are: \Sexpr{newpred1} and \Sexpr{newpred2} 
+To predict the number of application recieved every year, a model with six predictors was generated including private school flag, elite, acceptance rate, out of state tuition, room and board costs, and graduation rate. A new set of testing data was used to generate the prediction of application count. Predicted values for the two new schools are: \Sexpr{newpred1} and \Sexpr{newpred2} 
 
 %% Task 2: Insert a pairwise scatterplot into your document
 % For plots, start by setting up the LaTeX figure environment,
 % then place R code to knit, then set up LaTeX code to complete figure environment.
 % Below I give the code for this task.  You will practice with this code in Task 5.
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
-<<echo=FALSE, out.width='4in'>>=
+<<echo=FALSE, out.width='5in'>>=
 y = data.frame(College$Apps,College$Private,College$Elite,College$Accept,College$Outstate,College$Room.Board,College$Grad.Rate)
 pairs(y)
 @
-\caption{Pairwise scatterplot of variables}
+\caption{Pairwise scatterplot of variables including college application, college private flag, elite, appceptance rate, out of state tuition, room board cost, and graduation rate.}
 \label{pairwise_scatterplot}
 \end{center}
 \end{figure}
 
 % Write a short blurb of text to cite your figure.  To cite use the \ref function an call the label assigned: Figure~\ref{pairs}.
-When exploring the relationship between each variable, a pairwise scatterplot was created, see Figure~\ref{pairwise_scatterplot}. As seen in plot, Outstate and Room Board are highly correlated.
+When exploring the relationship between each variable, a pairwise scatterplot was created to visualize the correlation between each variable in the model. As seen in Figure~\ref{pairwise_scatterplot}, out of state cost and room board cost are highly correlated with each other. On the other hand, there is a small correlation between out of state tuition and college acceptance rate.
 
 
 %% Task 3: Use stargazer to present summary statistics of the College data set
@@ -168,7 +165,7 @@ When exploring the relationship between each variable, a pairwise scatterplot wa
 #############
 
 stargazer(College, 
-          title="Summary statistics for the ISLR College data set.", 
+          title="Summary statistics of all variables for the ISLR College data set.", 
           label="descrips", 
           summary.stat = c("mean", "median", "sd", "min", "p25", "p75", "max"), 
           covariate.labels = c("Private Flag"
@@ -184,12 +181,13 @@ stargazer(College,
                                , "Estimated Book Costs"
                                , "Estimated Personal Costs"
                                , "Percent of Faculty with PhD"
-                               , "Percent of Faculty with termianl Degree"
+                               , "Percent of Faculty with terminal Degree"
                                , "Student/Faculty Ratio"
                                , "Percent of alumni donated"
                                , "Instructional expenditure per student"
                                , "Graduation rate"), 
-          float.env = "sidewaystable")
+          float.env = "sidewaystable", 
+          table.placement = "H")
 
 #############
 
@@ -237,8 +235,9 @@ x <- data.frame(univ
 
 fm.table <- xtable(x, 
                    digits = 2,
-                   caption = "Prediction Table", 
-                   label = "pred_table")
+                   caption = "New variables and prediction table of two new University 1 and 2", 
+                   label = "pred_table", 
+                   table.placement="H")
 
 align(fm.table) <- "|l|rrrrrrr|"
 
@@ -247,8 +246,7 @@ print(fm.table)
 @
 
 % Write a short blurb citing your tables.  As with figures, to cite this table use the \ref function and call the label assigned: Table~\ref{desrips2} for the descriptive statistics table and Table~\ref{modelinf} for the inference table.
-As seen in Table~\ref{pred_table}, University 1 recieved more applications than University 2. 
-
+Using the new variables, we was able to generate predictions of number of application recieved for two universities 1 and 2. As seen in Table~\ref{pred_table}, University 1 recieved more applications than University 2. 
 
 
 %% Task 5: Create an appendix of plots
@@ -275,13 +273,14 @@ plot(fm1)
 
 @
 
-\caption{Plot of Regression Diagnostics}
+\caption{Plot of Regression Diagnostics. Top-left: Residual vs fitted values, top-right: QQ plot with Normal Distribution, bottom-left: Scale-location of root of standardized residuals vs fitted values, bottom-right: Residuals vs leverage.}
 \label{reg_diag}
 \end{center}
 \end{figure}
 
+\normalsize
 % Write a short blurb citing the figure and stating what it is.
-As seen in Figure~\ref{reg_diag}, residuals vs fitted values have a pattern similar to a fan.
+After developing a model, refression diagnostics were ran to ensure the quality of the model. As seen in Figure~\ref{reg_diag}, residuals vs fitted values have a pattern similar to a fan. This implies that error terms are not independent. In addition, looking at Figure~\ref{reg_diag} top-right plot, the regression is not normal distributed as standardizard residuals are not close to the dotted line. 
 
 %% Task 6: Create an appendix of code
 % Here is the LaTeX code from the online video.

@@ -1,73 +1,74 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/W32TeX) (preloaded format=pdflatex 2020.8.27)  3 SEP 2020 15:41
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 20.6.29) (preloaded format=pdflatex 2020.9.3)  3 SEP 2020 20:21
 entering extended mode
- restricted \write18 enabled.
- %&-line parsing enabled.
-**knitr_lab_ClassVersion.tex
-(./knitr_lab_ClassVersion.tex
+**"C:/Users/Kristine Dinh/Github-Projects/ds-communication/knitr/knitr_lab_Clas
+sVersion.tex"
+
+("C:/Users/Kristine Dinh/Github-Projects/ds-communication/knitr/knitr_lab_Class
+Version.tex"
 LaTeX2e <2020-02-02> patch level 5
-L3 programming layer <2020-08-07>
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/artic
-le.cls
+L3 programming layer <2020-06-18>
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/base\article.c
+ls"
 Document Class: article 2019/12/20 v1.4l Standard LaTeX document class
 
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/size1
-0.clo
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/base\size10.cl
+o"
 File: size10.clo 2019/12/20 v1.4l Standard LaTeX file (size option)
 )
-\c@part=\count168
-\c@section=\count169
-\c@subsection=\count170
-\c@subsubsection=\count171
-\c@paragraph=\count172
-\c@subparagraph=\count173
-\c@figure=\count174
-\c@table=\count175
+\c@part=\count167
+\c@section=\count168
+\c@subsection=\count169
+\c@subsubsection=\count170
+\c@paragraph=\count171
+\c@subparagraph=\count172
+\c@figure=\count173
+\c@table=\count174
 \abovecaptionskip=\skip47
 \belowcaptionskip=\skip48
 \bibindent=\dimen134
 )
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/g
-raphicx.sty
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graph
+icx.sty"
 Package: graphicx 2019/11/30 v1.2a Enhanced LaTeX Graphics (DPC,SPQR)
 
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/k
-eyval.sty
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyva
+l.sty"
 Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
 \KV@toks@=\toks15
 )
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/g
-raphics.sty
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graph
+ics.sty"
 Package: graphics 2019/11/30 v1.4a Standard LaTeX Graphics (DPC,SPQR)
 
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/t
-rig.sty
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.
+sty"
 Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
 )
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics-c
-fg/graphics.cfg
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\g
+raphics.cfg"
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 105.
 
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics-d
-ef/pdftex.def
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\p
+dftex.def"
 File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen135
 \Gin@req@width=\dimen136
 )
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/c
-olor.sty
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/graphics\color
+.sty"
 Package: color 2019/11/23 v1.2a Standard LaTeX Color (DPC)
 
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics-c
-fg/color.cfg
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\c
+olor.cfg"
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package color Info: Driver file: pdftex.def on input line 147.
 )
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/framed/fra
-med.sty
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/framed\framed.
+sty"
 Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
 \OuterFrameSep=\skip49
 \fb@frw=\dimen137
@@ -75,52 +76,258 @@ Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
 \FrameRule=\dimen139
 \FrameSep=\dimen140
 )
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/alltt
-.sty
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/base\alltt.sty
+"
 Package: alltt 1997/06/16 v2.0g defines alltt environment
 )
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/r
-otating.sty
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/graphics\rotat
+ing.sty"
 Package: rotating 2016/08/11 v2.16d rotated objects in LaTeX
 
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/ifthe
-n.sty
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.st
+y"
 Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
 )
-\c@r@tfl@t=\count176
+\c@r@tfl@t=\count175
 \rotFPtop=\skip50
 \rotFPbot=\skip51
 \rot@float@box=\box45
 \rot@mess@toks=\toks16
 )
-(c:/Users/Kristine Dinh/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/latex
-sym.sty
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/base\latexsym.
+sty"
 Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
 \symlasy=\mathgroup4
 LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
 (Font)                  U/lasy/m/n --> U/lasy/b/n on input line 52.
 )
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/listings\listi
+ngs.sty"
+\lst@mode=\count176
+\lst@gtempboxa=\box46
+\lst@token=\toks17
+\lst@length=\count177
+\lst@currlwidth=\dimen141
+\lst@column=\count178
+\lst@pos=\count179
+\lst@lostspace=\dimen142
+\lst@width=\dimen143
+\lst@newlines=\count180
+\lst@lineno=\count181
+\lst@maxwidth=\dimen144
 
-! LaTeX Error: File `listings.sty' not found.
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmi
+sc.sty"
+File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
+\c@lstnumber=\count182
+\lst@skipnumbers=\count183
+\lst@framebox=\box47
+)
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/listings\listi
+ngs.cfg"
+File: listings.cfg 2020/03/24 1.8d listings configuration
+))
+Package: listings 2020/03/24 1.8d (Carsten Heinz)
 
-Type X to quit or <RETURN> to proceed,
-or enter new name. (Default extension: sty)
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/tools\dcolumn.
+sty"
+Package: dcolumn 2014/10/28 v1.06 decimal alignment package (DPC)
 
-Enter file name: 
-! Emergency stop.
-<read *> 
-         
-l.76 \usepackage
-                {dcolumn}^^M
-*** (cannot \read from terminal in nonstop modes)
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.st
+y"
+Package: array 2019/08/31 v2.4l Tabular extension package (FMi)
+\col@sep=\dimen145
+\ar@mcellbox=\box48
+\extrarowheight=\dimen146
+\NC@list=\toks18
+\extratabsurround=\skip52
+\backup@length=\skip53
+\ar@cellbox=\box49
+))
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/float\float.st
+y"
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count184
+\float@exts=\toks19
+\float@box=\box50
+\@float@everytoks=\toks20
+\@floatcapt=\box51
+)
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/upquote\upquot
+e.sty"
+Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
+tim
+)
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3ba
+ckend-pdfmode.def"
+File: l3backend-pdfmode.def 2020-06-29 L3 backend support: PDF mode
+\l__kernel_color_stack_int=\count185
+\l__pdf_internal_box=\box52
+)
+No file knitr_lab_ClassVersion.aux.
+\openout1 = `knitr_lab_ClassVersion.aux'.
 
- 
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 117.
+LaTeX Font Info:    ... okay on input line 117.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 117.
+LaTeX Font Info:    ... okay on input line 117.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 117.
+LaTeX Font Info:    ... okay on input line 117.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 117.
+LaTeX Font Info:    ... okay on input line 117.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 117.
+LaTeX Font Info:    ... okay on input line 117.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 117.
+LaTeX Font Info:    ... okay on input line 117.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 117.
+LaTeX Font Info:    ... okay on input line 117.
+
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\su
+pp-pdf.mkii"
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count186
+\scratchdimen=\dimen147
+\scratchbox=\box53
+\nofMPsegments=\count187
+\nofMParguments=\count188
+\everyMPshowfont=\toks21
+\MPscratchCnt=\count189
+\MPscratchDim=\dimen148
+\MPnumerator=\count190
+\makeMPintoPDFobject=\count191
+\everyMPtoPDFconversion=\toks22
+)
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\e
+pstopdf-base.sty"
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+)
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/base\textcomp.
+sty"
+Package: textcomp 2020/02/02 v2.0n Standard LaTeX package
+)
+\c@lstlisting=\count192
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 118.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 118.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 118.
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 11
+8.
+
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/base\ulasy.fd"
+File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
+)
+Package color Info: Redefining color shadecolor on input line 145.
+Package color Info: Redefining color shadecolor on input line 187.
+<figure/unnamed-chunk-2-1.pdf, id=1, 505.89pt x 505.89pt>
+File: figure/unnamed-chunk-2-1.pdf Graphic file (type pdf)
+<use figure/unnamed-chunk-2-1.pdf>
+Package pdftex.def Info: figure/unnamed-chunk-2-1.pdf  used on input line 188.
+(pdftex.def)             Requested size: 361.34999pt x 361.35352pt.
+ [1
+
+{C:/Users/Kristine Dinh/AppData/Local/MiKTeX/pdftex/config/pdftex.map}]
+
+LaTeX Warning: Reference `pairwise_scatterplot' on page 2 undefined on input li
+ne 197.
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 208.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 208.
+
+LaTeX Warning: Reference `pred_table' on page 2 undefined on input line 258.
+
+[2 <C:/Users/Kristine Dinh/Github-Projects/ds-communication/knitr/figure/unname
+d-chunk-2-1.pdf>]
+Package color Info: Redefining color shadecolor on input line 279.
+<figure/unnamed-chunk-3-1.pdf, id=21, 505.89pt x 505.89pt>
+File: figure/unnamed-chunk-3-1.pdf Graphic file (type pdf)
+<use figure/unnamed-chunk-3-1.pdf>
+Package pdftex.def Info: figure/unnamed-chunk-3-1.pdf  used on input line 280.
+(pdftex.def)             Requested size: 289.07999pt x 289.08589pt.
+
+! Undefined control sequence.
+l.289 \normal
+             
+? 
+
+LaTeX Warning: Reference `reg_diag' on page 3 undefined on input line 291.
+
+
+LaTeX Warning: Reference `reg_diag' on page 3 undefined on input line 291.
+
+[3 <C:/Users/Kristine Dinh/Github-Projects/ds-communication/knitr/figure/unname
+d-chunk-3-1.pdf>]
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstla
+ng1.sty"
+File: lstlang1.sty 2020/03/24 1.8d listings language file
+)
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstla
+ng2.sty"
+File: lstlang2.sty 2020/03/24 1.8d listings language file
+)
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstla
+ng3.sty"
+File: lstlang3.sty 2020/03/24 1.8d listings language file
+)
+("C:/Users/Kristine Dinh/Github-Projects/ds-communication/knitr\knitr-lab-codes
+.R"
+LaTeX Font Info:    Trying to load font information for OML+cmr on input line 1
+2.
+
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/base\omlcmr.fd
+"
+File: omlcmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <8> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 12.
+LaTeX Font Info:    Trying to load font information for OMS+cmr on input line 3
+0.
+
+("C:\Users\Kristine Dinh\AppData\Local\Programs\MiKTeX\tex/latex/base\omscmr.fd
+"
+File: omscmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <8> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 30.
+ [4]) [5] (knitr_lab_ClassVersion.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
 Here is how much of TeX's memory you used:
- 877 strings out of 482841
- 12243 string characters out of 5954362
- 244968 words of memory out of 5000000
- 16286 multiletter control sequences out of 15000+600000
- 535088 words of font info for 29 fonts, out of 8000000 for 9000
- 14 hyphenation exceptions out of 8191
- 36i,0n,33p,265b,36s stack positions out of 5000i,500n,10000p,200000b,80000s
-!  ==> Fatal error occurred, no output PDF file produced!
+ 4031 strings out of 480790
+ 55943 string characters out of 2893516
+ 809495 words of memory out of 3000000
+ 19999 multiletter control sequences out of 15000+200000
+ 537596 words of font info for 46 fonts, out of 3000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 31i,11n,42p,513b,2408s stack positions out of 5000i,500n,10000p,200000b,50000s
+ <C:\Users\Kristine Dinh\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi
+600\tcrm0800.pk><C:/Users/Kristine Dinh/AppData/Local/Programs/MiKTeX/fonts/typ
+e1/public/amsfonts/cm/cmbx10.pfb><C:/Users/Kristine Dinh/AppData/Local/Programs
+/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Kristine Dinh/AppDa
+ta/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/Kri
+stine Dinh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.p
+fb><C:/Users/Kristine Dinh/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
+fonts/cm/cmr12.pfb><C:/Users/Kristine Dinh/AppData/Local/Programs/MiKTeX/fonts/
+type1/public/amsfonts/cm/cmr17.pfb><C:/Users/Kristine Dinh/AppData/Local/Progra
+ms/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Users/Kristine Dinh/AppDa
+ta/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/Kris
+tine Dinh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pf
+b><C:/Users/Kristine Dinh/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
+onts/cm/cmtt10.pfb><C:/Users/Kristine Dinh/AppData/Local/Programs/MiKTeX/fonts/
+type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on knitr_lab_ClassVersion.pdf (5 pages, 335494 bytes).
+PDF statistics:
+ 83 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+

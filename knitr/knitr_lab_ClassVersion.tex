@@ -74,6 +74,7 @@
 \usepackage{color}
 \usepackage{listings} % allows for importing code scripts into the tex file
 \usepackage{dcolumn}
+\usepackage{float}
 
 % Approximately 1 inch borders all around
 \setlength\topmargin{-.56in}
@@ -139,39 +140,36 @@
 %%%%%%%%%%%%%%
 
 %% Task 1: Present an R dump of the summary of the regression fit
+
+An R dump of the summary of the regression fit for application count.
 % [Place knitr code chunk here]
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{fm.table} \hlkwb{<-} \hlkwd{xtable}\hlstd{(fm1,} \hlkwc{digits}\hlstd{=}\hlnum{2}\hlstd{,}
-                   \hlkwc{caption} \hlstd{=} \hlstr{"Summary of Regression"}\hlstd{,}
-                   \hlkwc{label}\hlstd{=}\hlstr{"reginf"}\hlstd{)}
-
-\hlkwd{align}\hlstd{(fm.table)} \hlkwb{<-} \hlstr{"|l|rrrr|"}
-
-\hlkwd{print}\hlstd{(fm.table)}
-\end{alltt}
 \begin{verbatim}
-## % latex table generated in R 3.6.2 by xtable 1.8-4 package
-## % Thu Sep 03 15:41:23 2020
-## \begin{table}[ht]
-## \centering
-## \begin{tabular}{|l|rrrr|}
-##   \hline
-##  & Estimate & Std. Error & t value & Pr($>$$|$t$|$) \\ 
-##   \hline
-## (Intercept) & -985.95 & 204.82 & -4.81 & 0.00 \\ 
-##   PrivateYes & -291.62 & 133.28 & -2.19 & 0.03 \\ 
-##   EliteYes & 1745.00 & 151.74 & 11.50 & 0.00 \\ 
-##   Accept & 1.43 & 0.02 & 70.60 & 0.00 \\ 
-##   Outstate & -0.01 & 0.02 & -0.84 & 0.40 \\ 
-##   Room.Board & 0.17 & 0.05 & 3.35 & 0.00 \\ 
-##   Grad.Rate & 8.63 & 2.95 & 2.93 & 0.00 \\ 
-##    \hline
-## \end{tabular}
-## \caption{Summary of Regression} 
-## \label{reginf}
-## \end{table}
+## 
+## Call:
+## lm(formula = Apps ~ Private + Elite + Accept + Outstate + Room.Board + 
+##     Grad.Rate, data = College)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5094.5  -329.7   -22.6   226.8 10114.6 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) -985.95379  204.82380  -4.814 1.78e-06 ***
+## PrivateYes  -291.62328  133.28335  -2.188 0.028970 *  
+## EliteYes    1745.00184  151.74052  11.500  < 2e-16 ***
+## Accept         1.42869    0.02024  70.601  < 2e-16 ***
+## Outstate      -0.01427    0.01690  -0.845 0.398600    
+## Room.Board     0.16615    0.04953   3.355 0.000834 ***
+## Grad.Rate      8.63483    2.94718   2.930 0.003491 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 1128 on 770 degrees of freedom
+## Multiple R-squared:  0.9157,	Adjusted R-squared:  0.915 
+## F-statistic:  1394 on 6 and 770 DF,  p-value: < 2.2e-16
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -179,35 +177,35 @@
 % ... allows us to run R-code or grab R elements inside the text.
 % Try it out!  Write a sentence using \Sexpr to grab the predicted values for 
 % the new schools (variables newpred1 and newpred2 from above).
-Predicted values for the new schools are: 7000, 4800, 9300 and 2300, 57, 4600 
+To predict the number of application recieved every year, a model with six predictors was generated including private school flag, elite, acceptance rate, out of state tuition, room and board costs, and graduation rate. A new set of testing data was used to generate the prediction of application count. Predicted values for the two new schools are: 7000, 4800, 9300 and 2300, 57, 4600 
 
 %% Task 2: Insert a pairwise scatterplot into your document
 % For plots, start by setting up the LaTeX figure environment,
 % then place R code to knit, then set up LaTeX code to complete figure environment.
 % Below I give the code for this task.  You will practice with this code in Task 5.
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-\includegraphics[width=4in]{figure/unnamed-chunk-2-1} 
+\includegraphics[width=5in]{figure/unnamed-chunk-2-1} 
 
 \end{knitrout}
-\caption{Pairwise scatterplot of variables}
+\caption{Pairwise scatterplot of variables including college application, college private flag, elite, appceptance rate, out of state tuition, room board cost, and graduation rate.}
 \label{pairwise_scatterplot}
 \end{center}
 \end{figure}
 
 % Write a short blurb of text to cite your figure.  To cite use the \ref function an call the label assigned: Figure~\ref{pairs}.
-When exploring the relationship between each variable, a pairwise scatterplot was created, see Figure~\ref{pairwise_scatterplot}. As seen in plot, Outstate and Room Board are highly correlated.
+When exploring the relationship between each variable, a pairwise scatterplot was created to visualize the correlation between each variable in the model. As seen in Figure~\ref{pairwise_scatterplot}, out of state cost and room board cost are highly correlated with each other. On the other hand, there is a small correlation between out of state tuition and college acceptance rate.
 
 
 %% Task 3: Use stargazer to present summary statistics of the College data set
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Thu, Sep 03, 2020 - 3:41:24 PM
+% Date and time: Thu, Sep 03, 2020 - 8:23:21 PM
 % Requires LaTeX packages: rotating 
-\begin{sidewaystable}[!htbp] \centering 
-  \caption{Summary statistics for the ISLR College data set.} 
+\begin{sidewaystable}[H] \centering 
+  \caption{Summary statistics of all variables for the ISLR College data set.} 
   \label{descrips} 
 \begin{tabular}{@{\extracolsep{5pt}}lccccccc} 
 \\[-1.8ex]\hline 
@@ -227,7 +225,7 @@ Room and board Costs & 549.381 & 500 & 165.105 & 96 & 470 & 600 & 2,340 \\
 Estimated Book Costs & 1,340.642 & 1,200 & 677.071 & 250 & 850 & 1,700 & 6,800 \\ 
 Estimated Personal Costs & 72.660 & 75 & 16.328 & 8 & 62 & 85 & 103 \\ 
 Percent of Faculty with PhD & 79.703 & 82 & 14.722 & 24 & 71 & 92 & 100 \\ 
-Percent of Faculty with termianl Degree & 14.090 & 13.600 & 3.958 & 2.500 & 11.500 & 16.500 & 39.800 \\ 
+Percent of Faculty with terminal Degree & 14.090 & 13.600 & 3.958 & 2.500 & 11.500 & 16.500 & 39.800 \\ 
 Student/Faculty Ratio & 22.744 & 21 & 12.392 & 0 & 13 & 31 & 64 \\ 
 Percent of alumni donated & 9,660.171 & 8,377 & 5,221.768 & 3,186 & 6,751 & 10,830 & 56,233 \\ 
 Instructional expenditure per student & 65.463 & 65 & 17.178 & 10 & 53 & 78 & 118 \\ 
@@ -242,7 +240,7 @@ Instructional expenditure per student & 65.463 & 65 & 17.178 & 10 & 53 & 78 & 11
 % The task is then to add additional columns to the table and create the LaTeX code using xtable.
 % Note that we use results="asis" to force knitr to present the table code for compiling in LaTeX
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Thu Sep 03 15:41:24 2020
+% Thu Sep 03 20:23:21 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{|l|rrrrrrr|}
@@ -253,14 +251,13 @@ Instructional expenditure per student & 65.463 & 65 & 17.178 & 10 & 53 & 78 & 11
   2 & University 2 & Yes & 0.90 & 2300.00 & 57.00 & 4600.00 & 16000.00 \\ 
    \hline
 \end{tabular}
-\caption{Prediction Table} 
+\caption{New variables and prediction table of two new University 1 and 2} 
 \label{pred_table}
 \end{table}
 
 
 % Write a short blurb citing your tables.  As with figures, to cite this table use the \ref function and call the label assigned: Table~\ref{desrips2} for the descriptive statistics table and Table~\ref{modelinf} for the inference table.
-As seen in Table~\ref{pred_table}, University 1 recieved more applications than University 2. 
-
+Using the new variables, we was able to generate predictions of number of application recieved for two universities 1 and 2. As seen in Table~\ref{pred_table}, University 1 recieved more applications than University 2. 
 
 
 %% Task 5: Create an appendix of plots
@@ -286,13 +283,14 @@ As seen in Table~\ref{pred_table}, University 1 recieved more applications than 
 
 \end{knitrout}
 
-\caption{Plot of Regression Diagnostics}
+\caption{Plot of Regression Diagnostics. Top-left: Residual vs fitted values, top-right: QQ plot with Normal Distribution, bottom-left: Scale-location of root of standardized residuals vs fitted values, bottom-right: Residuals vs leverage.}
 \label{reg_diag}
 \end{center}
 \end{figure}
 
+\normalsize
 % Write a short blurb citing the figure and stating what it is.
-As seen in Figure~\ref{reg_diag}, residuals vs fitted values have a pattern similar to a fan.
+After developing a model, refression diagnostics were ran to ensure the quality of the model. As seen in Figure~\ref{reg_diag}, residuals vs fitted values have a pattern similar to a fan. This implies that error terms are not independent. In addition, looking at Figure~\ref{reg_diag} top-right plot, the regression is not normal distributed as standardizard residuals are not close to the dotted line. 
 
 %% Task 6: Create an appendix of code
 % Here is the LaTeX code from the online video.
