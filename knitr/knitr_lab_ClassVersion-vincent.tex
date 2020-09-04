@@ -14,7 +14,6 @@
 % -- Tasks 1, 2, 4, and 5 ask you to compose text discussing the output 
 %    for that task.
 
-
 % Preface required in the knitr RnW file
 \documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
 % maxwidth is the original width if it is less than linewidth
@@ -72,8 +71,7 @@
 \usepackage{graphics}
 \usepackage{latexsym}
 \usepackage{color}
-% \usepackage{listings} % allows for importing code scripts into the tex file
-\usepackage{dcolumn}
+\usepackage{listings} % allows for importing code scripts into the tex file
 
 % Approximately 1 inch borders all around
 \setlength\topmargin{-.56in}
@@ -87,33 +85,34 @@
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-% \lstdefinestyle{mystyle}{
-% 	backgroundcolor=\color{backcolour},   commentstyle=\color{codegreen},
-% 	keywordstyle=\color{magenta},
-% 	numberstyle=\tiny\color{codegray},
-% 	stringstyle=\color{codepurple},
-% 	basicstyle=\footnotesize,
-% 	breakatwhitespace=false,         
-% 	breaklines=true,                 
-% 	captionpos=b,                    
-% 	keepspaces=true,                 
-% 	numbers=left,                    
-% 	numbersep=5pt,                  
-% 	showspaces=false,                
-% 	showstringspaces=false,
-% 	showtabs=false,                  
-% 	tabsize=2
-% }
-% %"mystyle" code listing set
-% \lstset{style=mystyle}
-% %\lstset{inputpath=appendix/}
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+%"mystyle" code listing set
+\lstset{style=mystyle}
+%\lstset{inputpath=appendix/}
 
 
-\title{Stat 794, Example Application of \texttt{knitr}} 
-\author{Kristine Dinh}
+\title{Stat 794, Lab: Knitr for weacing together R and LaTeX} 
+\author{Huawen Liang}
 \date{\today}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document} 
+% \SweaveOpts{concordance=TRUE}
 \maketitle
 
 % Code to start knitr
@@ -129,7 +128,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-  
 % Code snippet to run the regression analysis, including prediction for two new Universities
 
 
@@ -144,7 +142,7 @@
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{fm.table} \hlkwb{<-} \hlkwd{xtable}\hlstd{(fm1,} \hlkwc{digits}\hlstd{=}\hlnum{2}\hlstd{,}
-                   \hlkwc{caption} \hlstd{=} \hlstr{"Summary of Regression"}\hlstd{,}
+                   \hlkwc{caption} \hlstd{=} \hlstr{"Summary of regression fit"}\hlstd{,}
                    \hlkwc{label}\hlstd{=}\hlstr{"reginf"}\hlstd{)}
 
 \hlkwd{align}\hlstd{(fm.table)} \hlkwb{<-} \hlstr{"|l|rrrr|"}
@@ -153,7 +151,7 @@
 \end{alltt}
 \begin{verbatim}
 ## % latex table generated in R 3.6.2 by xtable 1.8-4 package
-## % Thu Sep 03 14:26:53 2020
+## % Thu Sep 03 18:41:14 2020
 ## \begin{table}[ht]
 ## \centering
 ## \begin{tabular}{|l|rrrr|}
@@ -169,7 +167,7 @@
 ##   Grad.Rate & 8.63 & 2.95 & 2.93 & 0.00 \\ 
 ##    \hline
 ## \end{tabular}
-## \caption{Summary of Regression} 
+## \caption{Summary of regression fit} 
 ## \label{reginf}
 ## \end{table}
 \end{verbatim}
@@ -179,7 +177,8 @@
 % ... allows us to run R-code or grab R elements inside the text.
 % Try it out!  Write a sentence using \Sexpr to grab the predicted values for 
 % the new schools (variables newpred1 and newpred2 from above).
-Predicted values for the new schools are: 7000, 4800, 9300 and 2300, 57, 4600 
+By using {\tt Sexpr} function, we can show there are 19 variables in the data set. We can present the predicted values for new schools = 7000, 4800, 9300 and 2300, 57, 4600.
+
 
 %% Task 2: Insert a pairwise scatterplot into your document
 % For plots, start by setting up the LaTeX figure environment,
@@ -192,22 +191,24 @@ Predicted values for the new schools are: 7000, 4800, 9300 and 2300, 57, 4600
 \includegraphics[width=4in]{figure/unnamed-chunk-2-1} 
 
 \end{knitrout}
-\caption{Pairwise scatterplot of variables}
-\label{pairwise_scatterplot}
+
+\caption{Pairwise scatter plots of six variables: private college status, elite status, number of student accepted, out-of-state tuition, room and board, graduation rate and the outcome, number of applications}
+\label{pairs}
 \end{center}
 \end{figure}
 
 % Write a short blurb of text to cite your figure.  To cite use the \ref function an call the label assigned: Figure~\ref{pairs}.
-When exploring the relationship between each variable, a pairwise scatterplot was created, see Figure~\ref{pairwise_scatterplot}. As seen in plot, Outstate and Room Board are highly correlated.
+
+We use pairwise scatter plots for the data exploration Figure~\ref{pairs}. We can see some variables such as out-of-state tuition and college room and board are highly correlated.
 
 
 %% Task 3: Use stargazer to present summary statistics of the College data set
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Thu, Sep 03, 2020 - 2:26:54 PM
+% Date and time: Thu, Sep 03, 2020 - 6:41:15 PM
 % Requires LaTeX packages: rotating 
 \begin{sidewaystable}[!htbp] \centering 
-  \caption{Summary statistics for the ISLR College data set.} 
+  \caption{Summary statistics for the ISLR College data set} 
   \label{descrips} 
 \begin{tabular}{@{\extracolsep{5pt}}lccccccc} 
 \\[-1.8ex]\hline 
@@ -215,17 +216,17 @@ When exploring the relationship between each variable, a pairwise scatterplot wa
 Statistic & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{Median} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Pctl(25)} & \multicolumn{1}{c}{Pctl(75)} & \multicolumn{1}{c}{Max} \\ 
 \hline \\[-1.8ex] 
 Private Flag & 3,001.638 & 1,558 & 3,870.201 & 81 & 776 & 3,624 & 48,094 \\ 
-Application Count & 2,018.804 & 1,110 & 2,451.114 & 72 & 604 & 2,424 & 26,330 \\ 
-Acceptance Count & 779.973 & 434 & 929.176 & 35 & 242 & 902 & 6,392 \\ 
-Enrollment Count & 27.559 & 23 & 17.640 & 1 & 15 & 35 & 96 \\ 
-Top 10 Percent in High School & 55.797 & 54 & 19.805 & 9 & 41 & 69 & 100 \\ 
-Top 25 Percent in High School & 3,699.907 & 1,707 & 4,850.421 & 139 & 992 & 4,005 & 31,643 \\ 
+Number of Application & 2,018.804 & 1,110 & 2,451.114 & 72 & 604 & 2,424 & 26,330 \\ 
+Number of Acceptance & 779.973 & 434 & 929.176 & 35 & 242 & 902 & 6,392 \\ 
+Number of Enrollment & 27.559 & 23 & 17.640 & 1 & 15 & 35 & 96 \\ 
+Top 10 Percent students & 55.797 & 54 & 19.805 & 9 & 41 & 69 & 100 \\ 
+Top 25 Percent students & 3,699.907 & 1,707 & 4,850.421 & 139 & 992 & 4,005 & 31,643 \\ 
 Full-time Undergrad & 855.299 & 353 & 1,522.432 & 1 & 95 & 967 & 21,836 \\ 
 Part-time Undergrad & 10,440.670 & 9,990 & 4,023.016 & 2,340 & 7,320 & 12,925 & 21,700 \\ 
 Out-of-state tuition & 4,357.526 & 4,200 & 1,096.696 & 1,780 & 3,597 & 5,050 & 8,124 \\ 
 Room and board Costs & 549.381 & 500 & 165.105 & 96 & 470 & 600 & 2,340 \\ 
-Estimated Book Costs & 1,340.642 & 1,200 & 677.071 & 250 & 850 & 1,700 & 6,800 \\ 
-Estimated Personal Costs & 72.660 & 75 & 16.328 & 8 & 62 & 85 & 103 \\ 
+Book Costs & 1,340.642 & 1,200 & 677.071 & 250 & 850 & 1,700 & 6,800 \\ 
+Personal Costs & 72.660 & 75 & 16.328 & 8 & 62 & 85 & 103 \\ 
 Percent of Faculty with PhD & 79.703 & 82 & 14.722 & 24 & 71 & 92 & 100 \\ 
 Percent of Faculty with termianl Degree & 14.090 & 13.600 & 3.958 & 2.500 & 11.500 & 16.500 & 39.800 \\ 
 Student/Faculty Ratio & 22.744 & 21 & 12.392 & 0 & 13 & 31 & 64 \\ 
@@ -242,25 +243,24 @@ Instructional expenditure per student & 65.463 & 65 & 17.178 & 10 & 53 & 78 & 11
 % The task is then to add additional columns to the table and create the LaTeX code using xtable.
 % Note that we use results="asis" to force knitr to present the table code for compiling in LaTeX
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Thu Sep 03 14:26:54 2020
+% Thu Sep 03 18:41:15 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{|l|rrrrrrr|}
   \hline
- & univ & elite & gradrate & preds & lwr & upr & outstate \\ 
+ & univ & elite & gradrate & preds & lwr & upr & bind \\ 
   \hline
 1 & University 1 & No & 0.60 & 7000.00 & 4800.00 & 9300.00 & 8000.00 \\ 
   2 & University 2 & Yes & 0.90 & 2300.00 & 57.00 & 4600.00 & 16000.00 \\ 
    \hline
 \end{tabular}
 \caption{Prediction Table} 
-\label{pred_table}
+\label{prediction}
 \end{table}
 
 
 % Write a short blurb citing your tables.  As with figures, to cite this table use the \ref function and call the label assigned: Table~\ref{desrips2} for the descriptive statistics table and Table~\ref{modelinf} for the inference table.
-As seen in Table~\ref{pred_table}, University 1 recieved more applications than University 2. 
-
+The prediction table Table~\ref{prediction} present the predicted results. It shows that University 1 has both higher lower bound and upper bound.
 
 
 %% Task 5: Create an appendix of plots
@@ -279,27 +279,26 @@ As seen in Table~\ref{pred_table}, University 1 recieved more applications than 
 %
 %%%%%%%%%%%%%%%%%%%
 % [PLACE KNITR CODE CHUNK HERE]
-
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
 \includegraphics[width=4in]{figure/unnamed-chunk-3-1} 
 
 \end{knitrout}
 
-\caption{Plot of Regression Diagnostics}
-\label{reg_diag}
+\caption{Regression plot}
+\label{regression}
 \end{center}
 \end{figure}
 
 % Write a short blurb citing the figure and stating what it is.
-As seen in Figure~\ref{reg_diag}, residuals vs fitted values have a pattern similar to a fan.
+The regression Figure~\ref{regression} shows the plot of residual between different variables.
+
 
 %% Task 6: Create an appendix of code
 % Here is the LaTeX code from the online video.
 % Recall that this is straight LaTeX, no knitr code chunk needed!
-% \newpage
-% \noindent \Large{{\bf Appendix B: R Code}}
-% \lstinputlisting[language=R, caption = List of codes]{knitr-lab-codes.R}
-
+  \newpage
+  \noindent \Large{{\bf Appendix B: R Code}}
+  \lstinputlisting[language=R, caption = Code used for this lab exercise]{knitr_lab_ClassVersion.Rnw}
 
 \end{document}

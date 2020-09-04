@@ -14,7 +14,6 @@
 % -- Tasks 1, 2, 4, and 5 ask you to compose text discussing the output 
 %    for that task.
 
-
 % Preface required in the knitr RnW file
 \documentclass{article}
 
@@ -23,7 +22,6 @@
 \usepackage{latexsym}
 \usepackage{color}
 \usepackage{listings} % allows for importing code scripts into the tex file
-\usepackage{dcolumn}
 
 % Approximately 1 inch borders all around
 \setlength\topmargin{-.56in}
@@ -43,27 +41,28 @@
 	numberstyle=\tiny\color{codegray},
 	stringstyle=\color{codepurple},
 	basicstyle=\footnotesize,
-	breakatwhitespace=false,
-	breaklines=true,
-	captionpos=b,
-	keepspaces=true,
-	numbers=left,
-	numbersep=5pt,
-	showspaces=false,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
 	showstringspaces=false,
-	showtabs=false,
+	showtabs=false,                  
 	tabsize=2
 }
-% "mystyle" code listing set
+%"mystyle" code listing set
 \lstset{style=mystyle}
 %\lstset{inputpath=appendix/}
 
 
-\title{Stat 794, Example Application of \texttt{knitr}} 
-\author{Kristine Dinh}
+\title{Stat 794, Lab: Knitr for weacing together R and LaTeX} 
+\author{Huawen Liang}
 \date{\today}
 
 \begin{document} 
+% \SweaveOpts{concordance=TRUE}
 \maketitle
 
 % Code to start knitr
@@ -101,7 +100,6 @@ numvars = length(College) # number of variables in the College data set
 n = dim(College)[1]
 @
 
-  
 % Code snippet to run the regression analysis, including prediction for two new Universities
 <<college apps regression, echo=FALSE>>=
 # Fit a model
@@ -120,22 +118,21 @@ newpred2 = signif(predict(fm1, new2, interval="prediction"), 2)
 
 %% Task 1: Present an R dump of the summary of the regression fit
 % [Place knitr code chunk here]
-<<summary of the regression fit>>=
-
+<<view data>>=
 fm.table <- xtable(fm1, digits=2, 
-                   caption = "Summary of Regression",
+                   caption = "Summary of regression fit",
                    label="reginf")
 
 align(fm.table) <- "|l|rrrr|"  
 
 print(fm.table)
-
 @
 
 % \Sexpr{...} allows us to run R-code or grab R elements inside the text.
 % Try it out!  Write a sentence using \Sexpr to grab the predicted values for 
 % the new schools (variables newpred1 and newpred2 from above).
-Predicted values for the new schools are: \Sexpr{newpred1} and \Sexpr{newpred2} 
+By using {\tt Sexpr} function, we can show there are \Sexpr{numvars} variables in the data set. We can present the predicted values for new schools = \Sexpr{newpred1} and \Sexpr{newpred2}.
+
 
 %% Task 2: Insert a pairwise scatterplot into your document
 % For plots, start by setting up the LaTeX figure environment,
@@ -147,13 +144,15 @@ Predicted values for the new schools are: \Sexpr{newpred1} and \Sexpr{newpred2}
 y = data.frame(College$Apps,College$Private,College$Elite,College$Accept,College$Outstate,College$Room.Board,College$Grad.Rate)
 pairs(y)
 @
-\caption{Pairwise scatterplot of variables}
-\label{pairwise_scatterplot}
+
+\caption{Pairwise scatter plots of six variables: private college status, elite status, number of student accepted, out-of-state tuition, room and board, graduation rate and the outcome, number of applications}
+\label{pairs}
 \end{center}
 \end{figure}
 
 % Write a short blurb of text to cite your figure.  To cite use the \ref function an call the label assigned: Figure~\ref{pairs}.
-When exploring the relationship between each variable, a pairwise scatterplot was created, see Figure~\ref{pairwise_scatterplot}. As seen in plot, Outstate and Room Board are highly correlated.
+
+We use pairwise scatter plots for the data exploration Figure~\ref{pairs}. We can see some variables such as out-of-state tuition and college room and board are highly correlated.
 
 
 %% Task 3: Use stargazer to present summary statistics of the College data set
@@ -168,21 +167,21 @@ When exploring the relationship between each variable, a pairwise scatterplot wa
 #############
 
 stargazer(College, 
-          title="Summary statistics for the ISLR College data set.", 
+          title="Summary statistics for the ISLR College data set", 
           label="descrips", 
           summary.stat = c("mean", "median", "sd", "min", "p25", "p75", "max"), 
           covariate.labels = c("Private Flag"
-                               , "Application Count"
-                               , "Acceptance Count"
-                               , "Enrollment Count"
-                               , "Top 10 Percent in High School"
-                               , "Top 25 Percent in High School"
+                               , "Number of Application"
+                               , "Number of Acceptance"
+                               , "Number of Enrollment"
+                               , "Top 10 Percent students"
+                               , "Top 25 Percent students"
                                , "Full-time Undergrad"
                                , "Part-time Undergrad"
                                , "Out-of-state tuition"
                                , "Room and board Costs"
-                               , "Estimated Book Costs"
-                               , "Estimated Personal Costs"
+                               , "Book Costs"
+                               , "Personal Costs"
                                , "Percent of Faculty with PhD"
                                , "Percent of Faculty with termianl Degree"
                                , "Student/Faculty Ratio"
@@ -190,6 +189,8 @@ stargazer(College,
                                , "Instructional expenditure per student"
                                , "Graduation rate"), 
           float.env = "sidewaystable")
+
+
 
 #############
 
@@ -217,28 +218,28 @@ upr = rbind(newpred1[,3], newpred2[,3])
 # Tasks:
 # 1) Add columns of out of state tuition, elite status, and graduation rate to the table.
 # 2) Use xtable to create and output LaTeX code for the table.  Here is the code from the online video:
-#  fm.table = xtable(fm1, digits=2, 
-#                  caption="Inferences from regressing number of applications on whether the college is private or public,
+#fm.table = xtable(fm1, digits=2, 
+#                  caption="Inferences from regressing number of applications on whether #the college is private or public,
 #                  whether the college is elite or not, acceptance rate, out of state tuition, room and board, and 
 #                  graduation rate.",
 #                  label="reginf")
-#  align(fm.table) <- "|l|rrrr|"  # place vertical lines on left and right of table, and after first column of var names 
+ # align(fm.table) <- "|l|rrrr|"  # place vertical lines on left and right of table, and after first column of var names 
 #  print(fm.table)
 # Note: consider the include.rownames option in the print command to remove row names.
 ##############
-
+# [PLACE CODE HERE]
 x <- data.frame(univ
                 , elite
                 , gradrate
                 , preds
                 , lwr
                 , upr
-                , outstate = rbind(new1[,"Outstate"], new2[,"Outstate"]))
+                , bind = rbind(new1[,"Outstate"], new2[,"Outstate"]))
 
 fm.table <- xtable(x, 
                    digits = 2,
                    caption = "Prediction Table", 
-                   label = "pred_table")
+                   label = "prediction")
 
 align(fm.table) <- "|l|rrrrrrr|"
 
@@ -247,8 +248,7 @@ print(fm.table)
 @
 
 % Write a short blurb citing your tables.  As with figures, to cite this table use the \ref function and call the label assigned: Table~\ref{desrips2} for the descriptive statistics table and Table~\ref{modelinf} for the inference table.
-As seen in Table~\ref{pred_table}, University 1 recieved more applications than University 2. 
-
+The prediction table Table~\ref{prediction} present the predicted results. It shows that University 1 has both higher lower bound and upper bound.
 
 
 %% Task 5: Create an appendix of plots
@@ -267,7 +267,6 @@ As seen in Table~\ref{pred_table}, University 1 recieved more applications than 
 %
 %%%%%%%%%%%%%%%%%%%
 % [PLACE KNITR CODE CHUNK HERE]
-
 <<echo=FALSE, out.width='4in'>>=
 
 par(mfrow=c(2,2))
@@ -275,20 +274,20 @@ plot(fm1)
 
 @
 
-\caption{Plot of Regression Diagnostics}
-\label{reg_diag}
+\caption{Regression plot}
+\label{regression}
 \end{center}
 \end{figure}
 
 % Write a short blurb citing the figure and stating what it is.
-As seen in Figure~\ref{reg_diag}, residuals vs fitted values have a pattern similar to a fan.
+The regression Figure~\ref{regression} shows the plot of residual between different variables.
+
 
 %% Task 6: Create an appendix of code
 % Here is the LaTeX code from the online video.
 % Recall that this is straight LaTeX, no knitr code chunk needed!
-\newpage
-\noindent \Large{{\bf Appendix B: R Code}}
-\lstinputlisting[language=R, caption = List of codes]{knitr-lab-codes.R}
-
+  \newpage
+  \noindent \Large{{\bf Appendix B: R Code}}
+  \lstinputlisting[language=R, caption = Code used for this lab exercise]{knitr_lab_ClassVersion.Rnw}
 
 \end{document}

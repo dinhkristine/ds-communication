@@ -72,7 +72,7 @@
 \usepackage{graphics}
 \usepackage{latexsym}
 \usepackage{color}
-% \usepackage{listings} % allows for importing code scripts into the tex file
+\usepackage{listings} % allows for importing code scripts into the tex file
 \usepackage{dcolumn}
 
 % Approximately 1 inch borders all around
@@ -87,26 +87,26 @@
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-% \lstdefinestyle{mystyle}{
-% 	backgroundcolor=\color{backcolour},   commentstyle=\color{codegreen},
-% 	keywordstyle=\color{magenta},
-% 	numberstyle=\tiny\color{codegray},
-% 	stringstyle=\color{codepurple},
-% 	basicstyle=\footnotesize,
-% 	breakatwhitespace=false,         
-% 	breaklines=true,                 
-% 	captionpos=b,                    
-% 	keepspaces=true,                 
-% 	numbers=left,                    
-% 	numbersep=5pt,                  
-% 	showspaces=false,                
-% 	showstringspaces=false,
-% 	showtabs=false,                  
-% 	tabsize=2
-% }
-% %"mystyle" code listing set
-% \lstset{style=mystyle}
-% %\lstset{inputpath=appendix/}
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,
+	breaklines=true,
+	captionpos=b,
+	keepspaces=true,
+	numbers=left,
+	numbersep=5pt,
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	tabsize=2
+}
+% "mystyle" code listing set
+\lstset{style=mystyle}
+%\lstset{inputpath=appendix/}
 
 
 \title{Stat 794, Example Application of \texttt{knitr}} 
@@ -143,53 +143,34 @@
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{stargazer}\hlstd{(fm1,} \hlkwc{title} \hlstd{=} \hlstr{"Summary of Regression"}\hlstd{)}
+\hlstd{fm.table} \hlkwb{<-} \hlkwd{xtable}\hlstd{(fm1,} \hlkwc{digits}\hlstd{=}\hlnum{2}\hlstd{,}
+                   \hlkwc{caption} \hlstd{=} \hlstr{"Summary of Regression"}\hlstd{,}
+                   \hlkwc{label}\hlstd{=}\hlstr{"reginf"}\hlstd{)}
+
+\hlkwd{align}\hlstd{(fm.table)} \hlkwb{<-} \hlstr{"|l|rrrr|"}
+
+\hlkwd{print}\hlstd{(fm.table)}
 \end{alltt}
 \begin{verbatim}
-## 
-## % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-## % Date and time: Thu, Sep 03, 2020 - 11:08:42 AM
-## \begin{table}[!htbp] \centering 
-##   \caption{Summary of Regression} 
-##   \label{} 
-## \begin{tabular}{@{\extracolsep{5pt}}lc} 
-## \\[-1.8ex]\hline 
-## \hline \\[-1.8ex] 
-##  & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
-## \cline{2-2} 
-## \\[-1.8ex] & Apps \\ 
-## \hline \\[-1.8ex] 
-##  PrivateYes & $-$291.623$^{**}$ \\ 
-##   & (133.283) \\ 
-##   & \\ 
-##  EliteYes & 1,745.002$^{***}$ \\ 
-##   & (151.741) \\ 
-##   & \\ 
-##  Accept & 1.429$^{***}$ \\ 
-##   & (0.020) \\ 
-##   & \\ 
-##  Outstate & $-$0.014 \\ 
-##   & (0.017) \\ 
-##   & \\ 
-##  Room.Board & 0.166$^{***}$ \\ 
-##   & (0.050) \\ 
-##   & \\ 
-##  Grad.Rate & 8.635$^{***}$ \\ 
-##   & (2.947) \\ 
-##   & \\ 
-##  Constant & $-$985.954$^{***}$ \\ 
-##   & (204.824) \\ 
-##   & \\ 
-## \hline \\[-1.8ex] 
-## Observations & 777 \\ 
-## R$^{2}$ & 0.916 \\ 
-## Adjusted R$^{2}$ & 0.915 \\ 
-## Residual Std. Error & 1,128.032 (df = 770) \\ 
-## F Statistic & 1,394.089$^{***}$ (df = 6; 770) \\ 
-## \hline 
-## \hline \\[-1.8ex] 
-## \textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
-## \end{tabular} 
+## % latex table generated in R 3.6.2 by xtable 1.8-4 package
+## % Thu Sep 03 15:41:23 2020
+## \begin{table}[ht]
+## \centering
+## \begin{tabular}{|l|rrrr|}
+##   \hline
+##  & Estimate & Std. Error & t value & Pr($>$$|$t$|$) \\ 
+##   \hline
+## (Intercept) & -985.95 & 204.82 & -4.81 & 0.00 \\ 
+##   PrivateYes & -291.62 & 133.28 & -2.19 & 0.03 \\ 
+##   EliteYes & 1745.00 & 151.74 & 11.50 & 0.00 \\ 
+##   Accept & 1.43 & 0.02 & 70.60 & 0.00 \\ 
+##   Outstate & -0.01 & 0.02 & -0.84 & 0.40 \\ 
+##   Room.Board & 0.17 & 0.05 & 3.35 & 0.00 \\ 
+##   Grad.Rate & 8.63 & 2.95 & 2.93 & 0.00 \\ 
+##    \hline
+## \end{tabular}
+## \caption{Summary of Regression} 
+## \label{reginf}
 ## \end{table}
 \end{verbatim}
 \end{kframe}
@@ -223,7 +204,7 @@ When exploring the relationship between each variable, a pairwise scatterplot wa
 %% Task 3: Use stargazer to present summary statistics of the College data set
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Thu, Sep 03, 2020 - 11:08:43 AM
+% Date and time: Thu, Sep 03, 2020 - 3:41:24 PM
 % Requires LaTeX packages: rotating 
 \begin{sidewaystable}[!htbp] \centering 
   \caption{Summary statistics for the ISLR College data set.} 
@@ -261,7 +242,7 @@ Instructional expenditure per student & 65.463 & 65 & 17.178 & 10 & 53 & 78 & 11
 % The task is then to add additional columns to the table and create the LaTeX code using xtable.
 % Note that we use results="asis" to force knitr to present the table code for compiling in LaTeX
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Thu Sep 03 11:08:43 2020
+% Thu Sep 03 15:41:24 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{|l|rrrrrrr|}
@@ -280,44 +261,45 @@ Instructional expenditure per student & 65.463 & 65 & 17.178 & 10 & 53 & 78 & 11
 % Write a short blurb citing your tables.  As with figures, to cite this table use the \ref function and call the label assigned: Table~\ref{desrips2} for the descriptive statistics table and Table~\ref{modelinf} for the inference table.
 As seen in Table~\ref{pred_table}, University 1 recieved more applications than University 2. 
 
-% 
-% 
-% %% Task 5: Create an appendix of plots
-% % We will create a 2x2 graphic of regression diagnostics
-% \newpage
-% \noindent \Large{{\bf Appendix A: Supplementary Plots}}
-% \begin{figure}[h!]
-% \begin{center}
-% %%%%%%%%%%%%%%%%
-% % Here is code for the default regression diagnostics from R
-% % Write knitr code to present a 2x2 graphic for this appendix.
-% % Suggestion: use the knitr code environment from the scatterplot matrix of Task 2
-% %
-% %  par(mfrow=c(2,2))
-% %  plot(fm1)
-% %
-% %%%%%%%%%%%%%%%%%%%
-% % [PLACE KNITR CODE CHUNK HERE]
-% 
-% <<echo=FALSE, out.width='4in'>>=
-% y = data.frame(College$Apps,College$Private,College$Elite,College$Accept,College$Outstate,College$Room.Board,College$Grad.Rate)
-% pairs(y)
-% @
-% 
-% \caption{Pairwise scatterplot of variables}
-% \label{pairwise_scatterplot}
-% \end{center}
-% \end{figure}
-% 
-% % Write a short blurb citing the figure and stating what it is.
-% When exploring the relationship between each variable, a pairwise scatterplot was created, see Figure~\{pairwise_scatterplot}. As seen in plot, Outstate and Room Board are highly correlated. 
+
+
+%% Task 5: Create an appendix of plots
+% We will create a 2x2 graphic of regression diagnostics
+\newpage
+\noindent \Large{{\bf Appendix A: Supplementary Plots}}
+\begin{figure}[h!]
+\begin{center}
+%%%%%%%%%%%%%%%%
+% Here is code for the default regression diagnostics from R
+% Write knitr code to present a 2x2 graphic for this appendix.
+% Suggestion: use the knitr code environment from the scatterplot matrix of Task 2
+%
+%  par(mfrow=c(2,2))
+%  plot(fm1)
+%
+%%%%%%%%%%%%%%%%%%%
+% [PLACE KNITR CODE CHUNK HERE]
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=4in]{figure/unnamed-chunk-3-1} 
+
+\end{knitrout}
+
+\caption{Plot of Regression Diagnostics}
+\label{reg_diag}
+\end{center}
+\end{figure}
+
+% Write a short blurb citing the figure and stating what it is.
+As seen in Figure~\ref{reg_diag}, residuals vs fitted values have a pattern similar to a fan.
 
 %% Task 6: Create an appendix of code
 % Here is the LaTeX code from the online video.
 % Recall that this is straight LaTeX, no knitr code chunk needed!
-%  \newpage
-%  \noindent \Large{{\bf Appendix B: R Code}}
-%  \lstinputlisting[language=R, caption = CAPTION HERE]{CODE FILE NAME HERE}
+\newpage
+\noindent \Large{{\bf Appendix B: R Code}}
+\lstinputlisting[language=R, caption = List of codes]{knitr-lab-codes.R}
 
 
 \end{document}
