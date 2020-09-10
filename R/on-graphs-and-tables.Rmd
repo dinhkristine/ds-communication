@@ -1,0 +1,111 @@
+---
+title: "On Graphs and Tables"
+author: "Kristine Dinh"
+date: "09/09/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+
+```{r load_packages}
+
+library(tidyverse)
+library(readxl)
+library(magrittr)
+
+```
+
+
+```{r load_data}
+
+setwd(here::here())
+
+df_ex6 <- read_xlsx("data/GraphsFromTables_Exercise6.xlsx")
+
+df_ex7 <- read_xlsx("data/GraphsFromTables_Exercise7.xlsx")
+
+df_ex8 <- read_xlsx("data/GraphsFromTables_Exercise8.xlsx")
+
+```
+
+
+### Exercise 6
+
+```{r}
+
+df_ex6 %<>% 
+  gather(key, Expenses, -Department, -Quarter)
+
+ggplot(df_ex6, aes(x = Quarter, y = Expenses, fill = key)) + 
+  geom_bar(position = position_dodge(width = 0.8), stat = "identity", col = "white") + 
+  facet_wrap(~ Department) + 
+  theme_bw() + 
+  theme(legend.title = element_blank()) + 
+  labs(title = "Plot of Actual and Budget Expenses by Quarter for each Department") + 
+  scale_y_continuous(labels = scales::comma)
+
+```
+
+This is a plot of actual (orange) vs budget (blue) expenses by each quarter facet by department. The idea is to compare both bars from each department in each quarter to see if there is huge differences. If there are large differences between actual and budget expense, the company might need to reevaluate budget for next year. As seen in figure, both department Distribution and HR actual expenses are very close to estimate expenses. On the other hand, the company estimate more expenses would go to the Facilities and Info Systems department, nearly double. We can see there are larger gap in the actual vs budget expenses. For example, in the third quarter, Facilities department spent more money than budgetted.Therefore, the company would need to estimate the budget for these two department again carefully. I choose side by side grouping of actual vs budget to compare the differences easier since the VP only wants to see the difference.  
+
+
+### Exercise 7 
+
+```{r}
+
+ratio <- max(df_ex7$Revenue) / max(df_ex7$TV_Spots)
+
+df_ex7 %<>%
+  mutate(Date = case_when(
+    Date == "July" ~ "Jul", 
+    Date == "Sept" ~ "Sep", 
+    Date == "June" ~ "Jun",
+    TRUE ~ Date))
+
+ggplot(df_ex7, aes(x = Date, group = 1)) + 
+  geom_bar(aes(y = TV_Spots), stat = "identity", col = "white") + 
+  geom_point(aes(y = Revenue / ratio), color = "red", size = 2) + 
+  geom_line(aes(y = Revenue / ratio), color = "red", size = 1) + 
+  scale_y_continuous(sec.axis = sec_axis(~.*ratio, labels = scales::comma, name = "Revenue")) + 
+  scale_x_discrete(limits = month.abb) + 
+  theme_bw() + 
+  labs(title = "Plot of TV Spots and Revenue by Date")
+
+```
+
+This is a plot shows the number of TV add using bars. The higher the bar goes, the more time the TV ads appear. The red line and dots represent the amoutn of revenue generated from the ads with axis labels on the right side of the plot. And of course, on the bottom, we have month order by chronologically order. As seen in figure, the higher the the grey bar, the higher the red line. This indicates that the more ads the company has, the more revenue they will make. I choose this graph for this exercise to show the amount of TV ads along with its revenue to have a better comparison of both variables on top of each other.  
+
+
+### Exercise 8 
+
+```{r}
+
+df_ex8 %<>% 
+  gather(Year, Revenues, -Month)
+
+df_ex8 %<>%
+  mutate(Month = case_when(
+    Month == "July" ~ "Jul", 
+    Month == "Sept" ~ "Sep", 
+    Month == "June" ~ "Jun",
+    TRUE ~ Month))
+
+ggplot(df_ex8, aes(x = Month, y = Revenues, group = Year, colour = Year)) + 
+  geom_point(size = 2) + 
+  geom_line(size = 1) +
+  scale_x_discrete(limits = month.abb) + 
+  theme_bw() +
+  theme(legend.title = element_blank()) +
+  scale_y_continuous(labels = scales::comma) + 
+  labs(title = "Plot of Revenues by Year and Month")
+
+```
+
+This is a plot of revenues generated in each month group by each year from 2008 to 2011. This figure shows that the company makes the most revenue in December as the highest point in the plot for all four lines is the highest. Using four lines for each year makes it easier to compare the similarities and differences accross years. I choose this graphic since we only want to see which month generate the most revenue.  
+
+
+
+
