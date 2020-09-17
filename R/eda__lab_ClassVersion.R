@@ -177,3 +177,10 @@ corrplot::corrplot(cny2)
 ## density and population are highly positive correlated, this suggest multicolinearity issue 
 ## if both of these 2 variables are in the same model == unstable coefficient 
 
+## log transformation 
+ny2vars = data.frame(lexpen, log(wealth), lpop, pint, ldens, income, lgrowr)
+cny2 = cor(ny2vars)
+corrplot::corrplot(cny2)
+
+
+
