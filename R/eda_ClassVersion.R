@@ -7,7 +7,7 @@ library(car)
 library(vioplot)
 
 # Read in data, remove missing data
-ny<-read.table("cs73.dat",header=T); dim(ny)  #  916  11
+ny<-read.table("data/cs73.dat",header=T); dim(ny)  #  916  11
 ny2<-na.omit(ny); dim(ny2) # 914  11
 attach(ny2)
 

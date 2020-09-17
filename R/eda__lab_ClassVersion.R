@@ -24,7 +24,7 @@ attach(ny2)
 summary(expen)
 # Looking at the summary statistics, the range is very large. 
 # The median is 227 and 75th percentile is 316. 
-# This indicate that values above ~400 can be outliers
+# This indicate that values above ~600 can be outliers
 
 ## Task 2: Study graphical summaries of expen
 # a) boxplot (boxplot)
@@ -51,12 +51,16 @@ qqline(expen, col = "red")
 MASS::boxcox(expen~1)
 # a log transformation would be better to make expen normal 
 # since using a log transformation would fix the normality problems for expen
+# 95% CI cover zero
+MASS::boxcox(expen~., data = ny2)
 
 # b) Study a histogram with density plot overlay of log-expenditures 
 #      (see eda_ClassVersion.R for code)
 lexpen <- log(expen)
-hist(lexpen, breaks = 30)
+hist(lexpen, prob=T, breaks = 20)
 lines(density(lexpen), col="red")
+# normal approximation 
+curve(dnorm(x, mean=mean(lexpen), sd = sd(lexpen)), add = TRUE, col = "green")
 
 # c) Perform a violin plot and Q-Q plot of log-expenditures
 vioplot::vioplot(lexpen)
@@ -81,6 +85,10 @@ lexpen = log(expen)
 plot(wealth, lexpen, main = "log-expenditure vs wealth")
 lines(smooth.spline(wealth,lexpen), col="blue")
 abline(lm(lexpen~wealth), col="green")
+# suggesting a log transformation to avoid clustering by spreading out the points, 
+# with a log tranformation, it also resolve the skewness of data
+# skewness data might effect the relationship of the variables 
+#** definately try other transformation (quadritic, cubic, etc) to see better results 
 
 plot(log(wealth), lexpen, main = "log-expenditure vs log-wealth")
 lines(smooth.spline(log(wealth),lexpen), col="blue")
@@ -92,7 +100,11 @@ plot(pop, lexpen)  # notice need for a transformation on pop
 lpop = log(pop)
 plot(lpop, lexpen)
 lines(lowess(lpop,lexpen), col="blue") # using a LOWESS scatter plot smooth
+## The pattern look like a quadratic but more like a V shape 
 lines(c(8.3,8.3),c(0,6), col="grey", lwd=3)
+## splitting the data, we can model separately, one model for each direction
+## this will give us a linear relationship if we model separately 
+
 # c) density and log-density with a cut-point (ammend code from b)
 plot(dens, lexpen)  # also need transformation here
 ldens = log(dens)
@@ -105,7 +117,8 @@ lines(c(4,4),c(4,5.5), col="grey", lwd=3)
 # a) Study a histogram of growth rate--can we apply a log-transformation?
 hist(growr)
 # it seems like we need a log-transformation 
-hist(log(growr)) # much better now 
+hist(log(growr)) 
+# much better now but we have to consider when log(0) the result will be inf
 
 # b) Consider a piecewise transformation:
 # Use different transformations for growth rates > 0 and for growth rates < 0.
@@ -159,8 +172,8 @@ abline(lm(lexpen~lgrowr), col="red")
 ny2vars = data.frame(expen, wealth, pop, pint, dens, income, growr)
 cny2 = cor(ny2vars)
 corrplot::corrplot(cny2)
-
 ## wealth and expen seems to have high positive correlation 
 ## however, expense has really low correlation with other variables 
-
+## density and population are highly positive correlated, this suggest multicolinearity issue 
+## if both of these 2 variables are in the same model == unstable coefficient 
 
