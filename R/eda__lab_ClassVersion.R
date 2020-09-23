@@ -160,6 +160,16 @@ abline(lm(lexpen~log(dens)), col="red")
 plot(lgrowr, lexpen, main = "log-expenditure vs log-growth rate")
 abline(lm(lexpen~lgrowr), col="red")
 
+# log-expenditure vs income 
+plot(income, lexpen, xlab = "Income", ylab = "Log-Expenditure")
+abline(lm(lexpen~income), col="red")
+lines(lowess(income,lexpen), col="blue") 
+
+# log-expenditure vs log-income
+plot(log(income)^3, lexpen, xlab = "Cubic Log-Income", ylab = "Log-Expenditure")
+abline(lm(lexpen~I(log(income)^3)), col="red")
+lines(lowess(log(income)^3,lexpen), col="blue") 
+
 ## log transformation for wealth and growth rate seems to have a successful 
 ## linear relationship with expenditure 
 ## however, after transforming population and density, 
