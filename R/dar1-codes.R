@@ -2,7 +2,8 @@
 library(tidyverse)
 library(magrittr)
 library(ggcorrplot)
-
+library(MASS)
+library(leaps)
 
 #### Parameters ####
 
@@ -73,19 +74,7 @@ ggplot(ny2, aes(sample = lexpen)) +
 
 #### Explore Independent Variables ####
 
-## correlation plot ##
-corr_table <- ny2 %>% 
-  select(lwealth, lpop, lpint, ldens, lincome, lgrowr) %>% 
-  cor()
-
-## lpop and ldens have high positive correlation = multicolinary problem 
-ggcorrplot(corr_table, hc.order = TRUE, 
-           outline.col = "white",
-           colors = c("blue", "white", "red"), type = "upper")
-
-
 ## scatter plots of predictors and target 
-
 ScatterPlotFunction(ny2, "lwealth", "Log-Wealth")
 ScatterPlotFunction(ny2, "lpop", "Log-Population")
 ScatterPlotFunction(ny2, "lpint", "% Log Intergovernmental Funds")
@@ -109,6 +98,89 @@ ScatterPlotFunction(set2, "lpint", "% Log Intergovernmental Funds", "lm")
 ScatterPlotFunction(set2, "ldens", "Log-Density", "lm")
 ScatterPlotFunction(set2, "lincome", "Log-Income", "lm")
 ScatterPlotFunction(set2, "lgrowr", "Log-Grow Rate", "lm")
+
+## correlation plot ##
+corr_table <- set2 %>% 
+  dplyr::select(lwealth, lpop, lpint, ldens, lincome, lgrowr) %>% 
+  cor()
+
+## lpop and ldens have high positive correlation = multicolinary problem 
+## lincome and lwealth has high possitive correlation also 
+ggcorrplot(corr_table, hc.order = TRUE, 
+           outline.col = "white",
+           colors = c(my_col, "white", "red"), type = "upper")
+
+
+#### Model Development ####
+
+## since lpop and ldens are highly correlated, we cannot put them in the same model 
+
+fit1 <- lm(lexpen ~ lwealth + lpop + lpint + ldens + lincome + lgrowr, 
+           data = set2)
+
+## not helpful at all 
+step.model <- stepAIC(fit1, direction = "both", trace = FALSE)
+
+## we will create a function to model all posible combination and compare 
+## 2 metric of validation are R-square adjusted (higher = good) and MSE (lower = good) 
+
+
+LinearFitFunction <- function(xvars){
+  
+  # select varaibles
+  df  <- fire %>%  select(large_fire, xvars)
+  
+  all_mse <- c()
+  all_rsq_adj <- c()
+  all_iteration <- list()
+  index <- 1
+  
+  
+  
+  
+  return(all_iteration)
+}
+
+SafelyBinaryFit <- safely(BinaryFit)
+
+
+#' Function to loop all the models through each variable 
+#'
+#' @param rp 
+#' @param nrounds 
+#' @param list_of_xvars 
+#' @param number_of_xvars 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+LoopAllVars <- function(rp, nrounds, list_of_xvars, number_of_xvars){
+  # group variables
+  vars <- combn(list_of_xvars, number_of_xvars)
+  
+  # how many group do we have?
+  no_vars <- dim(vars)[[2]]
+  
+  # initiate print list and index 
+  print_list <- list()
+  k <- 1
+  
+  for (i in 1:no_vars) {
+    iteration_log <- SafelyBinaryFit(rp, xvars = vars[,i], nrounds)
+    print_list[[k]] <- iteration_log
+    k <- k + 1
+  }
+  # map all separate log to bind them together into a dataframe 
+  iteration_log <- map(print_list, "result") %>% rbind_list()
+  
+  return(iteration_log)
+}
+
+
+
+
+
 
 
 
