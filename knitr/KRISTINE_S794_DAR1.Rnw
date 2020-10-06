@@ -1,0 +1,143 @@
+\documentclass[11pt]{article}
+
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage[belowskip=-15pt,aboveskip=0pt]{caption}
+
+\setlength\topmargin{-.56in}
+\setlength\evensidemargin{0in}
+\setlength\oddsidemargin{0in}
+\setlength\textwidth{6.49in}
+\setlength\textheight{8.6in}
+\setlength{\intextsep}{10pt plus 1pt minus 4pt}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstset{style=mystyle}
+
+\pagestyle{headings}
+
+\title{Statistical Analysis and Predictive Models for Expenditures in New York Municipalities\vspace{-5ex}} 
+\date{October 08, 2020\vspace{-5ex}}
+
+\begin{document} 
+\maketitle
+
+<<packages, echo=FALSE, warning=FALSE, message=FALSE>>=
+
+library(tidyverse)
+library(magrittr)
+library(ggcorrplot)
+library(MASS)
+library(leaps)
+library(car)
+library(stargazer)
+
+@
+
+<<parameter and functions, echo=FALSE>>=
+
+#### Parameters ####
+my_col <- "#5a8fa1"
+
+#### Functions ####
+ScatterPlotFunction <- function(df, xvar, xlab, smooth_method = "loess"){
+  ggplot(df, aes_string(x = xvar, y = "lexpen")) + 
+    geom_point(size = 2, alpha = 0.4) + 
+    geom_smooth(method = smooth_method, se = FALSE, color = "red", size = 1) + 
+    theme_bw() + 
+    labs(y = "Log-Expenditures", 
+         x = xlab)
+}
+
+@
+
+<<load data, echo=FALSE, warning=FALSE, message=FALSE>>=
+
+setwd(here::here())
+
+ny <- read.table("data/cs73.dat", header = T)
+
+ny2 <- na.omit(ny)
+
+#### Add transformed variables ####
+ny2 %<>% 
+  mutate(lexpen = log(expen), 
+         lwealth = log(wealth), 
+         lpop = log(pop), 
+         lpint = log(pint), 
+         ldens = log(dens), 
+         lincome = log(income), 
+         lgrowr = case_when(
+           growr > 0 ~ log(growr + 1.01), 
+           TRUE ~ -log(-growr + 1.01)))
+
+@
+
+
+\noindent\textbf{\underline{Executive Summary:}} 
+\hfill \break
+
+\noindent\textbf{\underline{Introduction:}} Generally, construction companies have numerous aspects in estimating the cost of each new housing project. To estimate the cost of each housing project, expenditures play an important role in increasing or decreasing the cost. For example, higher expenditure would result in an increase in cost of construction. Therefore, the property owners would have to seek for higher funding to fulfill the project. On the other hand, while expenditure decreases, properties owner could spend the reimburse the expenses elsewhere. In addition, knowing the expenditures would also help construction manager to order supplies in a proper manger. If expenditure decreases, then the supplies would also be less in quantity or cheaper in quality. Numerous questions were proposed in favor of these issues such as 1) What variables causes the fluctuation of expenditure? 2) What is the best predictive model that could predict expenditures? 3) How can we validate and implement the model? 3) How accurate is the model? 4) Is there any improvement to the future models? To answer these questions, this analysis will take a deep dive into the data exploratory analysis, model development process using linear regression, and diagnostics analysis. With the answered questions, construction workers and properties owner would have a better understanding of their expenditures when starting a new project to avoid over or underestimating their budgets.
+\hfill \break
+
+\noindent\textbf{\underline{Methods:}} A dataset from two New York municipalities (Warwick and Monroe) were provided to access the important measures to predict expenditures. These data contain a total of \Sexpr{nrow(ny)} observations from 1992 with \Sexpr{is.na(ny$expen) %>% sum} observation contains missing expenditure value. Two observation with NA expenditures have been removed from the analysis to improve the assumption of linear regression modeling. In terms of variables, this dataset contains three identifiers including identity number, state code, and county code and six demographic and income-realted variables including wealth per person, population, percent intergovernmental, density, mean income per person, and growth rate.There is a total of \Sexpr{ny$co %>% unique %>% length} distinct county code implying there are multiple measurement of expenditure per county in New York. The goal of this data analysis is to predict the chances in expenditures of two New York municipalities, Warwick and Monroe. A projection dataset for Warwick and Monroe was also provided to generate predictions from using the fitted model. To achieve this goal, all analysis will be done using multiple linear regression models in R Studio with R version 3.6.2.    
+\hfill \break
+
+\noindent\textbf{\underline{Exploratory Data Analysis:}} Table~\ref{descrips} shows the summary statistics of all independent variables and target varable.
+\hfill \break
+
+\noindent\textbf{\underline{Statistical Analysis:}}
+\hfill \break
+
+\noindent\textbf{\underline{Conclusion:}}
+\hfill \break
+
+
+\clearpage
+\newpage
+\noindent \Large{{\bf Appendix A: Supplemental Tables and Figures}}
+
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE>>=
+
+stargazer(ny2 %>% dplyr::select(-obs, -st, -co, -id), 
+          title = "Summary Statistics for all numerical independent features", 
+          label="descrips",
+          table.placement = "H")
+
+@
+\end{center} 
+
+
+\end{document}
+
+
+
+
+

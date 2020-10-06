@@ -1,0 +1,159 @@
+\documentclass[11pt]{article}
+
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage[belowskip=-15pt,aboveskip=0pt]{caption}
+
+\setlength\topmargin{-.56in}
+\setlength\evensidemargin{0in}
+\setlength\oddsidemargin{0in}
+\setlength\textwidth{6.49in}
+\setlength\textheight{8.6in}
+\setlength{\intextsep}{10pt plus 1pt minus 4pt}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstset{style=mystyle}
+
+\pagestyle{headings}
+
+\title{Predictive Screening Model and Exploratory Tool for Hospital Admitants\vspace{-5ex}} 
+\date{January 21, 2020\vspace{-5ex}}
+
+\begin{document} 
+\maketitle
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in file(filename, "{}r"{}, encoding = encoding): cannot open the connection}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in file(filename, "{}r"{}, encoding = encoding): cannot open the connection}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in file(filename, "{}r"{}, encoding = encoding): cannot open the connection}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in read\_excel("{}dar\_data.xlsx"{}): could not find function "{}read\_excel"{}}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in data[75, 3] <- 170: object of type 'closure' is not subsettable}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in data \%<>\% mutate(sex = case\_when(.\$sex == 1 \textasciitilde{} "{}male"{}, .\$sex == : could not find function "{}\%<>\%"{}}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in data \%<>\% mutate\_if(is.character, as.factor): could not find function "{}\%<>\%"{}}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in data \%>\% filter(record == "{}initial"{}): could not find function "{}\%>\%"{}}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in data \%>\% filter(record == "{}final"{}): could not find function "{}\%>\%"{}}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in inner\_join(data\_initial, data\_final, by = "{}id"{}): could not find function "{}inner\_join"{}}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in combined\_data \%>\% group\_by(id) \%>\% summarise(sbp\_diff = sbp.y - : could not find function "{}\%>\%"{}}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in nrow(data\_initial): object 'data\_initial' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'data\_initial' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'data\_initial' not found}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in file(filename, "{}r"{}, encoding = encoding): cannot open the connection}}\end{kframe}
+\end{knitrout}
+
+\noindent\textbf{\underline{Executive Summary:}} Given the major issue of budgeted resources for hospitals, a Southern California hospital provided data on elective patients when first admitted to the hospital, and upon death or discharge. Based on this data structure, the goal of this analysis is about building a tool for doctors to use initially when a patient is admitted, as well as a framework for monitoring and improving the tool using the data taken upon death or discharge. The tool is a logistic regression model that can determine how likely a person is to live or die, based on a set of physiological measurements taken upon hospital admittance. The final model was chosen based on sparsity, AUC/AIC, and significant p-values for the coefficients (shock type, systolic pressure, mean central venous pressure, and urinary output). Using a training and test set split of 70/30, model results were satisfactory with an AUC of .90, Sensitivity of .91, Specificity of .77, and Accuracy of 0.82. Some interesting results included an odds ratio of 7.67 for the dichotomous shock type variable (shock/no-shock). Suggesting that when all other variables are held fixed, we would expect the odds of death for a person in shock to be 667\% higher than the odds for a person not in shock. Using the model results, a framework was finally constructed to allow the user to validate the model and improve understanding by taking the differences in all physiological measurements between the final and initial time stamps. Then, the mean, median, and standard deviations were taken of said differences but grouped by predicted vs. empirical survival status. This way, one could monitor which measurements significantly increase or decrease between the initial and final checkups to inform future model improvement and learning.
+
+\bigskip
+
+\noindent\textbf{\underline{Introduction:}} Hospitals, in general, have incentives or guidelines that they must be aware of or follow. For example, one can estimate the cost of a hospital visit based on length of stay, and some insurance plans will only pay a fixed amount of money for certain diagnoses. Therefore, there is a huge incentive for a hospital to avoid prolonged length of stay. In addition, Medicare will reduce payment for those cases where readmission to a hospital could have been prevented. So, one can see how a doctor may want to know the chances that a person will live or die, based on at least the initial physiological measurements. If they are more likely to die, send your best personnel to that patient and devote more resources to them. If they are likely to live, maybe assign the minimum amount of personnel to ensure the patient is getting the attention they need, but in turn do not devote more resources than are needed. With this issue comes many questions that need to be answered, for example, which measurements could indicate a higher chance of mortality? What is the best way to implement a model that can predict the chance of mortality? Is it ethical to implement such a model? How can you improve and learn from the model? This analysis will attempt to answer these questions and more, through exploratory efforts and logistic regression model building with an aim at also constructing a pipeline to assist medical professionals in learning from mistakes and successes.
+
+\bigskip
+
+\noindent\textbf{\underline{Methods:}} A Southern California hospital provided a dataset containing 224 observations, with 6 “static” variables, 14 physiological measurements, and 1 record variable. In total, this makes 112 elective patients with 2 observations (records) each, one upon initial admission to the hospital, and one at the time of discharge or directly before death. The six “static” variables, which are the same at initial and final recordings, are ID, age, height, sex, whether or not they survived (response variable), and what type of shock they were in. Fourteen measurements taken independently at the initial and final recordings included systolic pressure, mean arterial pressure, heart rate, diastolic pressure, mean central venous pressure, body surface index, cardiac index, appearance time, mean circulation time, urinary output, plasma volume index, red cell index, hemoglobin, and hematocrit. Each of these variables are typical baseline medical measurements taken on admission and discharge or death. There were no NA values present, and one input mistake on ID number 539 where the initial height was collected as 70 cm, as opposed to the 170 cm collected on the final record. As previously mentioned, the first six “static” variables were constant over the initial and final record observations for each patient, meaning each patient came in as alive but was recorded as dead or alive on both the initial and final records. It is unsure if the response variable survival was recorded mistakenly on all initial records, and it should be that all patients were initially alive upon admission (not likely a dead person would be admitted to the hospital). In spite of this, we will proceed as if all patients were admitted as alive for this analysis. All analyses were done in Rstudio Version 1.2.5033, using R version 3.6.2.
+
+\bigskip
+
+\noindent\textbf{\underline{Exploratory Data Analysis:}} Before building a logistic regression model, it is imperative to conduct exploratory data analysis to identify those features that appear to have a relationship with the response survival status (0 = alive, 1 = death). The response here is well balanced with a .384 proportion of deaths out of the 112 patients. A balanced response is important in this context, as the model will be predicting the death of a patient, and when there are so few observations it becomes imperative for training and validation purposes. The dataset was split in half by record status “initial” and “final”, with only the initial records being used for exploratory analysis, unless otherwise stated. For this section, each important independent variable will be discussed thoroughly and its relationship with the response quantified. 
+
+\begin{figure}[h!] 
+\begin{center}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

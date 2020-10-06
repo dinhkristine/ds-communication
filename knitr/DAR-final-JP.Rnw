@@ -1,0 +1,715 @@
+\documentclass[11pt]{article}
+
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage[belowskip=-15pt,aboveskip=0pt]{caption}
+
+\setlength\topmargin{-.56in}
+\setlength\evensidemargin{0in}
+\setlength\oddsidemargin{0in}
+\setlength\textwidth{6.49in}
+\setlength\textheight{8.6in}
+\setlength{\intextsep}{10pt plus 1pt minus 4pt}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstset{style=mystyle}
+
+\pagestyle{headings}
+
+\title{Predictive Screening Model and Exploratory Tool for Hospital Admitants\vspace{-5ex}} 
+\date{January 21, 2020\vspace{-5ex}}
+
+\begin{document} 
+\maketitle
+
+
+<<libs, echo=FALSE, warning=FALSE, message=FALSE>>=
+setwd(here::here())
+source("libraries.R")
+source("HLTest.R")
+source("Examine.logistic.reg.R")
+@
+
+<<dataingest, echo=FALSE, warning=FALSE, message=FALSE>>=
+data <- read_excel("dar_data.xlsx")
+data[75,3] <- 170
+@
+
+<<datapreprocess, echo=FALSE, warning=FALSE, message=FALSE>>=
+# change class of some features
+data %<>%
+  mutate(sex = case_when(
+    .$sex == 1 ~ "male",
+    .$sex == 2 ~ "female"),
+         survival = case_when(
+    .$survival == 1 ~ 0,
+    .$survival == 3 ~ 1),
+         shock_type = case_when(
+           .$shock_type == 2 ~ "non-shock",
+           .$shock_type == 3 ~ "shock",
+           .$shock_type == 4 ~ "shock",
+           .$shock_type == 5 ~ "shock",
+           .$shock_type == 6 ~ "shock",
+           .$shock_type == 7 ~ "shock"),
+        record = case_when(
+          .$record == 1 ~ "initial",
+          .$record == 2 ~ "final")
+    )
+
+data %<>%
+  mutate_if(is.character, as.factor)
+
+# split into two data sets
+data_initial <- data %>% filter(record == "initial")
+data_final <- data %>% filter(record == "final")
+
+# combine initial and final
+combined_data <- inner_join(data_initial, data_final, by = "id")
+
+diffs_table <- combined_data %>% 
+  group_by(id) %>% 
+  summarise(sbp_diff = sbp.y - sbp.x,
+            map_diff = map.y - map.x,
+            heartrate_diff = heart_rate.y - heart_rate.x,
+            dbp_diff = dbp.y - dbp.x,
+            mcvp_diff = mcvp.y - mcvp.x,
+            bsi_diff = bsi.y - bsi.x,
+            cardiac_diff = cardiac_index.y - cardiac_index.x,
+            apptime_diff = app_time.y - app_time.x,
+            mct_diff = mct.y - mct.x,
+            uo_diff = uo.y - uo.x,
+            pvi_diff = pvi.y - pvi.x,
+            rci_diff = rci.y - rci.x,
+            hemoglobin_diff = hemoglobin.y - hemoglobin.x,
+            hematocrit_diff = hematocrit.y - hematocrit.x)
+
+# train/test
+set.seed(2345678)
+train_obs <- sample(nrow(data_initial), 0.7*nrow(data_initial))
+train <- data_initial[train_obs,]
+test <- data_initial[-train_obs,]
+@
+
+<<functions, echo=FALSE, warning=FALSE, message=FALSE>>=
+source("functions.R")
+@
+
+\noindent\textbf{\underline{Executive Summary:}} Given the major issue of budgeted resources for hospitals, a Southern California hospital provided data on elective patients when first admitted to the hospital, and upon death or discharge. Based on this data structure, the goal of this analysis is about building a tool for doctors to use initially when a patient is admitted, as well as a framework for monitoring and improving the tool using the data taken upon death or discharge. The tool is a logistic regression model that can determine how likely a person is to live or die, based on a set of physiological measurements taken upon hospital admittance. The final model was chosen based on sparsity, AUC/AIC, and significant p-values for the coefficients (shock type, systolic pressure, mean central venous pressure, and urinary output). Using a training and test set split of 70/30, model results were satisfactory with an AUC of .90, Sensitivity of .91, Specificity of .77, and Accuracy of 0.82. Some interesting results included an odds ratio of 7.67 for the dichotomous shock type variable (shock/no-shock). Suggesting that when all other variables are held fixed, we would expect the odds of death for a person in shock to be 667\% higher than the odds for a person not in shock. Using the model results, a framework was finally constructed to allow the user to validate the model and improve understanding by taking the differences in all physiological measurements between the final and initial time stamps. Then, the mean, median, and standard deviations were taken of said differences but grouped by predicted vs. empirical survival status. This way, one could monitor which measurements significantly increase or decrease between the initial and final checkups to inform future model improvement and learning.
+
+\bigskip
+
+\noindent\textbf{\underline{Introduction:}} Hospitals, in general, have incentives or guidelines that they must be aware of or follow. For example, one can estimate the cost of a hospital visit based on length of stay, and some insurance plans will only pay a fixed amount of money for certain diagnoses. Therefore, there is a huge incentive for a hospital to avoid prolonged length of stay. In addition, Medicare will reduce payment for those cases where readmission to a hospital could have been prevented. So, one can see how a doctor may want to know the chances that a person will live or die, based on at least the initial physiological measurements. If they are more likely to die, send your best personnel to that patient and devote more resources to them. If they are likely to live, maybe assign the minimum amount of personnel to ensure the patient is getting the attention they need, but in turn do not devote more resources than are needed. With this issue comes many questions that need to be answered, for example, which measurements could indicate a higher chance of mortality? What is the best way to implement a model that can predict the chance of mortality? Is it ethical to implement such a model? How can you improve and learn from the model? This analysis will attempt to answer these questions and more, through exploratory efforts and logistic regression model building with an aim at also constructing a pipeline to assist medical professionals in learning from mistakes and successes.
+
+\bigskip
+
+\noindent\textbf{\underline{Methods:}} A Southern California hospital provided a dataset containing 224 observations, with 6 “static” variables, 14 physiological measurements, and 1 record variable. In total, this makes 112 elective patients with 2 observations (records) each, one upon initial admission to the hospital, and one at the time of discharge or directly before death. The six “static” variables, which are the same at initial and final recordings, are ID, age, height, sex, whether or not they survived (response variable), and what type of shock they were in. Fourteen measurements taken independently at the initial and final recordings included systolic pressure, mean arterial pressure, heart rate, diastolic pressure, mean central venous pressure, body surface index, cardiac index, appearance time, mean circulation time, urinary output, plasma volume index, red cell index, hemoglobin, and hematocrit. Each of these variables are typical baseline medical measurements taken on admission and discharge or death. There were no NA values present, and one input mistake on ID number 539 where the initial height was collected as 70 cm, as opposed to the 170 cm collected on the final record. As previously mentioned, the first six “static” variables were constant over the initial and final record observations for each patient, meaning each patient came in as alive but was recorded as dead or alive on both the initial and final records. It is unsure if the response variable survival was recorded mistakenly on all initial records, and it should be that all patients were initially alive upon admission (not likely a dead person would be admitted to the hospital). In spite of this, we will proceed as if all patients were admitted as alive for this analysis. All analyses were done in Rstudio Version 1.2.5033, using R version 3.6.2.
+
+\bigskip
+
+\noindent\textbf{\underline{Exploratory Data Analysis:}} Before building a logistic regression model, it is imperative to conduct exploratory data analysis to identify those features that appear to have a relationship with the response survival status (0 = alive, 1 = death). The response here is well balanced with a .384 proportion of deaths out of the 112 patients. A balanced response is important in this context, as the model will be predicting the death of a patient, and when there are so few observations it becomes imperative for training and validation purposes. The dataset was split in half by record status “initial” and “final”, with only the initial records being used for exploratory analysis, unless otherwise stated. For this section, each important independent variable will be discussed thoroughly and its relationship with the response quantified. 
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=10, fig.height=2>>=
+p1 <- table_cont_fun("mcvp", data_initial)
+
+p2 <- table_cont_fun("sbp", data_initial)
+
+p3 <- table_cont_fun("uo", data_initial)
+
+grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
+@
+\caption{Exploratory Plots of a: Mean Central Venous Pressure, b: Systolic Pressure, and c: Urinary Output. Values were sorted low to high and binned into 10 equally sized intervals on the x-axis, with the red line being Proportion of deaths.}
+\end{center} 
+\end{figure}
+
+\indent Mean central venous pressure is the mean blood pressure measured near the right atrium of the heart, and essentially quantifies how much blood is returning to the heart and how well the heart is pumping it back into the arteries. Clearly this is an important measurement to assess the well-being of a patient, as any abnormality from 0-5 cm H20 could spell heart issues or other serious problems. In Figure 1a, you will see a bar chart of the mean central venous pressure (“mcvp”) variable with a line overlay showing a distinct positive relationship. Here, and with every other continuous feature examined, the observations were ordered low to high, based on “mcvp” and cut into 10 equal sized bins. The line indicates the proportion of deaths within each bin over the low to high sequence of “mcvp” values on the x-axis. It is easy to see that as “mcvp” increases, so to do the chances of death. When comparing the patients that lived and died, the K-S test shows a significant p-value in Figure A7, meaning there is likely a clear difference in “mcvp” values between the two groups of our dichotomous response. With these results, it is clear that “mcvp” provides great signal for the response in this situation.
+\newline
+\indent Systolic blood pressure (SBP) is the amount of pressure in your arteries upon contraction of the heart, measured in mmHg. It is well known that an elevated SBP above 130 is considered unhealthy, but in the case of hospital admitants this could be due to the stress of having a health issue and being ushered into the hospital. On the flip side, an extremely low level of SBP could mean a person is approaching death due to heart failure, or another serious issue. Looking at Figure 1b, one can see this type of trend where lower values of SBP are coupled with a higher chance of mortality. This trend could be just a product of the fact that the data is from incoming hospital patients, as one would suspect some sort of U-shaped trend where higher SBP levels are also linked to increased mortality. In either event, there is a clear negative trend as you go from low to high SBP levels, and this is backed up by the significant K-S test results from Figure A8 indicating a difference in SBP between patients who died or lived. What’s more intriguing to find out here, is that the K-S test also indicates significant results between SBP levels of the initial and final record statuses. Meaning, SBP will vary greatly between initial and final recordings, and extremely high or low values could be a solid indication of mortality.
+\newline
+\indent Urinary output is a self-explanatory feature in this dataset measured in ml per hour, where a normal amount is 30 – 80 ml per hour. For the purposes of this analysis, it is not known when urinary output is necessarily measured and “recorded” as an initial and final measurement. Some patients could have received a zero because they were not measured at all, or because their condition was serious enough to where there is just no urinary output at all. However, Figure 1c shows a clear negative trend, where most deaths are occurring when there is little to no urinary output, which is in line with the previous hypothesis that their condition is too serious. In Figure A9, the significant results of a K-S test are displayed, meaning there is a difference in means between those that lived and died. A visual to easily back that up is a boxplot in Figure A10, that shows in fact most of the patients that did die had little to no urinary output compared to the wide range of higher values for those that did live. One other piece of information extracted from this feature is that, for those who lived, their average urinary output increased by 40 points between the initial and final recordings. While those that died, saw an eight point drop, thus highlighting the fact that urinary output is a vital indicator of survival.
+\newline
+\indent The shock type feature quantifies if a patient came into the hospital in shock or not, and it seems logical that someone in shock has more of a serious condition compared to someone who didn’t. Shock type was initially reported as a categorical feature with 6 levels (no shock, 4 different specific types of shock, and “other shock”). Grouping by shock type and calculating the proportion of deaths for each type, it was found that all 5 shock types were very similar in proportion, in the range of 40-70\%. It was therefore decided to collapse all “shock” types into one level, creating a dichotomous feature of “shock” or “non-shock”. In Figure 2a, one can see a stark difference in mortality between the “shock” and “non-shock” levels, validating our previous hypothesis. In addition, a Pearson’s Chi-Squared test was performed (Figure A11) resulting in a significant p-value, again confirming the suspicion that patients in shock tend to have higher mortality rates.
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=11, fig.height=3>>=
+shock_tab <- table_cat_fun("shock_type", data_initial)
+p1 <- eda_plot(shock_tab, "shock_type")
+
+corr_tab <- cor(data_initial %>% select(mct, app_time, map, sbp, dbp, hematocrit, hemoglobin))
+p3 <- ggcorrplot(corr_tab, method = "square", type = "upper", 
+           show.diag = T, insig = "blank", tl.srt = 90, tl.cex = 10)
+
+p2 <- table_cont_fun("map", data_initial)
+
+p4 <- table_cont_fun("dbp", data_initial)
+
+grid.arrange(p1, p2, p4, p3, nrow = 1, ncol = 4, heights = 5)
+@
+\caption{a: Shock type Count overlayed w/ prop of death; b: Mean Arterial Pressure constructed same as in Figure 1; c: Diastolic Blood Pressure d: Correlation Plot of Collinear features}
+\end{center} 
+\end{figure}
+
+
+\indent Before discussing model development, it is imperative to assess the correlations between candidate independent features, as a way to combat multicollinearity apriori. In Figure 2d, a correlation matrix is plotted of those features that are most correlated (above 0.7 or below -0.7) with one or more other features. Hemoglobin and Hematocrit are the most correlated at 0.96, so it was chosen to only include Hemoglobin as it had slightly better signal with the response. Mean circulation time (mct) and appearance time are also highly correlated at 0.84, therefore, it was chosen to only include “mct” as it showed a better relationship with the response and is a better indicator of patient health. Lastly, one of the more complex correlations was between systolic blood pressure, mean arterial pressure (MAP), and diastolic blood pressure (DBP). The exploratory plot of SBP was shown previously, and the plots for DBP and MAP are presented in Figures 2C and 2B respectively. All three exploratory plots show a somewhat negative trend with the response, and in addition have correlations with each other of 0.8 and above. After visually assessing each feature’s relationship with the response, and the results of K-S tests, it was determined that SBP had the strongest signal. DBP and MAP are still strong indicators of mortality, but their signal was inconsistent in the exploratory plots, and the univariate model AUC for SBP was highest. For the variables not chosen after collinearity analysis, they were dropped from consideration in the model while all other variables (not ID or record) were included. To ensure brevity, we will stop the exploratory analysis here and mention that most of the remaining independent features had little to no relationship with the response.
+
+\bigskip
+
+\noindent\textbf{\underline{Statistical Analyses:}} So far, a few important independent features have been identified as useful for model development. Additionally, a few features have been removed from consideration in the model due to high collinearity with one or more other features. As mentioned previously, a logistic regression model will be built using the dichotomous “survival” variable as a response, in an attempt to construct a tool for doctors to use in allocating vital resources to those that need it. Once the model is in place, a monitoring/learning tool will also be proposed to utilize the final measurement records for each patient so as to make use of all data available to them. The proposed pipeline is to have initial measurements come in for a patient, predict their survival chances, allow the doctor to make an informed decision on allocating resources for said patient, record final measurements, and monitor the differences in empirical and predicted measurements. For the purposes of model development, only the 112 initial patient records were used and split into a 70/30 train/test set.
+\newline
+\indent The method chosen to find the best model was fairly simple and contained 3 steps. First, all univariate models were generated via a loop and their respective AUC/AIC scores recorded. Figure A12 gives a breakdown of the models sorted by AUC high to low. SBP, MAP, and DBP were the most accurate at predicting mortality chances, however, it was decided previously that all three variables have extreme collinearity and that MAP and DBP will be removed from model consideration. Additionally, MCVP, UO, and shock type were in the top tier of variables, which aligns with the previous findings in exploratory. Not surprisingly, many of the other features performed poorly in univariate findings, in fact predicting barely better than a 50/50 chance.
+\newline
+\indent For the second step, each of the aforementioned collinear features were removed (DBP, MAP, hematocrit, BSI, appointment time) from the variable pool, and every single combination of model formulae was run with their AUC and AIC recorded. In Figure A13, the top 25 models sorted by AIC descending are printed out. Ultimately, the model chosen was well down the list at 23, however, the reasoning behind this is that it generated one of the lowest AIC scores (89), but also one of the highest AUC scores (0.9). With this combination of AUC and AIC scores, the model will be both accurate and not overfit the sparse data. However, the main reason for this model choice is that only four variables were needed (MCVP, UO, SBP, Shock Type) to produce those types of results. With a sparse model, the chances of overfitting decrease, and there is a balance struck between bias and variance. There were other model combinations tested along with the final choice, however, none of them provided the same type of significant coefficient p-value results that the final one did.
+\newline
+\indent Lastly, this final model formula was taken and each combination of interaction terms was tested to see if there was any improvement in the model. In Figure A14, the very top model formula shows a decrease in AIC, but the greatest improvement seen is in the coefficient p-values. Prior to adding the “UO:SBP” interaction term, only the shock type variable was considered significant at the $\alpha$ = 0.05 level. Now, with the interaction term, you can see in Figure 4 that every coefficient besides the intercept is considered significant. This is an integral attribute, as we want accurate results to produce accurate odds ratios for interpretation. Hence, this was chosen as the final model form producing .9 AUC, 88 AIC, and significant enough p-values for all useful coefficients.
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=12, fig.height=3>>=
+final_model <- glm(factor(survival) ~ mcvp+uo+sbp+shock_type+uo:sbp,
+                   train, 
+                   family = "binomial")
+
+# lift
+p1 <- lift_plot(final_model, test)
+
+# std res
+model.data <- augment(final_model) %>% mutate(index = 1:n()) 
+
+p2 <- ggplot(model.data, aes(index, .std.resid)) + 
+  geom_point(aes(color = factor(factor.survival.)), alpha = .5) +
+  labs(x = "Index", y = "Standardized Residuals") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+p3 <- ggplot(model.data, aes(index, .cooksd)) + 
+  geom_point(aes(color = factor(factor.survival.)), alpha = .5) +
+  labs(x = "Index", y = "Cooks Distance") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+p4 <- ggplot(model.data, aes(index, .hat)) + 
+  geom_point(aes(color = factor(factor.survival.)), alpha = .5) +
+  labs(x = "Index", y = "Diagonal Hat Matrix Values") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+grid.arrange(p1, p2, p3, p4, nrow = 1, ncol = 4)
+@
+\caption{a: Lift Plot: Empirical (Green) vs. Predicted (Red), b: Standardized Residual Plot, c: Cooks Distance Plot, d: Diagonal values from Hat Matrix Plot (b-d colorized by Survival Status)}
+\end{center} 
+\end{figure}
+
+\indent To assess the quality of the model, a few diagnostics were run to identify possible influential points and how good of a fit there was. Looking at Figure 3b, there are no standardized residuals much worse than 2 or -2, meaning no point is necessarily going to be an influential outlier. However, looking at Figure 3c and 3d there appear to be two points that have a higher Cook’s Distance and hat value. These points are index numbers 26 and 65 in Figure A16, and they seem to be influential points solely due to their overly large Urinary Output values. Now, going back to Figure A10, it is clear that most Urinary Output values are between 0 and 100, especially if they did not survive. Therefore, it is no surprise that number 65 is an odd observation given they did not survive but had a high Urinary Output of 320. Number 26 is another odd observation because of the high Urinary Output of 318, but a low MCVP value of 26. Despite the high Cook’s Distance and hat values, it was decided to keep these observations in the model. Reason being, removing them actually degraded the model results when tested, and secondly these are real world results that will produce widely ranging values.
+\newline
+\indent Assessing the fit of the model, a lift plot was constructed in Figure 3a, which visualizes how well the model predictions track with the empirical data. In order to construct this plot, the test set was run through the model to obtain predictions, arranged from low to high, and cut into 10 bins. From there, the empirical proportion of deaths are calculated for each bin, along with the average prediction. Fortunately, this plot has a distinct trend because, as the prediction gets higher, so to does the empirical proportion of deaths. Clearly the model is doing its job, and to back it up Figure A17 shows the results of a Hosmer-Lemeshow Test. Using the default 10 bins to calculate quantiles, the results show a large p-value indicating no evidence of a poor model fit. At this point, any results generated by the model can be counted on as significant given the data and variables used.
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=11, fig.height=3>>=
+betahat = formatC(signif(final_model$coefficients,digits=3), digits=4, format="f", flag="#")
+OR = formatC(signif(exp(final_model$coefficients),digits=3), digits=4, format="f", flag="#")
+SE = formatC(signif(summary(final_model)$coefficients[,2],digits=3), digits=2, format="f", flag="#") 
+cibounds = formatC(signif(exp(confint(final_model)),digits=3), digits=2, format="f", flag="#") 
+pval = formatC(signif(summary(final_model)$coefficients[,4],digits=4), digits=4, format="f", flag="#")
+
+table = cbind(betahat, OR, SE, pval, matrix(paste("(", cibounds[,1], ",", cibounds[,2], ")"))) %>% as.data.frame()
+
+rownames(table) <- c("Intercept", "MCVP", "UO", "SBP", "Shock type (Shock)", "UO:SBP")
+colnames(table) = c("Coefficient", "Odds ratio", "SE", "p-value", "95% CI on OR")
+
+table %>% 
+  kable(digits = 2) %>% 
+  kable_styling()
+@
+\caption{Summary Table of Final Model Results}
+\end{center} 
+\end{figure}
+
+\indent Now that the logistic regression model has been developed and validated, it is prudent to make some inferences and explore the odds ratios in Figure 4. One of the more extreme odds ratios is the one for shock type, where those patients that experienced some type of shock (holding all other variables fixed) have a 667\% higher chance of mortality than those that did not experience any shock. This inference aligns with previous exploratory on this dichotomous variable, and is the logical assumption given that being in shock means a patient’s body is shutting down. The confidence interval on this odds ratio is very large, meaning there is much variation patient to patient. On the less extreme side, for a 10 point increase in “MCVP” (holding all other variables constant), one would expect a 9\% increase in the chances of mortality for a patient. This inference also agrees with previous findings that as MCVP increases so too does the proportion of deaths, which is why the confidence interval is so tight as well. Lastly, for a 20 point drop in “SBP” (holding all other variables fixed), one would expect a 58\% increase in the chances of mortality, with a 95\% confidence interval from 153\% to 4\%. This too aligns with previous findings of a negative relationship between “SBP” and survival.
+\newline
+\indent Given the results so far, the very last task is to find an optimal cutoff for the test set predictions and any new predictions, labeling them as either likely to live or die. Using an optimal cutting algorithm, it was found that any prediction above 0.63 would be labeled as likely to die. From there, a final table was formed in Figure A18 showing that only 6 test observations were predicted incorrectly. More importantly, only 1 patient was predicted to live but actually died, meaning the model is excellent at minimizing False Negatives to prevent not allocating enough resources to those who need it. Lastly, Figure A19 gives a rundown of the measures pulled from the confusion matrix, highlighting a .82 Accuracy, .91 Specificity, .77 Sensitivity, and .94 Precision.
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=2>>=
+test$predictions <- predict(final_model, newdata = test, type = "response")
+pred = prediction(test$predictions, test$survival)
+roc.perf = performance(pred, measure="tpr", x.measure="fpr")
+optcut = opt.cut(roc.perf,pred)[3]
+
+roc.perf = performance(pred, measure="tpr", x.measure="fpr")
+test$survival_pred <- ifelse(test$predictions >= optcut, 1, 0)
+
+diffs_table %<>% 
+  inner_join(test %>% select(id, predictions, survival_pred, survival, record), by = "id")
+
+avg_diff_pred <- diffs_table %>% 
+  rename(outcome = survival_pred) %>% 
+  group_by(outcome) %>% 
+  summarise(count = n(),
+            avg_diff_sbp = round(mean(sbp_diff), digits = 2),
+            avg_diff_map = round(mean(map_diff), digits = 2),
+            avg_diff_heartrate = round(mean(heartrate_diff), digits = 2),
+            avg_diff_dbp = round(mean(dbp_diff), digits = 2),
+            avg_diff_mcvp = round(mean(mcvp_diff), digits = 2),
+            avg_diff_bsi = round(mean(bsi_diff), digits = 2),
+            avg_diff_cardiac = round(mean(cardiac_diff), digits = 2),
+            avg_diff_apptime = round(mean(apptime_diff), digits = 2),
+            avg_diff_mct = round(mean(mct_diff), digits = 2), # not normal
+            avg_diff_uo = round(mean(uo_diff), digits = 2),
+            avg_diff_pvi = round(mean(pvi_diff), digits = 2),
+            avg_diff_rci = round(mean(rci_diff), digits = 2), # not normal some outliers
+            avg_diff_hemoglobin = round(mean(hemoglobin_diff), digits = 2),
+            avg_diff_hematocrit = round(mean(hematocrit_diff), digits = 2)) %>% 
+  mutate(outcome = case_when(
+    .$outcome == 1 ~ "predicted - death",
+    .$outcome == 0 ~ "predicted - live"
+  ))
+
+avg_diff_empirical <- diffs_table %>% 
+  rename(outcome = survival) %>% 
+  group_by(outcome) %>% 
+  summarise(count = n(),
+            avg_diff_sbp = round(mean(sbp_diff), digits = 2),
+            avg_diff_map = round(mean(map_diff), digits = 2),
+            avg_diff_heartrate = round(mean(heartrate_diff), digits = 2),
+            avg_diff_dbp = round(mean(dbp_diff), digits = 2),
+            avg_diff_mcvp = round(mean(mcvp_diff), digits = 2),
+            avg_diff_bsi = round(mean(bsi_diff), digits = 2),
+            avg_diff_cardiac = round(mean(cardiac_diff), digits = 2),
+            avg_diff_apptime = round(mean(apptime_diff), digits = 2),
+            avg_diff_mct = round(mean(mct_diff), digits = 2), # not normal
+            avg_diff_uo = round(mean(uo_diff), digits = 2),
+            avg_diff_pvi = round(mean(pvi_diff), digits = 2),
+            avg_diff_rci = round(mean(rci_diff), digits = 2), # not normal some outliers
+            avg_diff_hemoglobin = round(mean(hemoglobin_diff), digits = 2),
+            avg_diff_hematocrit = round(mean(hematocrit_diff), digits = 2)) %>% 
+  mutate(outcome = case_when(
+    .$outcome == 1 ~ "empirical - death",
+    .$outcome == 0 ~ "empirical - live"
+  ))
+
+rbind(avg_diff_pred[1,], avg_diff_empirical[1,], 
+      avg_diff_pred[2,], avg_diff_empirical[2,]) %>% t() %>% kable(digits = 2) %>% kable_styling()
+@
+\caption{Summary Table of differences between the initial and final measurements of the test set grouped by empirical and predicted survival status}
+\end{center} 
+\end{figure}
+
+
+\noindent\textbf{\underline{Conclusion:}} Typically, the head nurse or head doctor of a certain unit will assign personnel to specific patients or group of patients that have common attributes. But what if a tool could automate assignment for them? This is why a logistic regression model was constructed to assist hospital leaders in identifying those patients that may need more medical assistance, and to assign them the necessary resources. Being efficient in assigning and coordinating personnel and resources is essential for a hospital’s growth. Given the results of the exploratory section, it was made clear that if a person is in shock coming into the hospital initially, there is a very high chance of mortality. Same goes for Mean Central Venous Pressure and Urinary Output, where lower levels of each are directly linked to a higher chance of mortality. In short, there are a few clear indicators of mortality that not only were used in the model, but can be learning tips for nurses or doctors alike. 
+\newline
+\indent To build on what was learned throughout the analysis, a chart was constructed in Figure 5. First, the difference between the final and initial measurements was recorded for each test case patient and numerical feature listed. Secondly, the test set was grouped by their predicted survival outcome and the average difference calculated for each variable, with the same being done for the empirical survival outcome (median and SD in Figures A20, A21). These two tables are then combined in Figure 5 to get an idea of just how accurate the model is on test cases. Additionally, the table can assist in identifying those variables that change drastically between the initial and final records (example UO), and ideally the predicted and empirical columns will be similar. There were some limitations with the study having few patients, and no way to really apply a model to the final record data. But, the framework for a pipeline, and ways to learn and grow have been set up for the future. It is suggested the users monitor, update, or change anything they feel might be useful to improve learning and success.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\clearpage
+\newpage
+\noindent \Large{{\bf Appendix A: Supplemental Tables and Figures}}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+mean <- map(data[,c(2,3, 7:20)], mean) %>% unlist()
+median <- map(data[,c(2,3, 7:20)], median) %>% unlist()
+sd <- map(data[,c(2,3, 7:20)], sd) %>% unlist()
+min <- map(data[,c(2,3, 7:20)], min) %>% unlist()
+max <- map(data[,c(2,3, 7:20)], max) %>% unlist()
+
+cbind(mean, median, sd, min, max) %>% kable(digits = 0) %>% kable_styling()
+@
+\caption{Summary Statistics for all numerical independent features}
+\end{center} 
+\end{figure}
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+ks.test(data_initial$mcvp[data_initial$survival == 1], data_initial$mcvp[data_initial$survival == 0]) %>% 
+  tidy() %>% 
+  kable(digits = 3) %>% 
+  kable_styling()
+@
+\caption{Kolmorogov-Smirnov Test for Mean Central Venous Pressure}
+\end{center} 
+\end{figure}
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+ks.test(data_initial$sbp[data_initial$survival == 1], data_initial$sbp[data_initial$survival == 0]) %>% 
+  tidy() %>% 
+  kable(digits = 3) %>% 
+  kable_styling()
+@
+\caption{Kolmorogov-Smirnov Test for Systolic Blood Pressure}
+\end{center} 
+\end{figure}
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+ks.test(data_initial$uo[data_initial$survival == 1], data_initial$uo[data_initial$survival == 0]) %>% 
+  tidy() %>% 
+  kable(digits = 3) %>% 
+  kable_styling()
+@
+\caption{Kolmorogov-Smirnov Test for Urinary Output}
+\end{center} 
+\end{figure}
+
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+ggplot(data_initial, aes(x = factor(survival), y = uo)) +
+  geom_boxplot() + 
+  theme_minimal() + 
+  labs(x = "Survival Status", y = "Urinary Output")
+@
+\caption{Boxplot of Survival status vs. Urinary Output}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+chisq.test(data_initial$shock_type, data_initial$survival) %>% tidy() %>% kable(digits = 4) %>% kable_styling()
+@
+\caption{Pearson's Chi Squared Test for Shock Type}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=5, eval=FALSE>>=
+dep_var <- "survival"
+ind_vars <- c("age","height","sex","shock_type","sbp","map","heart_rate","dbp","mcvp","bsi","cardiac_index","app_time",   
+              "mct","uo","pvi","rci","hemoglobin","hematocrit")
+
+ind_vars_comb <- unlist(sapply(seq_len(length(ind_vars)), 
+                               function(i) {apply(combn(ind_vars,i), 2, 
+                                                  function(x) paste(x, collapse = "+"))}))
+
+var_comb1 <- expand.grid(dep_var, ind_vars_comb)[1:18,]
+formula_vec1 <- sprintf("%s ~ %s", var_comb1$Var1, var_comb1$Var2)
+
+glm_res1 <- map(formula_vec1, glm_fit)
+names(glm_res1) <- formula_vec1
+tab1auc <- sapply(glm_res1, get_train_auc) %>% tidy()
+tab1aic <- sapply(glm_res1, get_AIC)[2,]
+
+data.frame(tab1auc, tab1aic, row.names = NULL) %>% 
+  arrange(desc(x)) %>% 
+  kable(digits = 3,
+        col.names = c("Model Formula", "Test set AUC", "AIC")) %>% 
+  kable_styling()
+@
+\caption{Univariate Model AUC/AIC Table}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5, eval=FALSE>>=
+ind_vars <- c("mcvp", "rci", "bsi", "uo", "heart_rate", "sbp", "cardiac_index", "pvi", "mct", "hemoglobin",
+              "shock_type", "sex", "age")
+
+ind_vars_comb <- unlist(sapply(seq_len(length(ind_vars)), 
+                               function(i) {apply(combn(ind_vars,i), 2, 
+                                                  function(x) paste(x, collapse = "+"))}))
+
+var_comb1 <- expand.grid(dep_var, ind_vars_comb)
+formula_vec1 <- sprintf("%s ~ %s", var_comb1$Var1, var_comb1$Var2)
+
+glm_res1 <- map(formula_vec1, glm_fit)
+names(glm_res1) <- formula_vec1
+tab1auc <- sapply(glm_res1, get_train_auc) %>% tidy()
+tab1aic <- sapply(glm_res1, get_AIC)[2,]
+
+data.frame(tab1auc, tab1aic, row.names = NULL) %>% 
+  arrange(tab1aic) %>% 
+  top_n(-25) %>% 
+  kable(digits = 3,
+        col.names = c("Model Formula", "Test set AUC", "AIC")) %>% 
+  kable_styling()
+@
+\caption{Top 25 models sorted by AIC low to high}
+\end{center} 
+\end{figure}
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5, eval=FALSE>>=
+ind_vars <- c("mcvp+uo+sbp+shock_type", "mcvp:uo", "mcvp:sbp", "mcvp:shock_type",
+              "uo:sbp", "uo:shock_type",
+              "sbp:shock_type")
+
+ind_vars_comb <- unlist(sapply(seq_len(length(ind_vars)), 
+                               function(i) {apply(combn(ind_vars,i), 2, 
+                                                  function(x) paste(x, collapse = "+"))}))
+
+var_comb1 <- expand.grid(dep_var, ind_vars_comb)
+formula_vec1 <- sprintf("%s ~ %s", var_comb1$Var1, var_comb1$Var2)
+
+glm_res1 <- map(formula_vec1, glm_fit)
+names(glm_res1) <- formula_vec1
+tab1auc <- sapply(glm_res1, get_train_auc) %>% tidy()
+tab1aic <- sapply(glm_res1, get_AIC)[2,]
+
+data.frame(tab1auc, tab1aic, row.names = NULL) %>%
+  arrange(desc(x)) %>%
+  head(10) %>% 
+  kable(digits = 3,
+        col.names = c("Model Formula", "Test set AUC", "AIC")) %>%
+  kable_styling()
+@
+\caption{Final model plus interaction combinations sorted by AUC (Top 10 in AUC)}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+w <- aggregate(formula = survival ~ mcvp+uo+sbp+shock_type+uo:sbp, data = train, FUN = sum)
+n <- aggregate(formula = survival ~ mcvp+uo+sbp+shock_type+uo:sbp, data = train, FUN = length)
+w.n <- data.frame(w, trials = n$survival, prop = round(w$survival/n$survival,2))
+
+mod.prelim1 <- glm(formula = survival/trials ~ mcvp+uo+sbp+shock_type+uo:sbp,
+                   family = "binomial", data = w.n, weights = trials)
+
+save1=examine.logistic.reg(mod.prelim1, scale.n=one.fourth.root, scale.cookd=sqrt)
+@
+\caption{Diagnostic Plots by EVP}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+w.n.diag1=data.frame(w.n, pi.hat=round(save1$pi.hat, 2), std.res=round(save1$stand.resid, 2), 
+                     cookd=round(save1$cookd, 2), h=round(save1$h, 2))
+
+p=length(mod.prelim1$coef) # number of parameters in model (# coefficients)
+ck.out=abs(w.n.diag1$std.res)>2 | w.n.diag1$cookd>4/nrow(w.n) | w.n.diag1$h > 3*p/nrow(w.n)
+extract.EVPs=w.n.diag1[ck.out, ]
+extract.EVPs %>% kable() %>% kable_styling()
+@
+\caption{EVP's above certain thresholds for Cook's Distance and Hat Value}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+ResourceSelection::hoslem.test(final_model$y, fitted(final_model)) %>% 
+  tidy() %>% 
+  kable(digits = 3) %>% kable_styling()
+@
+\caption{Hosmer-Lemeshow Test for Goodness of Fit of Final Model Selection}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+conf_mat <- table(real = test$survival, pred = test$survival_pred) %>% as.array()
+rownames(conf_mat) <- c("Empirical Live", "Empirical Death")
+kable(conf_mat, col.names = c("Predicted Live", "Predicted Death")) %>% kable_styling()
+@
+\caption{Table of Predicted test observation vs. Empirical survival status based on Optimal Cut}
+\end{center} 
+\end{figure}
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+caret::confusionMatrix(factor(test$survival_pred), factor(test$survival)) %>% 
+  tidy() %>% select(term, estimate) %>% kable(digits = 3) %>% kable_styling()
+@
+\caption{Confusion Matrix of Test set predictions based on Optimal Cut}
+\end{center} 
+\end{figure}
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+median_diff_pred <- diffs_table %>% 
+  rename(outcome = survival_pred) %>% 
+  group_by(outcome) %>% 
+  summarise(count = n(),
+            med_diff_sbp = median(sbp_diff),
+            med_diff_map = median(map_diff),
+            med_diff_heartrate = median(heartrate_diff),
+            med_diff_dbp = median(dbp_diff),
+            med_diff_mcvp = median(mcvp_diff),
+            med_diff_bsi = median(bsi_diff),
+            med_diff_cardiac = median(cardiac_diff),
+            med_diff_apptime = median(apptime_diff),
+            med_diff_mct = median(mct_diff), # not normal
+            med_diff_uo = median(uo_diff),
+            med_diff_pvi = median(pvi_diff),
+            med_diff_rci = median(rci_diff), # not normal some outliers
+            med_diff_hemoglobin = median(hemoglobin_diff),
+            med_diff_hematocrit = median(hematocrit_diff)) %>% 
+  mutate(outcome = case_when(
+    .$outcome == 1 ~ "predicted - death",
+    .$outcome == 0 ~ "predicted - live"
+  ))
+
+
+median_diff_empirical <- diffs_table %>% 
+  rename(outcome = survival) %>% 
+  group_by(outcome) %>% 
+  summarise(count = n(),
+            med_diff_sbp = median(sbp_diff),
+            med_diff_map = median(map_diff),
+            med_diff_heartrate = median(heartrate_diff),
+            med_diff_dbp = median(dbp_diff),
+            med_diff_mcvp = median(mcvp_diff),
+            med_diff_bsi = median(bsi_diff),
+            med_diff_cardiac = median(cardiac_diff),
+            med_diff_apptime = median(apptime_diff),
+            med_diff_mct = median(mct_diff), # not normal
+            med_diff_uo = median(uo_diff),
+            med_diff_pvi = median(pvi_diff),
+            med_diff_rci = median(rci_diff), # not normal some outliers
+            med_diff_hemoglobin = median(hemoglobin_diff),
+            med_diff_hematocrit = median(hematocrit_diff)) %>% 
+  mutate(outcome = case_when(
+    .$outcome == 1 ~ "empirical - death",
+    .$outcome == 0 ~ "empirical - live"
+  ))
+
+rbind(median_diff_pred[1,], median_diff_empirical[1,], 
+      median_diff_pred[2,], median_diff_empirical[2,]) %>% t() %>% kable(digits = 2) %>% kable_styling()
+@
+\caption{Table of test set differences in initial and final record medians, grouped by predicted and empirical survival status}
+\end{center} 
+\end{figure}
+
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=5, fig.height=5>>=
+sd_diff_pred <- diffs_table %>% 
+  rename(outcome = survival_pred) %>% 
+  group_by(outcome) %>% 
+  summarise(count = n(),
+            sd_diff_sbp = sd(sbp_diff),
+            sd_diff_map = sd(map_diff),
+            sd_diff_heartrate = sd(heartrate_diff),
+            sd_diff_dbp = sd(dbp_diff),
+            sd_diff_mcvp = sd(mcvp_diff),
+            sd_diff_bsi = sd(bsi_diff),
+            sd_diff_cardiac = sd(cardiac_diff),
+            sd_diff_apptime = sd(apptime_diff),
+            sd_diff_mct = sd(mct_diff), # not normal
+            sd_diff_uo = sd(uo_diff),
+            sd_diff_pvi = sd(pvi_diff),
+            sd_diff_rci = sd(rci_diff), # not normal some outliers
+            sd_diff_hemoglobin = sd(hemoglobin_diff),
+            sd_diff_hematocrit = sd(hematocrit_diff)) %>% 
+  mutate(outcome = case_when(
+    .$outcome == 1 ~ "predicted - death",
+    .$outcome == 0 ~ "predicted - live"
+  ))
+
+
+sd_diff_empirical <- diffs_table %>% 
+  rename(outcome = survival) %>% 
+  group_by(outcome) %>% 
+  summarise(count = n(),
+            sd_diff_sbp = sd(sbp_diff),
+            sd_diff_map = sd(map_diff),
+            sd_diff_heartrate = sd(heartrate_diff),
+            sd_diff_dbp = sd(dbp_diff),
+            sd_diff_mcvp = sd(mcvp_diff),
+            sd_diff_bsi = sd(bsi_diff),
+            sd_diff_cardiac = sd(cardiac_diff),
+            sd_diff_apptime = sd(apptime_diff),
+            sd_diff_mct = sd(mct_diff), # not normal
+            sd_diff_uo = sd(uo_diff),
+            sd_diff_pvi = sd(pvi_diff),
+            sd_diff_rci = sd(rci_diff), # not normal some outliers
+            sd_diff_hemoglobin = sd(hemoglobin_diff),
+            sd_diff_hematocrit = sd(hematocrit_diff)) %>% 
+  mutate(outcome = case_when(
+    .$outcome == 1 ~ "empirical - death",
+    .$outcome == 0 ~ "empirical - live"
+  ))
+
+
+rbind(sd_diff_pred[1,], sd_diff_empirical[1,], 
+      sd_diff_pred[2,], sd_diff_empirical[2,]) %>% t() %>% kable(digits = 2) %>% kable_styling()
+@
+\caption{Table of test set differences in initial and final record medians, grouped by predicted and empirical survival status}
+\end{center} 
+\end{figure}
+
+
+
+
+
+
+\clearpage
+\newpage
+\noindent \Large{{\bf Appendix B: R Code}}
+\lstinputlisting[language=R, caption = Appendix of Code]{dar-scratch.R}
+
+\end{document}
