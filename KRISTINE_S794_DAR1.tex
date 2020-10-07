@@ -120,14 +120,14 @@
 
 \noindent\textbf{\underline{Exploratory Data Analysis}} 
 
-\noindent During the exploratory analysis process, it is important to access all the significant relationship of each variable with the target variable. Initially, looking at Table~\ref{descrips}, the summary statistics of all independent variables and target variable shows the maximum for expenditures, wealth, population, pint, density, income, and growth rate are extremely high compare to their mean and 75 percentiles. This indicates that all the variables mention previous are heavily right skewed. Most importantly, expenditure's skewness violates the normality assumption when generating a linear regression. Therefore, a log transformation was applied to expenditure to normalize the distribution of the target variable. Log-transformation would reduce the values which would account for outliers. Figure~\ref{inital-explore}.1. depicts the normality of the outcome variable expenditure after transformation with an overplayed of the approximately normal distribution.
+\noindent During the exploratory analysis process, it is important to access all the significant relationship of each variable with the target variable. Initially, looking at Table~\ref{descrips}, the summary statistics of all independent variables and target variable shows the maximum for expenditures, wealth, population, pint, density, income, and growth rate are extremely high compare to their mean and 75 percentiles. This indicates that all the variables mention previous are heavily right skewed. Most importantly, expenditure's skewness violates the normality assumption when generating a linear regression. Therefore, a log transformation was applied to expenditure to normalize the distribution of the target variable. Log-transformation would reduce the values which would account for outliers. Figure~\ref{inital-explore}.1. depicts the normality of the outcome variable expenditure after transformation implying the assumption is not violated.
 
 \begin{figure}[h!] 
 \begin{center}
 
 \includegraphics[width=\maxwidth]{figure/unnamed-chunk-1-1} 
 
-\caption{Initial Exploratory Plots after Log-Transformation 1: Histogram of Log-Expenditures with Density curve in red, 2: Scatter plot of Log-Expenditures vs Log-Population with LOESS smooth line in red, and 3: Scatterplot of Log-Expenditures vs Log-Density with LOESS smooth line in red.}
+\caption{Initial Exploratory Plots after Log-Transformation 1: Histogram of Log-Expenditures with Frequency, 2: Scatter plot of Log-Expenditures vs Log-Population with LOESS smooth line in red, and 3: Scatterplot of Log-Expenditures vs Log-Density with LOESS smooth line in red.}
 \label{inital-explore}
 \end{center} 
 \end{figure}
@@ -136,7 +136,7 @@
 
 
 
-\noindent After selecting a subset of data, a second round of data exploratory was conducted to ensure the relationship of each measure if significant to the outcome variable expenditures. Expenditures and wealth have a positive relationship indicating the increases of wealth would cause expenditure to be higher, see Figure~\ref{sec-explore}.1. Intuitively, this makes sense since wealthier individuals would spend more resulting in higher expenses. Similarly, Figure~\ref{sec-explore}.2. shows a strong positive correlation between expenditure and income. This relationship is expected since the mean income per person is higher, their expenses would also be higher compared to lower income individuals. Other variables like population and density seem to have moderate positive relationship with expenditure, see the first two plots in Figure~\ref{sec2-explore}. Clearly, population and density are important measurements to predict expenditures. As population and density increases, the amount of expenses also increases, on average. On the other hand, predictors including intergovernmental funds and growth rate have moderate negative correlation with expenditures. This indicate that, while intergovernmental funds and growth rate increases, the amount of expenses should decrease. This makes perfect sense since if the growth rate in economic is slow, then there would be lower expenses.             
+\noindent After selecting a subset of data, only 228 observations are left in the data. A second round of data exploratory was conducted to ensure the relationship of each measure if significant to the outcome variable expenditures. Expenditures and wealth have a positive relationship indicating the increases of wealth would cause expenditure to be higher, see Figure~\ref{sec-explore}.1. Intuitively, this makes sense since wealthier individuals would spend more resulting in higher expenses. Similarly, Figure~\ref{sec-explore}.2. shows a strong positive correlation between expenditure and income. This relationship is expected since the mean income per person is higher, their expenses would also be higher compared to lower income individuals. Other variables like population and density seem to have moderate positive relationship with expenditure, see the first two plots in Figure~\ref{sec2-explore}. Clearly, population and density are important measurements to predict expenditures. As population and density increases, the amount of expenses also increases, on average. On the other hand, predictors including intergovernmental funds and growth rate have moderate negative correlation with expenditures. This indicate that, while intergovernmental funds and growth rate increases, the amount of expenses should decrease. This makes perfect sense since if the growth rate in economic is slow, then there would be lower expenses.             
 
 \begin{figure}[h!] 
 \begin{center}
@@ -148,12 +148,56 @@
 \end{center} 
 \end{figure}
 
-\noindent After detecting the relationship of each independent variables with expenditures, it is important to examine the correlation of each predictors. Higher correlation between predictors mean there might be multicollinearity issues when including both variables in the model. This leads the model to have unstable and unreliable coefficients. Figure~\ref{sec-explore}.3. shows the upper diagonal of the correlation matrix plot. As one can see, density and population have a high positive correlation of 0.83. To solve the multicollinearity issues, separate models with density in one and population in other, along with other variables, were generated. The results of the models will be compared and selected as the best model. Furthermore, wealth and income also have high positive correlation of 0.74. Similar solution mentioned previously will also be applied to wealth and income. Other variables not mentioned above have little to no relationship with expenditures.          
-
-
+\noindent After detecting the relationship of each independent variables with expenditures, it is important to examine the correlation of each predictors. Higher correlation between predictors mean there might be multicollinearity issues when including both variables in the model. This leads the model to have unstable and unreliable coefficients. Figure~\ref{sec-explore}.3. shows the upper diagonal of the correlation matrix plot. As one can see, density and population have a high positive correlation of 0.83. To solve the multicollinearity issues, separate models with density in one and population in other, along with other variables, were generated. The results of the models will be compared and selected as the best model. Furthermore, wealth and income also have high positive correlation of 0.74. However, wealth and income are not strongly correlated. Other variables not mentioned above have little to no relationship with expenditures.          
 \hfill \break
 
 \noindent\textbf{\underline{Statistical Analysis}}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{fit1} \hlkwb{<-} \hlkwd{lm}\hlstd{(lexpen} \hlopt{~} \hlstd{lwealth} \hlopt{+} \hlstd{lpint} \hlopt{+} \hlstd{ldens} \hlopt{+} \hlstd{lincome} \hlopt{+} \hlstd{lgrowr,} \hlkwc{data} \hlstd{= set2)}
+
+\hlstd{fit2} \hlkwb{<-} \hlkwd{lm}\hlstd{(lexpen} \hlopt{~} \hlstd{lwealth} \hlopt{+} \hlstd{lpop} \hlopt{+} \hlstd{lpint} \hlopt{+} \hlstd{lincome} \hlopt{+} \hlstd{lgrowr,} \hlkwc{data} \hlstd{= set2)}
+
+\hlstd{fit1_summary} \hlkwb{<-} \hlkwd{tibble}\hlstd{(}\hlkwc{Features} \hlstd{=} \hlstr{"lwealth, lpint, ldens, lincome, lgrowr"}\hlstd{,}
+                       \hlkwc{MSE} \hlstd{=} \hlkwd{mean}\hlstd{(fit1}\hlopt{$}\hlstd{residuals}\hlopt{^}\hlnum{2}\hlstd{),}
+                       \hlkwc{Adj.R.squared} \hlstd{=} \hlkwd{summary}\hlstd{(fit1)}\hlopt{$}\hlstd{adj.r.squared,}
+                       \hlkwc{F.statistics} \hlstd{=} \hlkwd{summary}\hlstd{(fit1)}\hlopt{$}\hlstd{fstatistic[[}\hlnum{1}\hlstd{]],}
+                       \hlkwc{AIC} \hlstd{=} \hlkwd{AIC}\hlstd{(fit1))}
+
+\hlstd{fit2_summary} \hlkwb{<-} \hlkwd{tibble}\hlstd{(}\hlkwc{Features} \hlstd{=} \hlstr{"lwealth, lpop, lpint, lincome, lgrowr"}\hlstd{,}
+                       \hlkwc{MSE} \hlstd{=} \hlkwd{mean}\hlstd{(fit2}\hlopt{$}\hlstd{residuals}\hlopt{^}\hlnum{2}\hlstd{),}
+                       \hlkwc{Adj.R.squared} \hlstd{=} \hlkwd{summary}\hlstd{(fit2)}\hlopt{$}\hlstd{adj.r.squared,}
+                       \hlkwc{F.statistics} \hlstd{=} \hlkwd{summary}\hlstd{(fit2)}\hlopt{$}\hlstd{fstatistic[[}\hlnum{1}\hlstd{]],}
+                       \hlkwc{AIC} \hlstd{=} \hlkwd{AIC}\hlstd{(fit2))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\noindent Model selection is a crutial step in a data analysis. A multiple linear regression will be used to build the model. After the exploratory data analysis, there are six possible variables that can be include in the model including wealth, population, percent intergovernmental funds, density, income, and growth rate. As mentioned before, if population and density are in the same models, multicolinearity issues will occur. Therefore, two initial models will be built to compared using three validation metrics such as Akaike information criterion (AIC), R-squared adjusted, and mean square error (MSE). In this case, the ideal best model would have smaller AIC score, higher R-square adjusted, and lower MSE. After building both models, a table of model comparison was generated to select the best model among the two, see Table~\ref{reg_vali_metric}. This table clearly state that the second model with predictors wealth, population, percent intergovernment funds, income, and grow is the best model with lower MSE and AIC values, and higher R-square adjusted proportion of 0.09, 124.16, and 0.61, respectively. An R-square of 0.61 states that 60.63 of variation in expenditures can be explained by all of the predictors in this model.        
+\begin{center}
+% latex table generated in R 3.6.2 by xtable 1.8-4 package
+% Wed Oct 07 16:58:09 2020
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrr}
+  \hline
+Features & MSE & Adj.R.squared & F.statistics & AIC \\ 
+  \hline
+lwealth, lpint, ldens, lincome, lgrowr & 0.0983 & 0.5921 & 66.8997 & 132.2354 \\ 
+  lwealth, lpop, lpint, lincome, lgrowr & 0.0949 & 0.6063 & 70.9101 & 124.1646 \\ 
+   \hline
+\end{tabular}
+\caption{Regression validation metrics including MSE, R-squared adjusted, and AIC} 
+\label{reg_vali_metric}
+\end{table}
+
+\end{center} 
+
+\noindent After finding the best predictors, a stepwise selection was generated for variables selection using AIC values. Unfortunately, the full model appears to be the final model with the following predictors: wealth, population, percent intergovernment, income, and growth rate.  
+
+
 \hfill \break
 
 \noindent\textbf{\underline{Conclusion}}
@@ -167,7 +211,7 @@
 \begin{center}
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Tue, Oct 06, 2020 - 5:14:58 PM
+% Date and time: Wed, Oct 07, 2020 - 4:58:09 PM
 \begin{table}[H] \centering 
   \caption{Summary Statistics for all numerical independent features} 
   \label{descrips} 
@@ -176,20 +220,12 @@
 \hline \\[-1.8ex] 
 Statistic & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Pctl(25)} & \multicolumn{1}{c}{Pctl(75)} & \multicolumn{1}{c}{Max} \\ 
 \hline \\[-1.8ex] 
-expen & 914 & 293.818 & 269.678 & 53 & 172 & 316 & 3,286 \\ 
 wealth & 914 & 51,837.720 & 55,994.250 & 7,744 & 25,745.2 & 54,224.8 & 594,758 \\ 
 pop & 914 & 7,090.270 & 26,417.210 & 69 & 1,258.8 & 4,816.8 & 471,283 \\ 
 pint & 914 & 19.231 & 10.225 & 1.700 & 12.400 & 23.975 & 68.600 \\ 
 dens & 914 & 189.495 & 534.188 & 1 & 30 & 111 & 6,252 \\ 
 income & 914 & 12,724.960 & 4,250.423 & 2,884 & 10,336.8 & 13,867.5 & 48,021 \\ 
 growr & 914 & 8.100 & 17.434 & $-$54.100 & $-$0.300 & 13.700 & 294.500 \\ 
-lexpen & 914 & 5.491 & 0.558 & 3.970 & 5.147 & 5.756 & 8.097 \\ 
-lwealth & 914 & 10.599 & 0.627 & 8.955 & 10.156 & 10.901 & 13.296 \\ 
-lpop & 914 & 7.876 & 1.143 & 4.234 & 7.138 & 8.480 & 13.063 \\ 
-lpint & 914 & 2.826 & 0.522 & 0.531 & 2.518 & 3.177 & 4.228 \\ 
-ldens & 914 & 4.141 & 1.296 & 0.000 & 3.401 & 4.710 & 8.741 \\ 
-lincome & 914 & 9.409 & 0.278 & 7.967 & 9.243 & 9.537 & 10.779 \\ 
-lgrowr & 914 & 1.264 & 1.925 & $-$4.009 & $-$0.270 & 2.689 & 5.689 \\ 
 \hline \\[-1.8ex] 
 \end{tabular} 
 \end{table} 
@@ -199,7 +235,7 @@ lgrowr & 914 & 1.264 & 1.925 & $-$4.009 & $-$0.270 & 2.689 & 5.689 \\
 \begin{figure}[h!] 
 \begin{center}
 
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-5-1} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-7-1} 
 
 \caption{Exploratory Plot after Log-Transformation and Subsetted Data 1 with linear regression line in red: 1: Log-Expenditures vs Log-Population, 2: Log-Expenditures vs Log-Intergovernmental FUnds, 3: Log-Expenditures vs Log-Density, and 4: Log-Expenditures vs Log- Growth Rate.}
 \label{sec2-explore}
