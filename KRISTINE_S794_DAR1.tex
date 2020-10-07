@@ -105,22 +105,58 @@
 
 
 
-\noindent\textbf{\underline{Executive Summary:}} 
+\noindent\textbf{\underline{Executive Summary}} 
 \hfill \break
 
-\noindent\textbf{\underline{Introduction:}} Generally, construction companies have numerous aspects in estimating the cost of each new housing project. To estimate the cost of each housing project, expenditures play an important role in increasing or decreasing the cost. For example, higher expenditure would result in an increase in cost of construction. Therefore, the property owners would have to seek for higher funding to fulfill the project. On the other hand, while expenditure decreases, properties owner could spend the reimburse the expenses elsewhere. In addition, knowing the expenditures would also help construction manager to order supplies in a proper manger. If expenditure decreases, then the supplies would also be less in quantity or cheaper in quality. Numerous questions were proposed in favor of these issues such as 1) What variables causes the fluctuation of expenditure? 2) What is the best predictive model that could predict expenditures? 3) How can we validate and implement the model? 3) How accurate is the model? 4) Is there any improvement to the future models? To answer these questions, this analysis will take a deep dive into the data exploratory analysis, model development process using linear regression, and diagnostics analysis. With the answered questions, construction workers and properties owner would have a better understanding of their expenditures when starting a new project to avoid over or underestimating their budgets.
+\noindent\textbf{\underline{Introduction}} 
+
+\noindent Generally, construction companies have numerous aspects in estimating the cost of each new housing project. To estimate the cost of each housing project, expenditures play an important role in increasing or decreasing the cost. For example, higher expenditure would result in an increase in cost of construction. Therefore, the property owners would have to seek for higher funding to fulfill the project. On the other hand, while expenditure decreases, property’s owner could spend the reimburse the expenses elsewhere. In addition, knowing the expenditures would also help construction manager to order supplies in a proper manger. If expenditure decreases, then the supplies would also be less in quantity or cheaper in quality. Numerous questions were proposed in favor of these issues such as 1) What variables causes the fluctuation of expenditure? 2) What is the best predictive model that could predict expenditures? 3) How can we validate and implement the model? 3) How accurate is the model? 4) Is there any improvement to the future models? To answer these questions, this analysis will take a deep dive into the data exploratory analysis, model development process using linear regression, and diagnostics analysis. With the answered questions, construction workers and properties owner would have a better understanding of their expenditures when starting a new project to avoid over or underestimating their budgets.
 \hfill \break
 
-\noindent\textbf{\underline{Methods:}} A dataset from two New York municipalities (Warwick and Monroe) were provided to access the important measures to predict expenditures. These data contain a total of 916 observations from 1992 with 2 observation contains missing expenditure value. Two observation with NA expenditures have been removed from the analysis to improve the assumption of linear regression modeling. In terms of variables, this dataset contains three identifiers including identity number, state code, and county code and six demographic and income-realted variables including wealth per person, population, percent intergovernmental, density, mean income per person, and growth rate.There is a total of 57 distinct county code implying there are multiple measurement of expenditure per county in New York. The goal of this data analysis is to predict the chances in expenditures of two New York municipalities, Warwick and Monroe. A projection dataset for Warwick and Monroe was also provided to generate predictions from using the fitted model. To achieve this goal, all analysis will be done using multiple linear regression models in R Studio with R version 3.6.2.    
+\noindent\textbf{\underline{Methods}} 
+
+\noindent A dataset from two New York municipalities (Warwick and Monroe) were provided to access the important measures to predict expenditures. These data contain a total of 916 observations from 1992 with 2 observation contains missing expenditure value. Two observation with NA expenditures have been removed from the analysis to improve the assumption of linear regression modeling. In terms of variables, this dataset contains three identifiers including identity number, state code, and county code and six demographic and income-related variables including wealth per person, population, percent intergovernmental, density, mean income per person, and growth rate. There is a total of 57 distinct county code implying there are multiple measurement of expenditure per county in New York. The goal of this data analysis is to predict the chances in expenditures of two New York municipalities, Warwick and Monroe. A projection dataset for Warwick and Monroe was also provided to generate predictions from using the fitted model. To achieve this goal, all analysis will be done using multiple linear regression models for model development process and accompany by diagnostics process to check for the quality of the model. All analysis including coding and writing report is done in R Studio with R version 3.6.2.    
 \hfill \break
 
-\noindent\textbf{\underline{Exploratory Data Analysis:}} Table~\ref{descrips} shows the summary statistics of all independent variables and target varable.
+\noindent\textbf{\underline{Exploratory Data Analysis}} 
+
+\noindent During the exploratory analysis process, it is important to access all the significant relationship of each variable with the target variable. Initially, looking at Table~\ref{descrips}, the summary statistics of all independent variables and target variable shows the maximum for expenditures, wealth, population, pint, density, income, and growth rate are extremely high compare to their mean and 75 percentiles. This indicates that all the variables mention previous are heavily right skewed. Most importantly, expenditure's skewness violates the normality assumption when generating a linear regression. Therefore, a log transformation was applied to expenditure to normalize the distribution of the target variable. Log-transformation would reduce the values which would account for outliers. Figure~\ref{inital-explore}.1. depicts the normality of the outcome variable expenditure after transformation with an overplayed of the approximately normal distribution.
+
+\begin{figure}[h!] 
+\begin{center}
+
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-1-1} 
+
+\caption{Initial Exploratory Plots after Log-Transformation 1: Histogram of Log-Expenditures with Density curve in red, 2: Scatter plot of Log-Expenditures vs Log-Population with LOESS smooth line in red, and 3: Scatterplot of Log-Expenditures vs Log-Density with LOESS smooth line in red.}
+\label{inital-explore}
+\end{center} 
+\end{figure}
+
+\noindent Since all independent variable are right-skewed, a log-transformation also applied to each variable to ensure linear relationship with expenditures. An amount of 1.01 was added to all growth rate values to account for zeros values while taking logarithm. All variables mentioned in the rest of this article are log-transformed variables unless otherwise specified. With that being said, wealth, intergovernmental funds, income, and grow rate seems to have linear relationship with expenditures. However, population and density have different two different trend of expenditures within their plots. Figure~\ref{inital-explore}.2. shows a scatterplot of expenditures and population with a dip at approximately 8.3 to change direction of correlation. Population is self-explanatory variable which represent the number of people living in the county during the year. While population is less than 8.3, as population increases, expenditures decrease on average. When population is greater than 8.3, expenditures increase as population increases. Similar issue happens to density at 4.5, see Figure~\ref{inital-explore}.3. Density, here, represent the population of other substances like animals, environment, or other objects. To account for this problem, the data set of New York city will be subsetted into different groups according to each trend. Subsetting data will help the relationship between density and population and expenditures be linear. This analysis will only model data when population is greater than 8.3 and density is greater than 4.5 since the projection data is within these ranges.    
+
+
+
+\noindent After selecting a subset of data, a second round of data exploratory was conducted to ensure the relationship of each measure if significant to the outcome variable expenditures. Expenditures and wealth have a positive relationship indicating the increases of wealth would cause expenditure to be higher, see Figure~\ref{sec-explore}.1. Intuitively, this makes sense since wealthier individuals would spend more resulting in higher expenses. Similarly, Figure~\ref{sec-explore}.2. shows a strong positive correlation between expenditure and income. This relationship is expected since the mean income per person is higher, their expenses would also be higher compared to lower income individuals. Other variables like population and density seem to have moderate positive relationship with expenditure, see the first two plots in Figure~\ref{sec2-explore}. Clearly, population and density are important measurements to predict expenditures. As population and density increases, the amount of expenses also increases, on average. On the other hand, predictors including intergovernmental funds and growth rate have moderate negative correlation with expenditures. This indicate that, while intergovernmental funds and growth rate increases, the amount of expenses should decrease. This makes perfect sense since if the growth rate in economic is slow, then there would be lower expenses.             
+
+\begin{figure}[h!] 
+\begin{center}
+
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-3-1} 
+
+\caption{Exploratory Plot after Log-Transformation and Subsetted Data 1: Scatterplot of Log-Expenditures vs Log-Wealth with Linear Regression line in red, 2: Scatterplot of Log-Expenditures vs Log-Income with linear regression line in red, and 3: Upper Correlation plot of all independent variables.}
+\label{sec-explore}
+\end{center} 
+\end{figure}
+
+\noindent After detecting the relationship of each independent variables with expenditures, it is important to examine the correlation of each predictors. Higher correlation between predictors mean there might be multicollinearity issues when including both variables in the model. This leads the model to have unstable and unreliable coefficients. Figure~\ref{sec-explore}.3. shows the upper diagonal of the correlation matrix plot. As one can see, density and population have a high positive correlation of 0.83. To solve the multicollinearity issues, separate models with density in one and population in other, along with other variables, were generated. The results of the models will be compared and selected as the best model. Furthermore, wealth and income also have high positive correlation of 0.74. Similar solution mentioned previously will also be applied to wealth and income. Other variables not mentioned above have little to no relationship with expenditures.          
+
+
 \hfill \break
 
-\noindent\textbf{\underline{Statistical Analysis:}}
+\noindent\textbf{\underline{Statistical Analysis}}
 \hfill \break
 
-\noindent\textbf{\underline{Conclusion:}}
+\noindent\textbf{\underline{Conclusion}}
 \hfill \break
 
 
@@ -131,7 +167,7 @@
 \begin{center}
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Mon, Oct 05, 2020 - 11:04:01 PM
+% Date and time: Tue, Oct 06, 2020 - 5:14:58 PM
 \begin{table}[H] \centering 
   \caption{Summary Statistics for all numerical independent features} 
   \label{descrips} 
@@ -160,8 +196,19 @@ lgrowr & 914 & 1.264 & 1.925 & $-$4.009 & $-$0.270 & 2.689 & 5.689 \\
 
 \end{center} 
 
+\begin{figure}[h!] 
+\begin{center}
+
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-5-1} 
+
+\caption{Exploratory Plot after Log-Transformation and Subsetted Data 1 with linear regression line in red: 1: Log-Expenditures vs Log-Population, 2: Log-Expenditures vs Log-Intergovernmental FUnds, 3: Log-Expenditures vs Log-Density, and 4: Log-Expenditures vs Log- Growth Rate.}
+\label{sec2-explore}
+\end{center} 
+\end{figure}
+
 
 \end{document}
+
 
 
 
