@@ -6,6 +6,10 @@ library(MASS)
 library(leaps)
 library(car)
 library(stargazer)
+library(gridExtra)
+library(broom)
+library(knitr)
+library(kableExtra)
 
 
 #### Parameters ####
@@ -19,9 +23,19 @@ ScatterPlotFunction <- function(df, xvar, xlab, smooth_method = "loess"){
   ggplot(df, aes_string(x = xvar, y = "lexpen")) + 
     geom_point(size = 2, alpha = 0.4) + 
     geom_smooth(method = smooth_method, se = FALSE, color = "red", size = 1) + 
-    theme_bw() + 
+    theme_minimal() + 
     labs(y = "Log-Expenditures", 
          x = xlab)
+}
+
+ValidationTable <- function(fit){
+  mod <- fit
+  fit_summary <- tibble(Features = paste0((coef(mod) %>% names())[-1], collapse = ", "), 
+                        MSE = mean(mod$residuals^2), 
+                        Adj.R.squared = summary(mod)$adj.r.squared, 
+                        F.statistics = summary(mod)$fstatistic[[1]], 
+                        AIC = AIC(mod))
+  return(fit_summary)
 }
 
 
@@ -198,8 +212,7 @@ set2 %<>%
   mutate(dnorm_rstudent = dnorm(rstudent))
 
 ggplot(set2, aes(x = rstudent)) + 
-  geom_histogram(aes(y = stat(density)), bins = 30, col = "dark gray", fill = my_col) + 
-  geom_line(aes(y = dnorm_rstudent)) +
+  geom_histogram(bins = 30, col = "dark gray", fill = my_col) + 
   theme_bw() + 
   labs(title = "Distribution of Studentized Residuals", 
        x = "Studentized Residuals", 
@@ -228,7 +241,7 @@ diag %<>%
 
 ## cook's distant ggplot
 ggplot(diag, aes(x = Index, y = .cooksd)) + 
-  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity", fill = my_col) +
   labs(y = "Cook's Distance") + 
   theme_minimal() +  
   geom_label(data = diag %>% filter(.cooksd > cutoff + .03), 
@@ -275,7 +288,7 @@ wm %<>%
   mutate(lexpen_pred = predict(fit_final, newdata = wm)) 
 
 wm %<>% 
-  cbind(exp(predict(fit_final, wm, interval="prediction")+sdfit^2/2))
+  cbind(exp(predict(fit_final, wm, interval="prediction") + sd_fit^2/2))
 
 
 
