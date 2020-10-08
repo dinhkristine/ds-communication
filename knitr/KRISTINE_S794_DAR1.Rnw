@@ -47,6 +47,7 @@
 
 \begin{document} 
 \maketitle
+\hfill \break
 
 <<packages, echo=FALSE, warning=FALSE, message=FALSE>>=
 
@@ -115,6 +116,8 @@ ny2 %<>%
 
 
 \noindent\textbf{Executive Summary} 
+
+\noindent In New York, there are many new housing projects started daily. Given the issue that the town need to generate more funds through property tax when expenditures increases. However, there is no clear understanding of what factors cause the expenses to increase/descreases. Therefore, a clear goal for this analysis is to find variables that effect expenditures. A tool was developed using a multiple linear regression model to predict expenditures using a dataset from the New York municipalities from 1992. With an adjusted R-square of 61\%, a final model was chosen after stepwise variables selection using AIC, MSE, and adjusted R-square criterias. The variables in the model includes population, wealth, income, percent intergorvernment funds, and growth rate. Diagnostics measurements was also ran to check for the quality of the model. Some interesting findings include a 4\% increase in expenditures while wealth increases by 10\%. On the other hand, there will be a 3\% decrease in expenditures while the percentage of intergovernmnetal funds increases by 10\%. Knowing the changes in expenditures caused by wealth, population, intergovernmental funds, and growth rate, construction workers and properties own would be more caution when starting a new project.            
 \hfill \break
 
 \noindent\textbf{Introduction} 
@@ -228,7 +231,7 @@ fit_final <- fit2
 
 \noindent After finding the best predictors for the model (wealth, population, percent intergovernment, income, and growth rate), a stepwise selection was generated for variables selection using AIC values. Unfortunately, stepwise variable selection was not showing any other significant models beside the full model. Furthermore, each combination of the interaction predictors was taken into consideration to find a better model. Results of MSE, R-square adjusted, and AIC for the model with interaction terms (model 3 in Table~B\ref{reg_vali_metric}) are clearly better than model 2. Thus, a stepwise selection method was applied to select the best variables and results is shown in Table~B\ref{reg_vali_metric}) as model 4. Model 4 has the best R-squared adjusted due to the more varivale contain in the model. However, in terms of the model's quality, model 4 seems to have insignicant predictors including welath and wealth times population, see p-value column in Table~B\ref{reg_summary_4}). In addition, the coefficient for percent intergorvenmental funds was expected to be negative as shown in Figure~A\ref{sec2-explore}). These two reasons prove that model 4 with interaction term is not the best model. Therefore, the model with predictors wealth, population, intergovernmental funds, income, and growth rate will be used as the final model.
 
-\noindent After variable selection, diagnostics process is a must to check for the quality of the model. Figure~\ref{diag-plot1}.1. shows the studentized residuals majority are with in the range of -2.5 to 2.5 except one observation 893. This indicates that is observation is an outlier. In addition, Figure~\ref{diag-plot1}.2. shows the cook's distance of all the observations and found that there are a few observation did not made the cutoff point for influential values including 60, 83, 100, 179, and 225. As seen in Table~A\ref{outlier_obs}, outliers and influential points have high values of either expenditures or one of the predictors. Last but not least, the right plot in Figure~\ref{diag-plot1}.3. shows that studentized residuals follow a normal distribution implying the error terms are constant.    
+\noindent After variable selection, diagnostics process is a must to check for the quality of the model. Figure~\ref{diag-plot1}.1. shows the studentized residuals majority are with in the range of -2.5 to 2.5 except one observation 893. This indicates that is observation is an outlier. In addition, Figure~\ref{diag-plot1}.2. shows the cook's distance of all the observations and found that there are a few observation did not made the cutoff point for influential values including 60, 83, 100, 179, and 225. As seen in Table~A\ref{outlier_obs}, outliers and influential points have high values of either expenditures or one of the predictors. However, none of the outliers and influential points were removed because there is no good reasons. Last but not least, the right plot in Figure~\ref{diag-plot1}.3. shows that studentized residuals follow a normal distribution implying the error terms are constant.    
 
 \begin{figure}[h!] 
 \begin{center}
@@ -291,7 +294,7 @@ grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
 \end{center} 
 \end{figure}
 
-\noindent After accessing the quality of the model, an interpretation and explaination of the model will be explained. The summary of regression for the final model (wealth, population, intergovernmental, income, and growth rate) is in Table~\ref{reg_summary_final}. VIF values are all before 3 indicating there is no multicolinearity problem in the model. Confident intervals for majority of coefficients do not contain zeros and small p-values implying all variables are statistically significant in the model. This means that as wealth, population, or income increases by 10\%, holding all else constant, expenditures will increase by 4\%, 1\%, or 2\%, on average, respectively. On the other hand, while percent intergovernmental fund or growth rate increases by 10\%, on average, expenditures will decrease by 3\% or 1\%, respectively. In addition, this model has an adjusted R-square of \Sexpr{round(summary(fit_final)$adj.r.squared, 2)} indicating that \Sexpr{round(summary(fit_final)$adj.r.squared, 2)*100}\% of the variation in expenditure can be explained by wealth, population, intergovermental, income, and growth rate.   
+\noindent After accessing the quality of the model, an interpretation and explaination of the model will be explained. The summary of regression for the final model (wealth, population, intergovernmental, income, and growth rate) is in Table~\ref{reg_summary_final}. VIF values are all before 3 indicating there is no multicolinearity problem in the model. Confident intervals for majority of coefficients do not contain zeros and small p-values implying all variables are statistically significant in the model. For the purpose of intergrepting, the coefficient will be backtransformation. This means that as wealth, population, or income increases by 10\%, holding all else constant, expenditures will increase by 4\%, 1\%, or 2\%, on average, respectively. On the other hand, while percent intergovernmental fund or growth rate increases by 10\%, on average, expenditures will decrease by 3\% or 1\%, respectively. In addition, this model has an adjusted R-square of \Sexpr{round(summary(fit_final)$adj.r.squared, 2)} indicating that \Sexpr{round(summary(fit_final)$adj.r.squared, 2)*100}\% of the variation in expenditure can be explained by wealth, population, intergovermental, income, and growth rate.   
 
 \begin{center}
 <<echo = FALSE, results='asis'>>=
@@ -318,7 +321,7 @@ print(fit_final_table, include.rownames=FALSE)
 @
 \end{center}
 
-\noindent Given a good model, the goal of this analysis is to predict expenditures for two New York municipalities Warwick and Monroe. A project table of values for predictors was provided for years 1992, 2005, and 2025. Table~\ref{pred_tab} shows a prediction table of the two towns. The values for expenditures seem to be within the range of expenditures in the training set. With the last two columns being lower and upper 95\% confident interval of predicted values, we can say that expenditures are confident to be inside these ranges.  
+\noindent Given a good model, the goal of this analysis is to predict expenditures for two New York municipalities Warwick and Monroe. A project table of values for predictors was provided for years 1992, 2005, and 2025. Table~\ref{pred_tab} shows a prediction table of the two towns. The values for expenditures seem to be within the range of expenditures in the training set. Looking closely at the projection table, predicted expenditures are higher, on average, in Monroe than Warwick due to the extremenly lower percentage of intergovernmental funds and relatively lower growth rate. According to the model, having lower intergovernmental funds and growth rate leads to higher expenditures. Although, Warwick town has relatively higher population, wealth, and income, on average, Monroe town would still have higher expenditures. The last two columns depicts lower and upper 95\% confident interval of predicted values and we can say that expenditures are confident to be inside these ranges. Given the coeffients being fixed, Warwick and Monroe would expect their expenditures to change if their wealth, population, percent intergovernmental, income, and growth rate change.    
 
 \begin{center}
 <<echo = FALSE, results='asis', message=FALSE, warning=FALSE, error = FALSE>>=
@@ -370,9 +373,10 @@ print(wm_tab, include.rownames=FALSE)
 
 \noindent\textbf{Conclusion}
 
-\noindent\ In conclusion.
-\hfill \break
+\noindent In conclusion, expenditures are one of the most important aspects to known before starting a new construction project. It is difficult to estimate expenditures manually. Therefore, this analysis created a tool to automate the process of estimating expenditures. The variables that cause the flunctuation of expenditures are popluation, wealth, percent intergovernmental funds, income, and growth rate. With this model, construction managers and property owners would have a clear understanding of how much funding they would need for a certain type of project in the city. Using the summary regresssion results of our model, it is confident to say that an area with higher population would cause expenditures to be higher. Similarly, if the average of wealth and income is higher, then expenditures will also be higher. However, it is clear that if the percentage of intergovernment funds is lower and growth rate in the city is slower, then expenditures is obviously higher. As a results, this model does not only provide an estimate of expenditures faster, but construction workers can also have a great understanding of what cuase the expenses to shift up and down.
 
+\noindent There are a few limitations in this analysis. This model only use a subset of the main data which is \Sexpr{nrow(set2) / nrow(ny2)} less compared to the full dataset. Therefore, smaller sample size would lead the model to perform not as accurate. Second, growth rate have a small correlation with expenditures indicating the amount the changes in expenditures would be very small if the values of growth rate change. Last but not least, the model is only limited to when population is greater than \Sexpr{exp(8.3)}. Cities with population smaller than \Sexpr{exp(8.3)} cannot use this model. For future reference, there are many ways to improve the models. We could considers more variables that could lead expenditures to be higher or lower including number of workers, supplies, time of the year. In addition, we would collect more data from different cities in New York in an expanded time range.    
+\hfill \break
 
 \clearpage
 \newpage
