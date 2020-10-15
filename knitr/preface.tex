@@ -1,0 +1,190 @@
+% Preface to a LaTeX document for Stat 696: margins, spacing, packages, macros,
+% title, abstract, and figures.
+
+\documentclass[11pt]{article}
+
+\usepackage{graphics}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{epstopdf} % required by TeXShop and Mac to process eps figures in includegraphics environment
+
+% Approximately 1 inch borders all around
+\setlength\topmargin{-.56in}
+\setlength\evensidemargin{0in}
+\setlength\oddsidemargin{0in}
+\setlength\textwidth{6.49in}
+\setlength\textheight{8.6in}
+
+\let\BLS=\baselinestretch
+
+% macros for different spacing options
+\makeatletter
+\newcommand{\singlespacing}{\let\CS=\@currsize\renewcommand{\baselinestretch}{1}\small\CS}
+\newcommand{\doublespacing}{\let\CS=\@currsize\renewcommand{
+\baselinestretch}{1.5}\small\CS}
+\newcommand{\normalspacing}{\let\CS=\@currsize\renewcommand{\baselinestretch}{\BLS}\small\CS}
+\makeatother
+
+% macros I commonly use, primarily for boldfaced greek letters
+\def\R{\mbox{\rlap{I}\hskip .03in R}}
+\newcommand{\bfbeta}{\mbox{\boldmath $\beta$}}
+\newcommand{\bfeps}{\mbox{\boldmath $\epsilon$}}
+\newcommand{\bfsigma}{\mbox{\boldmath $\sigma$}}
+\newcommand{\bfpsi}{\mbox{\boldmath $\Psi$}}
+\newcommand{\bft}{\mbox{\boldmath $\theta$}}
+\newcommand{\bfmu}{\mbox{\boldmath $\mu$}}
+%%%%%%
+% To make comments, in red, in the margin of text
+\newcommand{\but}[1]{\marginpar{\color{red}\begin{sffamily}#1\end{sffamily}\color{black}}}
+% Example of usage: \but{I deleted a sentence - see the latex file}  
+%%%%%%
+
+
+\begin{document}
+
+\title{Title here}
+\author{Richard A. Levine\thanks{Email: rlevine@mail.sdsu.edu} \\
+San Diego State University \\ STAT 794: Statistical Communication in Data Science}
+
+\date{\today}
+\maketitle
+\setlength{\parskip}{0in}
+\begin{abstract}
+\setlength{\parindent}{0in}
+
+Executive summary here.
+
+\end{abstract}
+
+
+%\newpage
+
+\section{Introduction}
+\label{intro}
+
+% For mark-ups in revising, here is how to highlight text in colors; this example is a remark in blue
+\textcolor{blue}{Make sure to compile your \LaTeX\ code multiple times to get all the citations and labels correct.}
+
+\section{Methods}
+\label{method}
+
+Three primary ways to include math (and will show an itemized list at the same time): 
+
+\begin{itemize} 
+
+\item Place math inside the text using \$ \{math here\} \$, e.g., $\theta = x^2$.  
+
+\item Display the equation using the {\tt displaymath} or {\tt equation} environment.  The {\tt displaymath} environment does not label the equation:
+\[ \gamma = \alpha + \beta \cdot \ln(y).\]
+The {\tt equation} environment allows you to label the equation:
+\begin{equation}
+\label{fraction}
+\xi = \frac{\nu^{\epsilon}}{\sum_{i=1}^n s^2_i}.
+\end{equation}
+Equation (\ref{fraction}) is labeled ``fraction'' and may be cited by using {\tt ref}.
+
+\item Finally, there is the equation array {\tt eqnarry*} which stacks equations nicely for you.  The asterisk tells \LaTeX\ not to label any parts of this equation.
+\begin{eqnarray*}
+m({\bf x}, \Delta | {\bf z}, T) 
+	& = & \int \prod_{i=1}^b  
+	 f({\bf x}_i, \Delta_i | \bfbeta_i, \gamma_i, T) \\
+	& & \hspace{1cm} \times \pi(\bfbeta_i|T) 
+	\pi(\gamma_i|T) \, d\bfbeta_i d\gamma_i \\
+	& \approx & \exp\{{\cal L}(\lambda^*_i, \gamma^*_i)\} (2\pi)^{p/2}|-
+	 {\cal L}''(\lambda^*_i, \gamma^*_i)|^{-1/2}.
+\end{eqnarray*}
+\end{itemize}
+If an equation ends a sentence, please remember that you still need to place a period at the end of the equation.
+
+\section{Results}
+\label{results}
+
+In this section we show a table using {\tt table}, {\tt tabular}, and {\tt center} environments.  Table~\ref{transcript} is labeled ``transcript" and like equations can be cited using {\tt ref}.  Just make sure to {\tt label} the table after the {\tt caption} to get the numbering right.
+
+\begin{table}
+\caption{My Fall 2016 transcript.}
+\label{transcript}
+% Label must come after caption to get numbering right
+\begin{center}
+\begin{tabular}{|r|c|l|} \hline
+Class & Units & Grade \\ \hline
+Stat 696 & 3 & A \\ \hline
+Stat 700 & 3 & A- \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\subsection{Free \LaTeX\ book}
+
+Feel free to use subsections.  Take a look at the .tex file for this document and for the \LaTeX\ slide presentation for syntax.
+
+
+But when there is a subsection 1, there must be at least a subsection 2 \ldots
+
+\subsection{Lots on the web}
+
+\vspace{0.2cm}
+\noindent A good, {\bf free} text reference is 
+``The Not So Short Introduction to \LaTeX2e'':
+
+{\tt http://ctan.sharelatex.com/tex-archive/info/lshort/english/lshort.pdf}
+
+\noindent Remember, {\em google is your friend}: anything you want to do in \LaTeX\ has probably been done and code can be found on the web.  
+
+\section{Discussion and Conclusions}
+\label{disc}
+
+I like lists.
+% if need to make an itemized list delineated by letters: must set up a new counter
+\newcounter{a}
+\begin{list}{\alph{a}.}{\usecounter{a}\setlength{\rightmargin}{\leftmargin}}
+\item First item
+\item Second item
+\end{list}
+
+% To add a figure; [h!] option tries to force LaTeX to place figure exactly in this spot of the document.
+
+\begin{figure}[h!]
+\begin{center}
+\scalebox{.9}{\includegraphics{YokosukaJRSchedule.jpg}}
+\end{center}
+\caption{Japanese train schedules are often presented as stem-and-leaf plots!}
+\label{JRsched}
+\end{figure}
+
+
+% Reference list on a new page since it does not count towards the page limit
+\clearpage
+\begin{thebibliography}{99}
+
+\bibitem{9}
+Robert, C. P.  (1995a).  Convergence Control Methods for Markov Chain
+Monte Carlo Algorithms.  {\em Statistical Science} 10 (3), 231-253.
+
+\bibitem{11}
+Robert, C. P. and Casella, G.  (1999).  {\em Monte Carlo Statistical
+Methods}.  Springer-Verlag, New York.
+
+\end{thebibliography}
+
+\clearpage
+\noindent {\Large {\bf Appendix}}
+
+\vspace{0.5cm}
+The appendix does not count towards the page limit.  Put it at the end starting on a new page.  Make sure to place all R-code and output in the appendix.  The {\tt verbatim} environment will be a good one for this; here is an example of an R-code snippet in a verbatim environment.
+
+\begin{verbatim}
+# Load in required R packages
+library(MASS)
+library(corrplot)
+library(car)
+library(gam)
+
+# Read in data on New York expenditures and clean a little by removing NAs
+ny<-read.table("cs73.dat",header=T); dim(ny)  #  916  11
+ny2<-na.omit(ny); dim(ny2) # 914  11
+attach(ny2)
+\end{verbatim}
+
+\end{document}
