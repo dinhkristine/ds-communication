@@ -66,19 +66,22 @@ library(xtable)
 
 @
 
+
 <<parameter and functions, echo=FALSE>>=
 
 #### Parameters ####
 my_col <- "#5a8fa1"
 
 #### Functions ####
-ScatterPlotFunction <- function(df, xvar, xlab, smooth_method = "loess"){
+ScatterPlotFunction <- function(df, xvar, xlab, smooth_method = "loess", number_plot){
   ggplot(df, aes_string(x = xvar, y = "lexpen")) + 
     geom_point(size = 2, alpha = 0.4) + 
     geom_smooth(method = smooth_method, se = FALSE, color = "red", size = 1) + 
     theme_minimal() + 
     labs(y = "Log-Expenditures", 
-         x = xlab)
+         x = xlab, 
+         subtitle = number_plot) + 
+  theme(plot.subtitle = element_text(hjust = .5))
 }
 
 ValidationTable <- function(fit){
@@ -92,6 +95,7 @@ ValidationTable <- function(fit){
 }
 
 @
+
 
 <<load data, echo=FALSE, warning=FALSE, message=FALSE>>=
 
@@ -116,16 +120,16 @@ ny2 %<>%
 @
 
 
-\noindent\textbf{\underline{Executive Summary}}: In New York, there are many new housing projects started daily. Given the issue that the town needs to generate more funding through property tax when expenditures increases. However, there is no clear understanding of which factors cause the expenses to increase/decrease. Therefore, a clear goal for this analysis is to find variables that effect expenditures in New York municipalities Warwick and Monroe in 2005 and 2025. A tool was developed using multiple linear regression models to predict expenditures using a dataset from the New York municipalities from 1992. With an adjusted R-square of 61\%, a final model was chosen after stepwise variables selection process with AIC, MSE, and adjusted R-square criteria. The variables in the final model includes population, wealth, income, and percent intergovernmental funds. Diagnostics measurements was also built to check for the quality of the model. Some interesting findings include a 4\% increase in expenditures while wealth increases by 10\%. On the other hand, there will be a 3\% decrease in expenditures while the percentage of intergovernmental funds increases by 10\%. Knowing the changes in expenditures caused by wealth, population, intergovernmental funds, and growth rate, construction workers and properties owners would be more caution when starting a new project.            
+\noindent\textbf{\underline{Executive Summary}}: In New York, there are many new housing projects started daily. Given the issue that the town needs to generate more funding through property tax when expenditures increases. However, there is no clear understanding of which factors cause the expenses to increase/decrease. Therefore, a clear goal for this analysis is to find variables that effect expenditures. Then, using the model, we can predict expenditures in New York municipalities Warwick and Monroe in 2005 and 2025. A tool was developed using multiple linear regression models to predict expenditures using a dataset from the New York municipalities from 1992. With an adjusted R-square of 61\%, a final model was chosen after stepwise variables selection process with AIC, MSE, and adjusted R-square criteria. The variables in the final model includes population, wealth, income, and percent intergovernmental funds. Diagnostics measurements was also built to check for the quality of the model. Some interesting findings include a 4\% increase in expenditures while wealth increases by 10\%. On the other hand, there will be a 3\% decrease in expenditures while the percentage of intergovernmental funds increases by 10\%. Knowing the changes in expenditures caused by wealth, population, intergovernmental funds, and growth rate, construction workers and properties owners would be more caution when starting a new project.            
 \hfill \break
 
-\noindent\textbf{\underline{Introduction}}: Generally, construction companies have numerous aspects in estimating the cost of each new housing project. To estimate the cost of each housing project, expenditures play an important role in increasing or decreasing the cost. For example, higher expenditures would result in an increase in cost of construction. Therefore, the property owners would have to seek for higher funding to fulfill the project. On the other hand, while expenditures decrease, property’s owners could reimburse the expenses elsewhere. In addition, knowing the expenditures would also help construction managers to order supplies in a proper manger. If expenditures decrease, then the supplies would have to be less in quantity or cheaper in quality. Numerous questions were proposed in favor of these issues such as 1) What variables cause the fluctuation of expenditure? 2) What is the best predictive model that could predict expenditures? 3) How can we validate and implement the model? 3) How accurate is the model? 4) Is there any improvement to the future models? To answer these questions, this analysis will take a deep dive into the data exploratory analysis, model development process using multiple linear regression, and diagnostics analysis. With the answered questions, construction workers and property owners would have a better understanding of their expenditures when starting a new project to avoid over or underestimating their budgets. Using the developed model, we can able to predict expenditures for two municipalities in New York (Warwick and Monrow) in 2005 and 2025. 
+\noindent\textbf{\underline{Introduction}}: Generally, construction companies have numerous aspects in estimating the cost of each new housing project. To estimate the cost of each housing project, expenditures play an important role in increasing or decreasing the cost. For example, higher expenditures would result in an increase in cost of construction. Therefore, the property owners would have to seek for higher funding to fulfill the project. On the other hand, while expenditures decrease, property’s owners could reimburse the expenses elsewhere. In addition, knowing the expenditures would also help construction managers to order supplies in a more proper manner. If expenditures decrease, then the supplies would have to be less in quantity or cheaper in quality. Numerous questions were proposed in favor of these issues such as 1) What variables cause the fluctuation of expenditures? 2) What is the best predictive model that could predict expenditures? 3) How can we validate and implement the model? 3) How accurate is the model? 4) Is there any improvement to the future models? To answer these questions, this analysis will take a deep dive into the data exploratory analysis, model development process using multiple linear regressions, and diagnostics analysis. With the answered questions, construction workers and property owners would have a better understanding of their expenditures when starting a new project to avoid over or underestimating their budgets. Using the developed model, we will be able to predict expenditures for two municipalities in New York (Warwick and Monrow) in 2005 and 2025. 
 \hfill \break
 
-\noindent\textbf{\underline{Methods}}: A dataset from New York municipalities were provided to access the important measures to predict expenditures. These data contain a total of \Sexpr{nrow(ny)} observations from 1992 with \Sexpr{is.na(ny$expen) %>% sum} observations contain missing expenditures values. Two observations with NA expenditures have been removed from the analysis to improve the assumption of linear regression model. In terms of variables, this dataset contains three identifiers including identity number, state code, and county code, and six demographic and income-related variables including wealth per person, population, percent intergovernmental funding, density, mean income per person, and growth rate. There is a total of \Sexpr{ny$co %>% unique %>% length} distinct county code implying that there are multiple measurement of expenditures per county in New York. The goal of this data analysis is to predict expenditures of two New York municipalities, Warwick and Monroe. A projection dataset for Warwick and Monroe town was also provided to generate predictions using the fitted model. To achieve this goal, all analysis will be done using multiple linear regressions for model development process and accompany by diagnostics process to check for the quality of the model. All analysis including coding and writing report was done in R Studio with R version 3.6.2.     
+\noindent\textbf{\underline{Methods}}: A dataset from New York municipalities were provided to access the important measures to predict expenditures. These data contain a total of \Sexpr{nrow(ny)} observations from 1992 with \Sexpr{is.na(ny$expen) %>% sum} observations contain missing expenditure values. Two observations with missing expenditures have been removed from the analysis to improve the assumption of linear regression modeling. In terms of variables, this dataset contains three identifiers including identity number, state code, and county code, and six demographic and income-related variables including wealth per person, population, percent intergovernmental funding, density, mean income per person, and growth rate. There is a total of \Sexpr{ny$co %>% unique %>% length} distinct county codes implying that there are multiple measurements of expenditures per county in New York. The goal of this data analysis is to predict expenditures of two New York municipalities, Warwick and Monroe. Thus, a projection dataset for Warwick and Monroe town was also provided to generate predictions using the fitted model. To achieve this goal, all analysis will be done using multiple linear regressions for model development process and followed by a diagnostic process to check for the quality of the model. All analysis including coding and writing report was done in R Studio with R version 3.6.2.     
 \hfill \break
 
-\noindent\textbf{\underline{Exploratory Data Analysis}}: During the exploratory analysis process, it is important to access all the significant relationship of each variable with the target variable. Initially, looking at Table~\ref{descrips}, the summary statistics of all independent variables and target variable shows the maximum for expenditures, wealth, population, pint, density, income, and growth rate are extremely high compare to their mean and 75 percentiles. This indicates that all the variables mentioned previously are heavily right skewed. Most importantly, expenditures’ skewness violates the normality assumption when generating a linear regression. Therefore, a log-transformation was applied to expenditures to normalize the distribution of the target variable. Log-transformation would reduce the values which would account for outliers. Figure~\ref{inital-explore}.1 depicts the normality of the outcome variable expenditures after transformation implying the assumption is not violated anymore.
+\noindent\textbf{\underline{Exploratory Data Analysis}}: During the exploratory analysis process, it is important to access all the significant relationship of each variable with the target variable. Initially, looking at Table~A\ref{descrips}, the summary statistics of all independent variables and target variable shows the maximum for expenditures, wealth, population, percent intergovernmental funds, density, income, and growth rate are extremely high compare to their mean and 75 percentiles. This indicates that all the variables mentioned previously are heavily right skewed. Most importantly, expenditures’ skewness violates the normality assumption when generating a linear regression. Therefore, a log-transformation was applied to expenditures to normalize the distribution of the target variable. Log-transformation would reduce the values that are very high/low. Figure~\ref{inital-explore}.1 depicts the normality of the outcome variable expenditures after transformation implying the assumption is not violated anymore.
 
 \begin{figure}[h!] 
 \begin{center}
@@ -135,11 +139,13 @@ p1 <- ggplot(ny2, aes(lexpen)) +
   geom_histogram(bins = 30, col = "dark gray", fill = my_col) +
   theme_minimal() + 
   labs(x = "Log-Expenditures", 
-       y = "Count")
+       y = "Count", 
+       subtitle = "(1)") + 
+  theme(plot.subtitle = element_text(hjust = .5))
 
-p2 <- ScatterPlotFunction(ny2, "lpop", "Log-Population")
+p2 <- ScatterPlotFunction(ny2, "lpop", "Log-Population", number_plot = "(2)")
 
-p3 <- ScatterPlotFunction(ny2, "ldens", "Log-Density")
+p3 <- ScatterPlotFunction(ny2, "ldens", "Log-Density", number_plot = "(3)")
 
 grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
 
@@ -149,7 +155,7 @@ grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
 \end{center} 
 \end{figure}
 
-\noindent Since all independent variables are right-skewed, a log-transformation also applied to each variable to ensure linear relationship with expenditures. An amount of 1.01 was added to all growth rate values to account for zeros values while taking logarithm. All variables mentioned in the rest of this article are log-transformed variables unless otherwise specified. With that being said, wealth, percent intergovernmental funds, income, and grow rate seems to have linear relationship with expenditures. However, population and density have two difference trends of expenditures within their plots. Figure~\ref{inital-explore}.2 shows a scatterplot of expenditures and population with a dip at approximately 8.3 to change direction of correlation. Population is self-explanatory variable which represent the number of people living in the county during the year. While population is less than 8.3, as population increases, expenditures decrease on average. When population is greater than 8.3, expenditures increase as population increases. Similar issue happens to density at 4.5, see Figure~\ref{inital-explore}.3. Density, here, represents the population of other substances like animals, environment, or other objects. To account for this problem, the data set of New York city will be subsetted into different groups according to each trend. Subsetting data will help the relationship between density and population and expenditures be linear. This analysis will only model data when population is greater than 8.3 and density is greater than 4.5 since the projection data is within these ranges.    
+\noindent Since all independent variables are right-skewed, a log-transformation also applied to each variable to ensure their linear relationship with expenditures. An amount of 1.01 was added to all growth rate values to account for zero values while taking logarithm. All variables mentioned in the rest of this article are log-transformed variables unless otherwise specified. With that being said, wealth, percent intergovernmental funds, income, and grow rate seems to have linear relationship with expenditures. However, population and density have two difference trends of expenditures within their plots. Figure~\ref{inital-explore}.2 shows a scatterplot of expenditures and population with a dip at approximately 8.3 to change direction of correlation. Population is self-explanatory variable which represent the number of people living in the county during the year. While population is less than 8.3, as population increases, expenditures decrease on average. When population is greater than 8.3, expenditures increase as population increases. Similar issue happens to density at 4.5, see Figure~\ref{inital-explore}.3. Density, here, represents the population of other substances like animals, environment, or other objects. To account for this problem, the data set of New York city will be subsetted into different groups according to each trend. Subsetting data will help the relationship between density and population and expenditures be linear. This analysis will only model using data when population is greater than 8.3 and density is greater than 4.5 since the projection data is within these ranges.    
 \hfill \break
 
 <<echo = FALSE>>=
@@ -162,7 +168,7 @@ set2 <- ny2 %>%
 
 @
 
-\noindent After selecting a subset of data, only \Sexpr{nrow(set2)} observations are left in the data. A second round of data exploratory was conducted to ensure the relationship of each measure if significant to the outcome variable expenditures. Expenditures and wealth have a positive relationship indicating the increases of wealth would cause expenditure to be higher, see Figure~\ref{sec-explore}.1 Intuitively, this makes sense since wealthier individuals would spend more resulting in higher expenses. Similarly, Figure~\ref{sec-explore}.2 shows a strong positive correlation between expenditure and income. This relationship is expected since the mean income per person is higher, their expenses would also be higher compared to lower income individuals. Other variables like population and density seem to have moderate positive relationship with expenditures, see the first two plots in Figure~A\ref{sec2-explore}. Clearly, population and density are important measurements to predict expenditures. As population and density increases, the amount of expenses also increases, on average. On the other hand, predictors including percent intergovernmental funds and growth rate have moderate negative correlation with expenditures. This indicates that, while percent intergovernmental funds and growth rate increases, the amount of expenses should decrease. This makes perfect sense since if the growth rate in economic is slow, then there would be lower expenses.             
+\noindent After selecting a subset of data, only \Sexpr{nrow(set2)} observations are left in the data. A second round of data exploratory was conducted to ensure the relationship of each measure to see if they are significant to predict the outcome variable, expenditures. Expenditures and wealth have a positive relationship indicating the increases of wealth would cause expenditures to be higher, see Figure~\ref{sec-explore}.1 Intuitively, this makes sense since wealthier individuals would spend more resulting in higher expenses. Similarly, Figure~\ref{sec-explore}.2 shows a strong positive correlation between expenditure and income. This relationship is expected since the mean income per person is higher, their expenses would also be higher compared to low income individuals. Other variables like population and density seem to have moderate positive relationship with expenditures, see the left two plots in Figure~B\ref{sec2-explore}. Clearly, population and density are important measurements to predict expenditures. As population and density increases, the amount of expenses also increases, on average. On the other hand, predictors including percent intergovernmental funds and growth rate have moderate negative correlation with expenditures. This indicates that, while percent intergovernmental funds and growth rate increases, the amount of expenses should decrease. This makes perfect sense since if the growth rate in economic is slow, then there would be lower expenses.             
 
 \begin{figure}[h!] 
 \begin{center}
@@ -171,8 +177,8 @@ set2 <- ny2 %>%
 ## use scatterplot to explore the relationship between 
 ## x and y again with new set 
 
-p1 <- ScatterPlotFunction(set2, "lwealth", "Log-Wealth", "lm")
-p2 <- ScatterPlotFunction(set2, "lincome", "Log-Income", "lm")
+p1 <- ScatterPlotFunction(set2, "lwealth", "Log-Wealth", "lm", number_plot = "(1)")
+p2 <- ScatterPlotFunction(set2, "lincome", "Log-Income", "lm", number_plot = "(2)")
 
 ## correlation plot ##
 corr_table <- set2 %>% 
@@ -183,7 +189,9 @@ corr_table <- set2 %>%
 ## lincome and lwealth has high possitive correlation also 
 p3 <- ggcorrplot(corr_table, hc.order = TRUE, 
                  outline.col = "white",
-                 colors = c(my_col, "white", "red"), type = "upper")
+                 colors = c(my_col, "white", "red"), type = "upper") + 
+  labs(subtitle = "(3)") + 
+  theme(plot.subtitle = element_text(hjust = .5))
 
 grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
 
@@ -193,7 +201,7 @@ grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
 \end{center} 
 \end{figure}
 
-\noindent After detecting the relationship of each independent variables with expenditures, it is important to examine the correlation of each predictors. Higher correlation between predictors mean there might be multicollinearity issues when including both variables in the model. This leads the model to have unstable and unreliable coefficients. Figure~\ref{sec-explore}.3 shows the upper diagonal of the correlation matrix plot. As one can see, density and population have a high positive correlation of \Sexpr{round(cor(set2$ldens, set2$lpop), 2)}. To solve the multicollinearity issues, separate models with density in one and population in other, along with other variables, were generated. The results of the models will be compared and selected as the best model. Furthermore, wealth and income also have high positive correlation of \Sexpr{round(cor(set2$lincome, set2$lwealth), 2)}. Other variables did not mentioned above have little to no relationship with expenditures.          
+\noindent After detecting the relationship of each independent variable with expenditures, it is important to examine the correlation of each predictor. Higher correlation between two predictors mean there might be multicollinearity issues when including both variables in the model. This leads the model to have unstable and unreliable coefficients. Figure~\ref{sec-explore}.3 shows the upper diagonal of the correlation matrix plot. As one can see, density and population have a high positive correlation of \Sexpr{round(cor(set2$ldens, set2$lpop), 2)}. To solve the multicollinearity issues, two separated models with density in one and population in other, along with other variables, were generated. The results of the models will be compared and selected as the best model. Furthermore, wealth and income also have moderate positive correlation of \Sexpr{round(cor(set2$lincome, set2$lwealth), 2)}. Other variables did not mentioned above have little to no relationship with expenditures.          
 \hfill \break
 
 <<echo = FALSE>>=
@@ -222,13 +230,13 @@ fit_final <- fit5
 
 @
 
-\noindent\textbf{\underline{Statistical Analysis}}: Model selection is a crucial step in a data analysis. Multiple linear regressions will be used to build all the models. After the exploratory data analysis, there are six possible variables that can be include in the model including wealth, population, percent intergovernmental funds, density, income, and growth rate. As mentioned before, if population and density are in the same models, multicollinearity issues will occur. Therefore, two initial models will be built to compared using three validation metrics such as Akaike information criterion (AIC), R-squared adjusted, and mean square error (MSE). In this case, the ideal best model would have smaller AIC score, higher R-square adjusted, and lower MSE. After building both models, a table of model comparison was generated to select the best model among the two, see Table~B\ref{reg_vali_metric}. This table clearly states that the second model with predictors wealth, population, percent intergovernmental funds, income, and grow is the best model with lower MSE and AIC values, and higher R-square adjusted with the values of \Sexpr{round(mean(fit2$residuals^2), 2)}, \Sexpr{round(AIC(fit2), 2)}, and \Sexpr{round(summary(fit2)$adj.r.squared, 2)}, respectively.
+\noindent\textbf{\underline{Model Fitting/Inferences}}: Model selection is a crucial step in a data analysis. Multiple linear regressions will be used to build all the models. After the exploratory data analysis, there are six possible variables that can be included in the model including wealth, population, percent intergovernmental funds, density, income, and growth rate. As mentioned before, if population and density are in the same models, multicollinearity issues will occur. Therefore, two initial models will be built to compared using three validation metrics such as Akaike information criterion (AIC), R-squared adjusted, and mean square error (MSE). In this case, the ideal best model would have smaller AIC score, higher R-square adjusted, and lower MSE. After building both models, a table of model comparison was generated to select the best model among the two, see Table~A\ref{reg_vali_metric}. This table clearly states that the second model with predictors wealth, population, percent intergovernmental funds, income, and growth rate is the best model among the two with lower MSE (\Sexpr{round(mean(fit2$residuals^2), 2)}) and AIC (\Sexpr{round(AIC(fit2), 2)}) values, and higher R-square adjusted (\Sexpr{round(summary(fit2)$adj.r.squared, 2)}).
 \hfill \break
 
-\noindent After finding the best predictors for the model (wealth, population, percent intergovernmental, income, and growth rate), a stepwise selection method was generated for variables selection using AIC values. Unfortunately, stepwise variable selection was not showing any other significant models beside the full model. Furthermore, each combination of the interaction predictors was also taken into consideration to find a better model. Results of MSE, R-square adjusted, and AIC for the model with interaction terms (model 3 in Table~B\ref{reg_vali_metric}) are clearly better than model 2. Thus, a stepwise selection method was applied to select the best variables using interaction terms and results are shown in Table~B\ref{reg_vali_metric}) as model 4. Model 4 has the best adjusted R-squared due to the higher number of variables contain in the model. However, in terms of the model's quality, model 4 seems to have insignificant predictors including wealth and wealth times population, see p-value column in Table~B\ref{reg_summary_4}). In addition, the coefficient for percent intergovernmental funds was expected to be negative as shown in Figure~A\ref{sec2-explore}). These two reasons prove that model 4 with interaction terms is not the best model. In addition, growth rate seems to be insignificant in most model with very small slope and high p-value. Therefore, the model with predictors wealth, population, intergovernmental funds, and income will be used as the final model.
+\noindent After finding the best predictors for the model (wealth, population, percent intergovernmental, income, and growth rate), a stepwise selection method was generated for variables selection using AIC criteria. Unfortunately, stepwise variable selection was not showing any other significant models beside the full model. Furthermore, each combination of the interaction predictors was also taken into consideration to find a better model. Results of MSE, R-square adjusted, and AIC for the model with interaction terms (model 3 in Table~A\ref{reg_vali_metric}) are clearly better than model 2. Thus, a stepwise selection method was applied to select the best variables using interaction terms and results are shown in Table~A\ref{reg_vali_metric} as model 4. Model 4 has the best adjusted R-squared due to the higher number of variables contain in the model. However, in terms of the model's quality, model 4 seems to have insignificant predictors including wealth and wealth times population, see p-value column in Table~A\ref{reg_summary_4}. In addition, the coefficient for percent intergovernmental funds was expected to be negative as shown in Figure~B\ref{sec2-explore}. The coefficient of percent intergovernmental funds contracts the exploratory scatter plot. These two reasons prove that model 4 with interaction terms is not the best model. In addition, growth rate seems to be insignificant in most model with very small slope and high p-value. Therefore, the model with predictors wealth, population, intergovernmental funds, and income will be used as the final model.
 \hfill \break
 
-\noindent After variable selection, diagnostics process is a must to check for the quality of the model. Figure~\ref{diag-plot1}.1 shows the studentized residuals and majority are within the range of -2.5 to 2.5 except one observation 893. This indicates that is observation is an outlier. In addition, Figure~\ref{diag-plot1}.2 shows the cook's distance of all the observations and found that there are a few observations did not make the cutoff point for influential values including index 60, 83, 100, 179, and 225. As seen in Table~A\ref{outlier_obs}, outliers and influential points have high values of either expenditures or one of the predictors. However, none of the outliers and influential points were removed because there are no good reasons. Last but not least, the right plot in Figure~\ref{diag-plot1}.3 shows that studentized residuals follow a normal distribution implying the error terms are constant.    
+\noindent After variable selection, diagnostics process is a must to check for the quality of the model. Figure~\ref{diag-plot1}.1 shows the studentized residuals. The majority of observations are within the range of -2.5 to 2.5 except one observation, 893. This indicates that is observation is an outlier. In addition, Figure~\ref{diag-plot1}.2 shows the cook's distance of all the observations and found that there are a few observations did not make the cutoff point for influential values including index 60, 83, 100, 179, and 225 from the subset data. As seen in Table~A\ref{outlier_obs}, outliers and influential points have high values of either expenditures or one of the predictors. However, none of the outliers and influential points were removed because there are no good reasons. Last but not least, Figure~\ref{diag-plot1}.3 shows that studentized residuals follow a normal distribution implying the error terms are normal.    
 \hfill \break
 
 \begin{figure}[h!] 
@@ -246,7 +254,9 @@ p1 <- ggplot(set2, aes(x = predict, y = rstudent)) +
   geom_point(size = 2, alpha = .6) + 
   theme_minimal() + 
   labs(x = "Predicted", 
-       y = "Studentized Residuals")
+       y = "Studentized Residuals", 
+       subtitle = "(1)") + 
+  theme(plot.subtitle = element_text(hjust = .5))
 
 ## Influential Observations
 ## Cook's D plot
@@ -269,10 +279,12 @@ diag %<>%
 ## cook's distant ggplot
 p2 <- ggplot(diag, aes(x = Index, y = .cooksd)) + 
   geom_bar(stat = "identity", fill = my_col) +
-  labs(y = "Cook's Distance") + 
+  labs(y = "Cook's Distance", 
+       subtitle = "(2)") + 
   theme_minimal() +  
   geom_label(data = diag %>% filter(.cooksd > cutoff + .03), 
-             aes(label = Index), label.size = NA, size = 3)
+             aes(label = Index), label.size = NA, size = 3) + 
+  theme(plot.subtitle = element_text(hjust = .5))
 
 ## Normality of Residuals
 set2 %<>% 
@@ -282,7 +294,9 @@ p3 <- ggplot(set2, aes(x = rstudent)) +
   geom_histogram(bins = 30, col = "dark gray", fill = my_col) + 
   theme_minimal() + 
   labs(x = "Studentized Residuals", 
-       y = "Count")
+       y = "Count", 
+       subtitle = "(3)") + 
+  theme(plot.subtitle = element_text(hjust = 0.5))
 
 grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
 
@@ -292,7 +306,7 @@ grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
 \end{center} 
 \end{figure}
 
-\noindent After accessing the quality of the model, an interpretation and explanation of the model will be explained. The summary of regression for the final model (wealth, population, intergovernmental, income, and growth rate) is in Table~\ref{reg_summary_final}. VIF values are all smaller than 3 indicating there is no multicollinearity problem in the model. Confident intervals for majority of coefficients do not contain zeros and small p-values implying they are statistically significant in the model. For the purpose of interpreting the model, the coefficient will be back transformation. This means that as wealth, population, or income increases by 10\%, holding all else constant, expenditures will increase by 4\%, 1\%, or 2\%, on average, respectively. On the other hand, while percent intergovernmental fund increases by 10\%, on average, expenditures will decrease by 3\%. In addition, this model has an adjusted R-square of \Sexpr{round(summary(fit_final)$adj.r.squared, 2)} indicating that \Sexpr{round(summary(fit_final)$adj.r.squared, 2)*100}\% of the variation in expenditure can be explained by wealth, population, percent intergovernmental funds, income, and growth rate.   
+\noindent After accessing the quality of the model, an interpretation and explanation of the model will be explained. The summary of regression for the final model (wealth, population, intergovernmental, and income) is in Table~\ref{reg_summary_final}. VIF values are all smaller than 3 indicating there is no multicollinearity problem in the model. Confident intervals for majority of coefficients do not contain zeros and small p-values implying they are statistically significant in the model. For the purpose of interpreting the model, the coefficient will be back transformation. This means that as wealth, population, or income increases by 10\%, holding all else constant, expenditures will increase by 4\%, 1\%, or 2\%, on average, respectively. On the other hand, while percent intergovernmental fund increases by 10\%, on average, expenditures will decrease by 3\%. In addition, this model has an adjusted R-square of \Sexpr{round(summary(fit_final)$adj.r.squared, 2)} indicating that \Sexpr{round(summary(fit_final)$adj.r.squared, 2)*100}\% of the variation in expenditure can be explained by wealth, population, percent intergovernmental funds, income, and growth rate.   
 
 \begin{center}
 <<echo = FALSE, results='asis'>>=
@@ -307,9 +321,13 @@ fit_final_table <- fit_final %>%
           as_tibble() %>% 
           add_column(`(Intercept)` = NA, .before = "lwealth") %>% 
           t() %>% 
-          as.data.frame() %>% 
-          rename(VIF = V1)) %>% 
-  xtable(caption = "Summary Regression of final model", 
+          as.data.frame()) 
+  
+colnames(fit_final_table) <- c("Term", "Estimate", "SD Error", "F-Statistics", 
+                               "P Value", "10% Coef", "2.5% CI", "97.5% CI", "VIF")
+
+fit_final_table %<>% 
+  xtable(caption = "Summary regression of final model", 
          label = "reg_summary_final",
          table.placement="H", 
          digits = 3)
@@ -319,7 +337,7 @@ print(fit_final_table, include.rownames=FALSE)
 @
 \end{center}
 
-\noindent Given a good model, the goal of this analysis is to predict expenditures for two New York municipalities Warwick and Monroe. A projection table of values was provided to predict from years 1992, 2005, and 2025. Table~\ref{pred_tab} shows a prediction table of the two towns. The values for expenditures seem to be within the range of expenditures in the training set. Looking closely at the projection table, predicted expenditures are higher, on average, in Monroe than Warwick due to the extremely lower percentage of intergovernmental funds and relatively lower growth rate. According to the model, having lower intergovernmental funds and growth rate leads to higher expenditures. Although, Warwick town has relatively higher population, wealth, and income, on average, Monroe town would still have higher expenditures. The last two columns depict lower and upper 95\% confident interval of predicted values and we can say that expenditures are confident to be inside these ranges. Given the coefficients being fixed, Warwick and Monroe would expect their expenditures to change if their wealth, population, percent intergovernmental, income, and growth rate change.    
+\noindent Given a good model, the goal of this analysis is to predict expenditures for two New York municipalities Warwick and Monroe. A projection table of values was provided to predict from years 2005 and 2025. Table~\ref{pred_tab} shows a prediction table of the two towns. The values for expenditures seem to be within the range of expenditures in the training set. Looking closely at the projection table, predicted expenditures are higher, on average, in Monroe than Warwick due to the extremely lower percentage of intergovernmental funds. According to the model, having lower intergovernmental funds leads to higher expenditures. Although, Warwick town has relatively higher population, wealth, and income, on average, Monroe town would still have higher expenditures. The last two columns depict lower and upper 95\% prediction interval of predicted values and we can say that expenditures are confident to be inside these ranges. However, the prediction intervals are quite large making the predictions to have wide ranges. Given the coefficients being fixed, Warwick and Monroe would expect their expenditures to change if their wealth, population, percent intergovernmental fund, or income changes.    
 
 \begin{center}
 <<echo = FALSE, results='asis', message=FALSE, warning=FALSE, error = FALSE>>=
@@ -374,7 +392,7 @@ print(wm_tab, include.rownames=FALSE)
 \noindent\textbf{\underline{Conclusion}}: In conclusion, expenditures are one of the most important aspects to know before starting a new construction project. It is difficult to estimate expenditures manually. Therefore, this analysis creates a tool to automate the process of estimating expenditures. The variables that cause the fluctuation of expenditures are population, wealth, percent intergovernmental funds, and income. With this model, construction managers and property owners would have a clear understanding of how much funding they would need for a certain type of project in the city. Using the summary regression results of our model, we are confident to say that an area with higher population would cause expenditures to be higher. Similarly, if the average of wealth and income is higher, then expenditures will also be higher. However, it is clear that if the percentage of intergovernmental funds is lower, then expenditures is obviously higher. As a result, this model does not only provide an estimate of expenditures faster, but construction workers can also have a great understanding of what cause the expenses to shift up and down.
 \hfill \break
 
-\noindent There are a few limitations in this analysis. This model only uses a subset of the main data which is \Sexpr{round(nrow(set2) / nrow(ny2), 1)} times less compared to the full dataset. Therefore, smaller sample size would lead the model to perform not as accurate. Second, growth rate has a small correlation with expenditures indicating the amount the changes in expenditures would be very small if the values of growth rate change. Last but not least, the model is only limited to when population is greater than \Sexpr{round(exp(8.3))}. Cities with population smaller than \Sexpr{round(exp(8.3))} cannot use this model. For future reference, there are many ways to improve the models. We could consider more variables that could lead expenditures to be higher or lower including number of workers, supplies, time of the year. In addition, we would collect more data from different cities in New York in an expanded time range.    
+\noindent There are a few limitations in this analysis. This model only used a subset of the main data which is \Sexpr{round(nrow(ny2) / nrow(set2))} times less compared to the full dataset. Therefore, smaller sample size would lead the model to perform not as accurate. Second, the model used a training set from 1992 to project predictions for 2005 and 2025 would also be unreliable. The model was not developed using time as one of the factors. Therefore, it difficult to make accurate forcast using only one year of data. Last but not least, the model is only limited to when population is greater than \Sexpr{round(exp(8.3))}. Cities with population smaller than \Sexpr{round(exp(8.3))} cannot use this model. For future reference, there are many ways to improve the models. We could consider more variables that could lead expenditures to be higher or lower including number of workers, supplies, time of the year, and location of the new project. By doing this, we might be able to build a more accurate model. In addition, we would collect more data from different cities in New York in an expanded time range. With the data from different time range, we will be more confident to predict the projected data in the future years.    
 \hfill \break
 
 \clearpage
@@ -446,10 +464,10 @@ set2 %>%
 \begin{center}
 <<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=10, fig.height=8>>=
 
-p1 <- ScatterPlotFunction(set2, "lpop", "Log-Population", "lm")
-p2 <- ScatterPlotFunction(set2, "lpint", "% Log Intergovernmental Funds", "lm")
-p3 <- ScatterPlotFunction(set2, "ldens", "Log-Density", "lm")
-p4 <- ScatterPlotFunction(set2, "lgrowr", "Log-Growth Rate", "lm")
+p1 <- ScatterPlotFunction(set2, "lpop", "Log-Population", "lm", number_plot = "(1)")
+p2 <- ScatterPlotFunction(set2, "lpint", "% Log Intergovernmental Funds", "lm", number_plot = "(2)")
+p3 <- ScatterPlotFunction(set2, "ldens", "Log-Density", "lm", number_plot = "(3)")
+p4 <- ScatterPlotFunction(set2, "lgrowr", "Log-Growth Rate", "lm", number_plot = "(4)")
 
 grid.arrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 
