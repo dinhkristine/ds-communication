@@ -323,8 +323,8 @@ fit_final_table <- fit_final %>%
           t() %>% 
           as.data.frame()) 
   
-colnames(fit_final_table) <- c("Term", "Estimate", "SD Error", "F-Statistics", 
-                               "P Value", "10% Coef", "2.5% CI", "97.5% CI", "VIF")
+colnames(fit_final_table) <- c("Term", "Coef", "SdError", "F-Stat", 
+                               "pValue", "10% Coef", "2.5% CI", "97.5% CI", "VIF")
 
 fit_final_table %<>% 
   xtable(caption = "Summary regression of final model", 
