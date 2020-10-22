@@ -1,5 +1,5 @@
 # Read-in data
-Prostate = read.table("prostate.txt", header=T)
+Prostate = read.table("data/prostate.txt", header=T)
 dim(Prostate)
 #[1] 380 8
 sum(is.na(Prostate)) # 3 in race
@@ -18,7 +18,7 @@ summary(Prostate)
 one.fourth.root=function(x){
   x^0.25
 }
-source("examine.logistic.reg.R")
+source("R/Examine.logistic.reg.R")
 
 # Consider model of PSA, Gleason score, and Detection of capsular involvement
 dat.glm <- glm(capsule ~ psa+gleason+dcaps, family = binomial, data = Prostate)

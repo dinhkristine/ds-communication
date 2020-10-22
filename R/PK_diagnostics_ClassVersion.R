@@ -5,7 +5,7 @@
 library(binom)
 
 # Load in data and take initial looks
-PKdata = read.table("placekick.mb.txt", header=T)
+PKdata = read.table("data/placekick.mb.txt", header=T)
 #load("PKttdata.Rdata")
 dim(PKdata)
 #[1] 1438   13
@@ -60,7 +60,7 @@ lines(x = w.n$distance[ord.dist], y = predict(smooth.stand)[ord.dist], lty = "so
 one.fourth.root=function(x){
 x^0.25
 }
-source(file="Examine.logistic.reg.R")
+source(file="R/examine.logistic.reg.R")
 
 # Take a look at diagnostics for final PK data model.
 save1=examine.logistic.reg(mod.prelim1, identify.points=T, scale.n=one.fourth.root, scale.cookd=sqrt)
@@ -99,7 +99,7 @@ extract.EVPs[order(extract.EVPs$distance),]  # order by distance
 
 
 # HLtest.R is an R function for the classic and best known Hosmer and Lemeshow goodness-of-fit test
-source("HLtest.R")
+source("R/HLtest.R")
 HL = HLTest(mod.prelim1, 10)  # 10 groups by default
 # HL test output: Y0 are successes, Y1 are failures
 cbind(HL$observed, round(HL$expect, digits=1)) # Observed and Expected table as illustration
