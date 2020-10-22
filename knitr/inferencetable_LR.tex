@@ -1,0 +1,84 @@
+% Inference table recommendation for logistic regression
+% Created Fall 2018
+
+\documentclass[11pt]{article}
+
+\usepackage{graphics}
+\usepackage{latexsym}
+%\usepackage{color}
+\usepackage[table]{xcolor}
+\usepackage{epstopdf} % required by TeXShop and Mac to process eps figures in includegraphics environment
+\usepackage{dcolumn}
+
+% Approximately 1 inch borders all around
+\setlength\topmargin{-.56in}
+\setlength\evensidemargin{0in}
+\setlength\oddsidemargin{0in}
+\setlength\textwidth{6.49in}
+\setlength\textheight{8.6in}
+
+\let\BLS=\baselinestretch
+
+% macros for different spacing options
+\makeatletter
+\newcommand{\singlespacing}{\let\CS=\@currsize\renewcommand{\baselinestretch}{1}\small\CS}
+\newcommand{\doublespacing}{\let\CS=\@currsize\renewcommand{
+\baselinestretch}{1.5}\small\CS}
+\newcommand{\normalspacing}{\let\CS=\@currsize\renewcommand{\baselinestretch}{\BLS}\small\CS}
+\makeatother
+
+% macros I commonly use, primarily for boldfaced greek letters
+\def\R{\mbox{\rlap{I}\hskip .03in R}}
+\newcommand{\bfbeta}{\mbox{\boldmath $\beta$}}
+\newcommand{\bfeps}{\mbox{\boldmath $\epsilon$}}
+\newcommand{\bfsigma}{\mbox{\boldmath $\sigma$}}
+\newcommand{\bfpsi}{\mbox{\boldmath $\Psi$}}
+\newcommand{\bft}{\mbox{\boldmath $\theta$}}
+\newcommand{\bfmu}{\mbox{\boldmath $\mu$}}
+%%%%%%
+% To make comments, in red, in the margin of text
+\newcommand{\but}[1]{\marginpar{\color{red}\begin{sffamily}#1\end{sffamily}\color{black}}}
+% Example of usage: \but{I deleted a sentence - see the latex file}  
+%%%%%%
+
+
+\begin{document}
+
+% latex table generated in R 3.3.3 by xtable 1.8-2 package
+% Tue Jul  3 13:02:27 2018
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|rrrrr|}
+  \hline
+ & Coefficient & Odds ratio & SE & p-value & 95\% CI on OR \\ 
+  \hline
+Intercept & 4.50 & 89.70 & 0.48 & 0.0000 & ( 36.00 , 238.00 ) \\ 
+  Distance & -0.08 & 0.92 & 0.01 & 0.0290 & ( 0.90 , 0.94 ) \\ 
+  Wind conditions & 2.92 & 18.60 & 1.78 & 0.0000 & ( 0.92 , 1180.00 ) \\ 
+  Lead change & -0.33 & 0.72 & 0.20 & 0.0000 & ( 0.49 , 1.05 ) \\ 
+  PAT & 6.71 & 822.00 & 2.11 & 0.3986 & ( 8.28 , 47500.00 ) \\ 
+  Distance * Wind & -0.09 & 0.91 & 0.05 & 0.0008 & ( 0.82 , 0.99 ) \\ 
+  Distance * PAT & -0.27 & 0.76 & 0.10 & 0.0035 & ( 0.63 , 0.95 ) \\ 
+   \hline
+\end{tabular}
+\caption{Inferences from regressing field goal success on field goal distance,
+                  wind conditions, PAT attempt (or not), and if kick resulted in lead change.  The model also 
+                  includes interactions of both wind and PAT with distance, respectively. 
+                  This inference table was created from the model fit using xtable.} 
+\label{LRinf}
+\end{table}
+
+\vspace{1cm}
+\Large
+\noindent Summary points for writing:
+\begin{itemize}
+\item Analysis is iterative
+\item Storyline
+\item Parsimony
+\item Interpret important variables
+\item Illustrate how to predict off of your final model
+\end{itemize}
+
+\end{document}
+
+

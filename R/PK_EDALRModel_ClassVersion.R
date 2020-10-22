@@ -9,7 +9,7 @@ library(glmulti) # for model selection
 
 # Load in data and take initial looks
 # 1995 NFL season
-PKdata = read.table("data/placekick.mb.txt", header=T)
+PKdata = read.table("placekick.mb.txt", header=T)
 dim(PKdata)
 #[1] 1438   13
 numkicks = nrow(PKdata)
