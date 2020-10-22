@@ -13,7 +13,7 @@ library(effsize)
 
 
 ## Load in prostate data set and take initial looks
-Prostate = read.table("prostate.txt", header=T)
+Prostate = read.table("data/prostate.txt", header=T)
 dim(Prostate)
 #[1] 380 8
 sum(is.na(Prostate)) # missing data: 3 in race
@@ -31,16 +31,27 @@ attach(Prostate)
 # a) Conditional density plots graphically present how a binary response changes over a 
 #     covariate. Such a graphic can be obtained with cdplot(factor(response)~covariate).
 #     Present a 1x2 cdplot showing the relationship of capsule with each of race & psa.
+cdplot(factor(capsule)~race)
+cdplot(factor(capsule)~psa)
+
 # b) binary response, capsule: present a simple table of counts using 
 #     table and/or prop.table.
+table(capsule)
+
 # c) binary response, capsule against categorical covariates, here race: present a
 #     contingency table of capsule by race. (Side-by-side bar charts are also an option, 
 #     though I think contingency tables are sufficient.)
+table(capsule, race)
+
 # d) binary response, capsule against continuous covariates, here psa: present
 #     side-by-side box plots of psa by capsule categories; automatically done by the 
 #     plot function with binary variable on x-axis and continuous variable on y-axis.
+plot(capsule, psa)
+
 # e) standardized mean difference: present Cohen's d (cohen.d function) to
 #     evaluate the relationship between capsule and each of race and psa.
+cohen.d(capsule, factor(race))
+cohen.d(capsule, psa)
 ##
 
 
@@ -48,6 +59,9 @@ attach(Prostate)
 # Logistic regression models are fit using the glm function using the logit link:
 #   e.g., glm(capsule~psa+gleason, family=binomial(link=logit), data=Prostate)
 # a) Stepwise model selection: include interactions, consider stepAIC for first pass
+fit <- glm(capsule ~ psa + race + psa:race, family = binomial, data = Prostate)
+stepAIC(fit)
+
 # b) Parsimonious model: perform backward selection via p-values,
 #      identify a simpler model by being strict with interaction terms. 
 #      Is it that much worse than best stepwise model?
@@ -65,6 +79,13 @@ attach(Prostate)
 # a) Residual plots: use the examine.logistic.reg function provided
 # b) Outlier detection: evaluate EVPs for potential outlying data points
 # c) HL test of overall fit: use the HLtest.R function provided; see PK_diagnostics_ClassVerion.R
+# HLtest.R is an R function for the classic and best known Hosmer and Lemeshow goodness-of-fit test
+source("R/HLtest.R")
+HL = HLTest(mod.prelim1, 10)  # 10 groups by default
+# HL test output: Y0 are successes, Y1 are failures
+cbind(HL$observed, round(HL$expect, digits=1)) # Observed and Expected table as illustration
+HL
+
 #
 # I included the code for parts (a) and (b) below, modified from the video lectures.
 # For class discussion, think about the interpretation of the plots and 
@@ -76,7 +97,7 @@ one.fourth.root=function(x){
   x^0.25
 }
 # make sure examine.logistic.reg.R is in your working directory or you have the right path specified
-source("examine.logistic.reg.R")
+source("R/Examine.logistic.reg.R")
 
 # Consider a model of PSA, Gleason score, and Results of digital rectal exam
 dat.glm <- glm(capsule ~ psa+gleason+dpros, family = binomial, data = Prostate)
