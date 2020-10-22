@@ -31,12 +31,19 @@ attach(Prostate)
 # a) Conditional density plots graphically present how a binary response changes over a 
 #     covariate. Such a graphic can be obtained with cdplot(factor(response)~covariate).
 #     Present a 1x2 cdplot showing the relationship of capsule with each of race & psa.
-cdplot(factor(capsule)~race)
+cdplot(factor(capsule)~race) 
+## consistent density for both race 
+## there is no relationship in this plot 
+
 cdplot(factor(capsule)~psa)
+## looks like psa will be an important variable since there is a trend 
 
 # b) binary response, capsule: present a simple table of counts using 
 #     table and/or prop.table.
 table(capsule)
+signif(prop.table(table(capsule)), digits = 3)
+## tell us what proportion of 1 vs 0 in the analysis 
+## to balance the proportion of 2 factors 
 
 # c) binary response, capsule against categorical covariates, here race: present a
 #     contingency table of capsule by race. (Side-by-side bar charts are also an option, 
@@ -50,17 +57,22 @@ plot(capsule, psa)
 
 # e) standardized mean difference: present Cohen's d (cohen.d function) to
 #     evaluate the relationship between capsule and each of race and psa.
-cohen.d(capsule, factor(race))
-cohen.d(capsule, psa)
-##
+cohen.d(as.numeric(race), factor(capsule))
+## capsule and race are not correlate with each other 
+## since d estimate is too small 
+
+cohen.d(psa, factor(capsule))
+## the sign in d estimate tell the direction of coefficient 
+## capsule and psa have medium correlation (probably there is a relationship)
 
 
 ## Task 2: Model building
 # Logistic regression models are fit using the glm function using the logit link:
 #   e.g., glm(capsule~psa+gleason, family=binomial(link=logit), data=Prostate)
 # a) Stepwise model selection: include interactions, consider stepAIC for first pass
-fit <- glm(capsule ~ psa + race + psa:race, family = binomial, data = Prostate)
-stepAIC(fit)
+fit <- glm(capsule ~.*., family = binomial(link = logit), data = Prostate[-1])
+
+fit_step <- stepAIC(fit)
 
 # b) Parsimonious model: perform backward selection via p-values,
 #      identify a simpler model by being strict with interaction terms. 
@@ -70,6 +82,8 @@ stepAIC(fit)
 #       We are just briefly illustrating the model building process here.
 ##
 
+fit <- glm(capsule ~ dpros + psa + gleason, 
+    family = binomial(link = logit), data = Prostate)
 
 ## Task 3: Model evaluation
 # Consider a model of PSA, Gleason score, and Results of digital rectal exam.
@@ -85,6 +99,9 @@ HL = HLTest(mod.prelim1, 10)  # 10 groups by default
 # HL test output: Y0 are successes, Y1 are failures
 cbind(HL$observed, round(HL$expect, digits=1)) # Observed and Expected table as illustration
 HL
+## if pvalue is small == problem 
+## Y values should line up with each other 
+## high pvalue and aligh y values suggesst the model is pretty good 
 
 #
 # I included the code for parts (a) and (b) below, modified from the video lectures.
@@ -126,4 +143,15 @@ p=length(mod.prelim1$coef) # number of parameters in model (# coefficients)
 ck.out=abs(w.n.diag1$std.res)>2 | w.n.diag1$cookd>4/nrow(w.n) | w.n.diag1$h > 3*p/nrow(w.n)
 extract.EVPs=w.n.diag1[ck.out, ]
 extract.EVPs
+
+
+## Interaction 
+
+summary(glm(capsule ~ dcaps*gleason, 
+            family = binomial(link = logit), data = Prostate))
+
+# OR = exp(-4.79 + .84 * Gleason)
+# OR is exp(1.10 + 0.84) = 6.96 with capsule involment and 
+# OR is exp(1.10) = 3 without capsular involment, respectively 
+
 
