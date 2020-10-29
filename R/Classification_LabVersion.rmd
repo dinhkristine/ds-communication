@@ -1,0 +1,181 @@
+---
+title: "Classification Lab"
+author: "[YOUR NAME HERE]"
+date: ""
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ISLR)
+library(ROCR)
+library(boot) # for cross-validation
+```
+
+
+## Task 1: EDA; response is 'default'
+Summarize the response, the relationship between the response and the three explanatory variables, and the relationship between the three explanatory variables.
+
+### Code set-up
+Here is a code chunk with suggested summary statistics. 
+```{r EDA}
+attach(Default)
+# Summary stats
+# Response, Default: what percentage defaulted?
+table(default)  # 97% did not default
+# Numeric variables: balance, income
+# I have coded this table in completion to present desired structure and labeling.
+# Do something similar for the breakdown of balance and of income by default status.
+balance_s = c(median(balance), mean(balance), sd(balance))
+income_s = c(median(income), mean(income), sd(income))
+numeric_table = rbind(balance_s, income_s)
+colnames(numeric_table) = c("Mean", "Median", "Std dev")
+rownames(numeric_table) = c("Balance", "Income")
+print(numeric_table)
+## by default status
+numerics_default = cbind(
+  paste(signif(tapply(balance, default, mean, na.rm=T), digits=3), "(", signif(tapply(balance, default, sd, na.rm=T), digits=3), ")"),
+  paste(signif(tapply(income, default, mean, na.rm=T), digits=3), "(", signif(tapply(income, default, sd, na.rm=T), digits=3), ")"))
+rownames(numerics_default) = c("Did not default", "Defaulted")
+colnames(numerics_default) = c("Balance", "Income")
+print(numerics_default)
+par(mfrow=c(2,2))
+hist(balance[Default=="No"], xlim=c(0,3000), main="Did not default", xlab="Balance")
+hist(balance[Default=="Yes"], xlim=c(0,3000), xlab="Balance", main="Default")
+hist(income[Default=="No"], xlim=c(0, 70000), xlab="Income", main="Did not default")
+hist(income[Default=="Yes"], xlim=c(0,70000), xlab="Income", main="Default")
+
+# Categorical variable: student
+table(student)
+table(student, default)
+# Relationships between explanatory variables
+par(mfrow=c(1,3))
+plot(income, balance, ylab="Balance", xlab="Income")
+boxplot(income~student, ylab="Income", xlab="Student")
+boxplot(balance~student, ylab="Balance", xlab="Student")
+# Correlations
+allPairs = rbind(t(combn(2:ncol(Default), 2)), matrix(data = c(2:ncol(Default),2:ncol(Default)), ncol=2))
+allPairs = allPairs[order(allPairs[,1], allPairs[,2]),]
+rhos = apply(X=allPairs, 1, FUN = function(X, Y) cor.test(as.numeric(Y[,X[1]]),as.numeric(Y[,X[2]]), method = "spearman", exact=F)$estimate, Y=Default)
+matP.Both = matrix(nrow = ncol(Default)-1, ncol = ncol(Default)-1)
+#Create matrix to store p values
+matP.Both[allPairs-1] = rhos
+colnames(matP.Both) = names(Default)[2:ncol(Default)]
+rownames(matP.Both) = names(Default)[2:ncol(Default)]
+signif(matP.Both, digits=3)
+```
+### Report the following
+Present an EDA description of the data with respect to predicting default from income, balance, and student status.  Remember that you can read R output into your text description; for example,
+
+Some summary statistics for credit card balance in this data set is `r signif(balance_s, digits=3)`.
+
+
+## Task 2, model comparison
+Consider two models:
+
+* Model 1, logistic regression model of default on income and balance
+
+* Model 2, logistic regression model of default on income, balance, and student status.
+
+Perform training/testing evaluation of Models 1 and 2.  Suggested measures: 
+
+* Confusion matrix
+
+* ROC curve
+
+* Sensitivity and specificity at an "optimal" cutoff from ROC curve
+
+### Code set-up
+The following two code chunks provide, first, measures for Model 1 and then second a chunk presenting the desired output.  Replicate the first code chunk for Model 2 and then add the appropriate measures into the ROC_output code chunk for presentation. Make sure all R outputted tables have well-labeled columns and rows, use `colnames` and `rownames` functions.
+```{r model1_ROC}
+n = dim(Default)[1]  # sample size
+
+# Split data into training and testing sets
+p = 0.5
+set.seed(1)  # set the random number generator seed
+train = sample(n, p*n)  # random sample percentage out of n; this creates the index list
+fit_train1 = glm(default~balance+income, family=binomial(link=logit), data=Default, subset = train)
+test_probs1 = predict.glm(fit_train1, Default, type="response")[-train]
+
+# ROC curve
+# Plot function of ISLR
+rocplot=function(pred, truth, ...){
+  predob = prediction (pred, truth)
+  perf = performance (predob , "tpr", "fpr") 
+  plot(perf ,...)}
+
+# Statistics off the ROC
+pred1 = prediction(test_probs1, Default[-train,"default"])
+# calculating AUC
+auc1 <- performance(pred1,"auc")
+# convert S4 class to vector
+auc1 <- unlist(slot(auc1, "y.values"))
+
+# Compute optimal cutoff
+opt.cut = function(perf, pred){
+  cut.ind = mapply(FUN=function(x, y, p){
+    d = (x - 0)^2 + (y-1)^2
+    ind = which(d == min(d))
+    c(sensitivity = y[[ind]], specificity = 1-x[[ind]], 
+      cutoff = p[[ind]])
+  }, perf@x.values, perf@y.values, pred@cutoffs)
+}
+# Present sensitivity and specificity for that optimal cutoff
+roc.perf1 = performance(pred1, measure="tpr", x.measure="fpr")
+
+# Here is a function and code that will compute sensitivity and specificity at any given cutoff
+#se.sp <- function (cutoff, pred){
+#  sens <- performance(pred,"sens")
+#  spec <- performance(pred,"spec")
+#  num.cutoff <- which.min(abs(sens@x.values[[1]] - cutoff))
+#  return(list(Cutoff=sens@x.values[[1]][num.cutoff],
+#              Sensitivity=sens@y.values[[1]][num.cutoff], 
+#              Specificity=spec@y.values[[1]][num.cutoff]))
+#}
+#se.sp(.5, pred1) # Sensitivity and specificity at 0.5 cutoff
+```
+
+
+```{r ROC_output}
+# Confusion matrix at 0.5 cutoff
+c = 0.5
+test_class1 = (test_probs1 > c)
+table(test_class1, Default$default[-train], dnn=c("Predicted", "Model 1 Truth"))  # cross-classification accuracy
+paste("Accuracy of Model 1 is", sum(as.numeric(test_class1) == (as.numeric(Default$default[-train])-1))/(n-n*p))
+## [Confusion matrix code for Model 2 here]
+
+# ROC curves
+par(mfrow=c(1,2))
+rocplot(test_probs1, Default[-train,"default"], main="Test Data, Model 1")
+abline(a=0, b=1)
+text(0.8, 0.2, paste("AUC =", signif(auc1, digits=4)), col="blue")
+## [ROC plot code for Model 2 here]
+
+# Sensitivity and specificity at an optimal cutoff
+print("Sensitivities and specificities at the optimal cutoff:")
+signif(opt.cut(roc.perf1, pred1), digits=2)
+## [Add code to present this in a table with the analogous values for Model 2]
+```
+
+## Task 3, K-fold cross-validation evaluation of the two models
+Recommend 10-fold cross-validation, as leave-one-out is slow on this size data set.
+
+### Code set-up
+This code chunk performs 10-fold cross validation error analysis for model 1.  Perform an analogous analysis for Model 2.
+```{r cv}
+# First, 10-fold cv on Model 1 (default on balance and income)
+fit1 = glm(default~balance+income, family=binomial(link=logit), data=Default)
+summary(fit1)
+set.seed(17) # set the random number generator seed
+# 10-fold cv, compute misclassification rate
+# Note that this R function also provides a second component with a bias adjustment
+cv.error.10 = cv.glm(Default, fit1, K=10) 
+paste("The cv error for Model 1 is", signif(cv.error.10$delta[1], digits=3))
+```
+
+### Report the following for Tasks 2 and 3:
+Write text to compare the two models with respect to ROC curves, corresponding ROC curve statistics (accuracy, sensitivity, and specificity), cross validation error, and regression model fit/inferences.  Which model would you choose to predict default status?  Why?
+
+## Task 4: Risk score
+Write text to discuss how you would compute a 'default risk score' from the model you chose.
+
