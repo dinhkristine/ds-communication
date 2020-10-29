@@ -1,0 +1,106 @@
+% DAR 3 proposal: predicting expenditures in NY municipalities
+
+
+\documentclass[11pt]{article}
+
+\usepackage{graphics}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{epstopdf} % required by TeXShop and Mac to process eps figures in includegraphics environment
+
+% Approximately 1 inch borders all around
+\setlength\topmargin{-.56in}
+\setlength\evensidemargin{0in}
+\setlength\oddsidemargin{0in}
+\setlength\textwidth{6.49in}
+\setlength\textheight{8.6in}
+
+\let\BLS=\baselinestretch
+
+% macros for different spacing options
+\makeatletter
+\newcommand{\singlespacing}{\let\CS=\@currsize\renewcommand{\baselinestretch}{1}\small\CS}
+\newcommand{\doublespacing}{\let\CS=\@currsize\renewcommand{
+\baselinestretch}{1.5}\small\CS}
+\newcommand{\normalspacing}{\let\CS=\@currsize\renewcommand{\baselinestretch}{\BLS}\small\CS}
+\makeatother
+
+% macros I commonly use, primarily for boldfaced greek letters
+\def\R{\mbox{\rlap{I}\hskip .03in R}}
+\newcommand{\bfbeta}{\mbox{\boldmath $\beta$}}
+\newcommand{\bfeps}{\mbox{\boldmath $\epsilon$}}
+\newcommand{\bfsigma}{\mbox{\boldmath $\sigma$}}
+\newcommand{\bfpsi}{\mbox{\boldmath $\Psi$}}
+\newcommand{\bft}{\mbox{\boldmath $\theta$}}
+\newcommand{\bfmu}{\mbox{\boldmath $\mu$}}
+%%%%%%
+% To make comments, in red, in the margin of text
+\newcommand{\but}[1]{\marginpar{\color{red}\begin{sffamily}#1\end{sffamily}\color{black}}}
+% Example of usage: \but{I deleted a sentence - see the latex file}  
+%%%%%%
+
+
+\begin{document}
+
+\title{Proposal: Expenditures in NY Municipalities}
+\author{Richard A. Levine\thanks{Email: rlevine@sdsu.edu} \\
+San Diego State University \\ STAT 794: Statistical Communication in Data Science}
+
+\date{\today}
+
+\maketitle
+%\setlength{\parskip}{0in}
+%\begin{abstract}
+%\setlength{\parindent}{0in}
+%
+%Executive summary here.
+%
+%\end{abstract}
+
+\noindent {\em Background}
+
+Two New York municipalities (Warwick and Monroe) are interested in predicting changes in expenditures resulting from proposed construction of new housing projects. The issue is that if the expenditures increase, the town may have to generate more funds through say property tax.
+
+\vspace{0.5cm}
+\noindent {\em Specific Aims}
+
+\begin{itemize}
+\item Study the relationship between a set of NY municipality demographics and expenditure per person.
+\item Predict expenditure per person for the years 2005 and 2025 in each of the two municipalities, Warwick and Monroe.  
+\end{itemize}
+
+\vspace{0.5cm}
+\noindent {\em Data}
+
+The data set was obtained from the New York municipality governments.  The data set contains three identifiers for the municipality (ID, State, County codes) and six predictors, as shown in the following table.  The variable ``percent intergovernmental" represents the percentage of revenue coming from state and federal grants and subsidies.  All other variables are self-explanatory.
+\begin{center}
+\begin{tabular}{|r|l|}
+\hline
+Variable & Defintion \\ \hline
+ID & Identity number \\
+ST & State code \\
+CO & County code \\ \hline
+EXPEN & Expenditure per person \\
+WEALTH & Wealth per person \\
+POP & Population \\
+PINT & Percent intergovernmental \\
+DENS & Density \\
+INCOME & Mean income per person \\
+GROWR & Growth rate \\ \hline
+\end{tabular}
+\end{center}
+
+The data is from 1992 and includes 916 municipalities. The municipalities wish to build a model that can predict expenditures in the years 2005 and 2025 for which the six demographic and income-related predictors are provided by expenditure per person is not available. We note that though this is a future prediction from 1992, we are viewing the years 2005 and 2025 as new observation labels. More importantly is predicting expenditures over expected changes in the predictors resulting from the new housing projects. Since these changes fall within the range of the data set, we are not extrapolating per se.
+
+
+\vspace{0.5cm}
+\noindent {\em Methods}
+
+The specific aims will be addressed through a regression model of expenditures on the six potential predictors.  The analysis plan will include an exploratory data analysis to assess each variable individually and the relationship between expenditures and the six predictors.  The exploratory data analysis will inform the model building: potential transformations required, non-linear relationships, and challenges to regression modeling assumptions including influential points and missing data.  The regression models considered will be assessed through a regression diagnostic work-up and an analysis of predictive performance via ROC curves and corresponding evaluation statistics.
+
+\vspace{0.5cm}
+\noindent {\em Broader Impacts}
+
+The regression model will allow us to draw inferences on the relationship between each demographic variable in the model and municipality expenditures.  We will also present inferences on municipality expenditures in the desired years 2005 and 2025.  These results will inform the municipalities on the impact of the new housing projects on future expenditures.  We will also make recommendations on further data collection and modeling as the municipalities assess the impact of and required resources for new planned projects.  We will share our findings in a data analysis report to the municipalities, including documented code for carrying out the regression analysis.
+
+\end{document}

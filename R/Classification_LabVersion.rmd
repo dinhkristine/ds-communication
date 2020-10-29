@@ -1,7 +1,7 @@
 ---
 title: "Classification Lab"
-author: "[YOUR NAME HERE]"
-date: ""
+author: "Kristine Dinh"
+date: "2020-10-29"
 output: word_document
 ---
 
@@ -10,6 +10,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ISLR)
 library(ROCR)
 library(boot) # for cross-validation
+
+attach(Default)
+# Summary stats
+# Response, Default: what percentage defaulted?
+
 ```
 
 
@@ -19,10 +24,15 @@ Summarize the response, the relationship between the response and the three expl
 ### Code set-up
 Here is a code chunk with suggested summary statistics. 
 ```{r EDA}
-attach(Default)
-# Summary stats
-# Response, Default: what percentage defaulted?
+
 table(default)  # 97% did not default
+
+```
+
+The target variable `default` has high proportion of not default (`r paste0(round(length(Default$default[Default$default == "No"]) / nrow(Default), 2) * 100, "%")`) and low proportion of default (`r paste0(round(length(Default$default[Default$default == "Yes"]) / nrow(Default), 2) * 100, "%")`). Here, the proportion of default and non-default are not balance. This could cause the model to be unreliable.
+
+
+```{r}
 # Numeric variables: balance, income
 # I have coded this table in completion to present desired structure and labeling.
 # Do something similar for the breakdown of balance and of income by default status.
@@ -32,6 +42,13 @@ numeric_table = rbind(balance_s, income_s)
 colnames(numeric_table) = c("Mean", "Median", "Std dev")
 rownames(numeric_table) = c("Balance", "Income")
 print(numeric_table)
+
+```
+
+The mean and median values of `balance` and `income` are `r round(numeric_table[1,1], 2)` and `r round(numeric_table[2,1], 2)`. Standard deviation for both continuous variable are quite large suggesting the ranges between each observation are large. 
+
+
+```{r}
 ## by default status
 numerics_default = cbind(
   paste(signif(tapply(balance, default, mean, na.rm=T), digits=3), "(", signif(tapply(balance, default, sd, na.rm=T), digits=3), ")"),
@@ -39,20 +56,46 @@ numerics_default = cbind(
 rownames(numerics_default) = c("Did not default", "Defaulted")
 colnames(numerics_default) = c("Balance", "Income")
 print(numerics_default)
+```
+
+The mean for `balance` is higher when there is a "Yes" in `default` and lower otherwise. This suggest a postive relationship between `balance` and `default`. Meaning when `balance` is higher, `default` will more likely to be "Yes". On the other hand, the mean of `income` is higher when there is a "No" in `default` and lower otherwise suggesting a negative relationship. If `income` increases, `default` will more likely to be "No".
+
+
+```{r}
+
 par(mfrow=c(2,2))
 hist(balance[Default=="No"], xlim=c(0,3000), main="Did not default", xlab="Balance")
 hist(balance[Default=="Yes"], xlim=c(0,3000), xlab="Balance", main="Default")
 hist(income[Default=="No"], xlim=c(0, 70000), xlab="Income", main="Did not default")
 hist(income[Default=="Yes"], xlim=c(0,70000), xlab="Income", main="Default")
+```
 
+As looking at the histograms of `default` factors by `balance`, we can see that the mode of `balance` smaller when there is `default` is "No" and higher when `default` is "Yes". This suggests that lower `balance` leads to a "No" in default, and higher `balance` leads to a "Yes" in `default`. Looking at the plot of `income` by `default`, as `default` tends to be "No" as `income` increases and "Yes" as `income` decreases. This shows that lower `income` would lead to a "Yes" in `default` and higher income would lead to a "No". 
+
+
+```{r}
 # Categorical variable: student
 table(student)
 table(student, default)
+
+```
+
+In the contingency table of `student` and `default`, we can see that a student would be less likely to have a default. Similarly, a non-student would have more chances of getting a "No" in default. There are more non-student (7056) than student (2944). 
+
+
+```{r fig.height=3, fig.width=8}
 # Relationships between explanatory variables
 par(mfrow=c(1,3))
 plot(income, balance, ylab="Balance", xlab="Income")
 boxplot(income~student, ylab="Income", xlab="Student")
 boxplot(balance~student, ylab="Balance", xlab="Student")
+
+```
+
+Income and balance scatter plot seems to have an interaction effect. This mean that higher income can have both high balance and low balance. Both variables `income` and `balance` seems to have low correlation with each other. Box plots shows students have lower income and higher balance. The mean of `income` between student vs non-student seems to have a large gap suggesting a high correlation.
+
+
+```{r}
 # Correlations
 allPairs = rbind(t(combn(2:ncol(Default), 2)), matrix(data = c(2:ncol(Default),2:ncol(Default)), ncol=2))
 allPairs = allPairs[order(allPairs[,1], allPairs[,2]),]
@@ -64,10 +107,8 @@ colnames(matP.Both) = names(Default)[2:ncol(Default)]
 rownames(matP.Both) = names(Default)[2:ncol(Default)]
 signif(matP.Both, digits=3)
 ```
-### Report the following
-Present an EDA description of the data with respect to predicting default from income, balance, and student status.  Remember that you can read R output into your text description; for example,
 
-Some summary statistics for credit card balance in this data set is `r signif(balance_s, digits=3)`.
+Correlation matrix shows there is a strong negative correlation between `income` and `student`. This means there might be multicolinearity issues if we have these two variables in the same models. 
 
 
 ## Task 2, model comparison
@@ -87,6 +128,7 @@ Perform training/testing evaluation of Models 1 and 2.  Suggested measures:
 
 ### Code set-up
 The following two code chunks provide, first, measures for Model 1 and then second a chunk presenting the desired output.  Replicate the first code chunk for Model 2 and then add the appropriate measures into the ROC_output code chunk for presentation. Make sure all R outputted tables have well-labeled columns and rows, use `colnames` and `rownames` functions.
+
 ```{r model1_ROC}
 n = dim(Default)[1]  # sample size
 
@@ -97,6 +139,10 @@ train = sample(n, p*n)  # random sample percentage out of n; this creates the in
 fit_train1 = glm(default~balance+income, family=binomial(link=logit), data=Default, subset = train)
 test_probs1 = predict.glm(fit_train1, Default, type="response")[-train]
 
+fit_train2 = glm(default~balance+income+student, 
+                 family=binomial(link=logit), data=Default, subset = train)
+test_probs2 = predict.glm(fit_train2, Default, type="response")[-train]
+
 # ROC curve
 # Plot function of ISLR
 rocplot=function(pred, truth, ...){
@@ -106,10 +152,14 @@ rocplot=function(pred, truth, ...){
 
 # Statistics off the ROC
 pred1 = prediction(test_probs1, Default[-train,"default"])
+pred2 = prediction(test_probs2, Default[-train,"default"])
 # calculating AUC
 auc1 <- performance(pred1,"auc")
+auc2 <- performance(pred2,"auc")
+
 # convert S4 class to vector
 auc1 <- unlist(slot(auc1, "y.values"))
+auc2 <- unlist(slot(auc2, "y.values"))
 
 # Compute optimal cutoff
 opt.cut = function(perf, pred){
@@ -122,21 +172,23 @@ opt.cut = function(perf, pred){
 }
 # Present sensitivity and specificity for that optimal cutoff
 roc.perf1 = performance(pred1, measure="tpr", x.measure="fpr")
+roc.perf2 = performance(pred2, measure="tpr", x.measure="fpr")
 
 # Here is a function and code that will compute sensitivity and specificity at any given cutoff
-#se.sp <- function (cutoff, pred){
-#  sens <- performance(pred,"sens")
-#  spec <- performance(pred,"spec")
-#  num.cutoff <- which.min(abs(sens@x.values[[1]] - cutoff))
-#  return(list(Cutoff=sens@x.values[[1]][num.cutoff],
-#              Sensitivity=sens@y.values[[1]][num.cutoff], 
-#              Specificity=spec@y.values[[1]][num.cutoff]))
-#}
-#se.sp(.5, pred1) # Sensitivity and specificity at 0.5 cutoff
+se.sp <- function (cutoff, pred){
+ sens <- performance(pred,"sens")
+ spec <- performance(pred,"spec")
+ num.cutoff <- which.min(abs(sens@x.values[[1]] - cutoff))
+ return(list(Cutoff=sens@x.values[[1]][num.cutoff],
+             Sensitivity=sens@y.values[[1]][num.cutoff],
+             Specificity=spec@y.values[[1]][num.cutoff]))
+}
+se.sp(.5, pred1) # Sensitivity and specificity at 0.5 cutoff
+se.sp(.5, pred2)
 ```
 
 
-```{r ROC_output}
+```{r ROC_output, fig.height=4, fig.width=8}
 # Confusion matrix at 0.5 cutoff
 c = 0.5
 test_class1 = (test_probs1 > c)
@@ -144,17 +196,27 @@ table(test_class1, Default$default[-train], dnn=c("Predicted", "Model 1 Truth"))
 paste("Accuracy of Model 1 is", sum(as.numeric(test_class1) == (as.numeric(Default$default[-train])-1))/(n-n*p))
 ## [Confusion matrix code for Model 2 here]
 
+test_class2 = (test_probs2 > c)
+table(test_class2, Default$default[-train], dnn=c("Predicted", "Model 2 Truth"))  # cross-classification accuracy
+paste("Accuracy of Model 2 is", sum(as.numeric(test_class2) == (as.numeric(Default$default[-train])-1))/(n-n*p))
+
 # ROC curves
 par(mfrow=c(1,2))
 rocplot(test_probs1, Default[-train,"default"], main="Test Data, Model 1")
 abline(a=0, b=1)
 text(0.8, 0.2, paste("AUC =", signif(auc1, digits=4)), col="blue")
 ## [ROC plot code for Model 2 here]
+rocplot(test_probs2, Default[-train,"default"], main="Test Data, Model 2")
+abline(a=0, b=1)
+text(0.8, 0.2, paste("AUC =", signif(auc2, digits=4)), col="blue")
+
 
 # Sensitivity and specificity at an optimal cutoff
-print("Sensitivities and specificities at the optimal cutoff:")
+print("Model 1: Sensitivities and specificities at the optimal cutoff:")
 signif(opt.cut(roc.perf1, pred1), digits=2)
 ## [Add code to present this in a table with the analogous values for Model 2]
+print("Model 2: Sensitivities and specificities at the optimal cutoff:")
+signif(opt.cut(roc.perf2, pred2), digits=2)
 ```
 
 ## Task 3, K-fold cross-validation evaluation of the two models
@@ -171,11 +233,31 @@ set.seed(17) # set the random number generator seed
 # Note that this R function also provides a second component with a bias adjustment
 cv.error.10 = cv.glm(Default, fit1, K=10) 
 paste("The cv error for Model 1 is", signif(cv.error.10$delta[1], digits=3))
+
+# First, 10-fold cv on Model 2 (default on balance and income)
+fit2 = glm(default~balance+income+student, family=binomial(link=logit), data=Default)
+summary(fit2)
+set.seed(17) # set the random number generator seed
+# 10-fold cv, compute misclassification rate
+# Note that this R function also provides a second component with a bias adjustment
+cv.error.10 = cv.glm(Default, fit2, K=10) 
+paste("The cv error for Model 2 is", signif(cv.error.10$delta[1], digits=3))
 ```
 
 ### Report the following for Tasks 2 and 3:
 Write text to compare the two models with respect to ROC curves, corresponding ROC curve statistics (accuracy, sensitivity, and specificity), cross validation error, and regression model fit/inferences.  Which model would you choose to predict default status?  Why?
 
-## Task 4: Risk score
+Model 1 has an AUC of 0.9419 and model 2 has an AUC of 0.9424 indicating model 2 is a little better. Both models have high amount of AUC meaning the predictions are closed to the empirical values. Sensitivity for model 1 (.89) is higher than model 2 (.87). On the other hand, specificity for model 2 (.88) is better than model model 1 (.86). Meaning model 1 has higher percentage of true defaulters correctly identified and model 2 has higher percentage of non-defaulters correctly identified. 
+
+After running cross validation, 2 models have similar cross validation error with 0.001 of differences in error. The differences are not noticible, so both models are similar based on cross validation error. 
+
+Model 1 AIC (1585) is slightly higher than model 2 (1579) which made model 2 a better candidate. However, coefficient of income in model 2 is not sigificant. This indicates that `income` is not needed in the model when `balance` and `student` are already in the model. 
+
+Therefore, I would choose model 1 to predict default status. Athough model 1 AUC is lower than model 2 and AIC is higher than model 2, the differences are not too high. With two predictors (balance and income) in the model, the predictions can be nearly as good as model 2. 
+
+
+## Task 4: Risk score 
 Write text to discuss how you would compute a 'default risk score' from the model you chose.
+
+Default risk score can be calculated using model 1. We can have a new test set and plug the test set into the `predict` function with `type` is "response" to get the proportion of default. Or we can calculate by hand using the coefficient from the summary of regression and plus the new number of income and balance to get the default risk score.  
 
