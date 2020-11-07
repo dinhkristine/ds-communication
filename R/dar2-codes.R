@@ -175,7 +175,7 @@ prostate %<>%
 
 ## add bins for psa 
 prostate %<>%
-  mutate(psa_bins = cut(psa, breaks = seq(0, 140, 20)))
+  mutate(psa_bins = ntile(psa, 10))
 
 
 #### Data Exploratory Analysis ####
@@ -193,7 +193,8 @@ ExploreVariable(prostate, race, x_axis = "Race")
 ExploreVariable(prostate, dpros, x_axis = "Results of Digital Rectal Exam")
 ExploreVariable(prostate, dcaps, x_axis = "Detection of Capsular Involvement")
 ExploreVariable(prostate, psa_bins, count = FALSE, 
-                x_axis = "Prostatic Specific Antigen Value (mg/ml)")
+                x_axis = "Prostatic Specific Antigen Value (mg/ml)") + 
+  scale_x_continuous(breaks = seq(1, 10, 1))
 ExploreVariable(prostate, gleason, x_axis = "Total Gleason Score")
 
 # after the variable exploratory, we can see that 
