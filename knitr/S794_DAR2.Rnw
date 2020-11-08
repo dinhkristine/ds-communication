@@ -1,13 +1,70 @@
-#### Load packages ####
+\documentclass[11pt]{article}
+
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage[belowskip=-15pt,aboveskip=0pt]{caption}
+
+\setlength\topmargin{-.56in}
+\setlength\evensidemargin{0in}
+\setlength\oddsidemargin{0in}
+\setlength\textwidth{6.49in}
+\setlength\textheight{8.6in}
+\setlength{\intextsep}{10pt plus 1pt minus 4pt}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstset{style=mystyle}
+
+\pagestyle{headings}
+
+\title{Penetration Rates for Prostate Cancer\vspace{-5ex}} 
+\date{November 12, 2020\vspace{-5ex}}
+
+\begin{document} 
+\maketitle
+\hfill \break
+
+<<packages, include = FALSE>>=
+
 library(MASS)
 library(magrittr)
 library(tidyverse)
 library(ggcorrplot)
 library(car)
 library(broom)
+library(gridExtra)
+library(stargazer)
+library(xtable)
+
+@
 
 
-#### Functions ####
+<<functions, include = FALSE>>=
 
 #' Explore variables function, returning plots of variables count and average proportion
 #'
@@ -153,17 +210,18 @@ LoopAllVars <- function(rp, nrounds, list_of_xvars, number_of_xvars){
   return(iteration_log)
 }
 
+@
+
+
+<<load_data, echo = FALSE, warning = FALSE, message = FALSE>>=
 
 #### Load data ####
 
 ## Load in prostate data set 
-prostate <- read.table("data/prostate.txt", header = T)
+prostate <- read.table(here::here("data/prostate.txt"), header = T)
 
 
 #### Clean data & Data Pre-processing ####
-
-## check for NA 
-sum(is.na(prostate)) # missing data: 3 in race
 
 ## omit NA 
 prostate %<>%
@@ -177,48 +235,66 @@ prostate %<>%
 prostate %<>%
   mutate(psa_bins = ntile(psa, 10))
 
+@
 
-#### Data Exploratory Analysis ####
+
+\noindent\textbf{\underline{Executive Summary}}: 
+\hfill \break
+
+\noindent\textbf{\underline{Introduction}}: 
+\hfill \break
+
+\noindent\textbf{\underline{Methods}}:    
+\hfill \break
+
+\noindent\textbf{\underline{Exploratory Data Analysis}}: 
+\hfill \break
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
 
 ## Target Variable - capsule - histogram  
-ggplot(prostate, aes(factor(capsule))) + 
+p1 <- ggplot(prostate, aes(factor(capsule))) + 
   geom_histogram(stat = "count", fill = "#3e8ddd", col = "white") + 
   theme_bw() + 
   labs(x = "Capsule", 
        y = "Count")
 
-## Predictors 
-ExploreVariable(prostate, age, count = FALSE, x_axis = "Age")
-ExploreVariable(prostate, race, x_axis = "Race")
-ExploreVariable(prostate, dpros, x_axis = "Results of Digital Rectal Exam")
-ExploreVariable(prostate, dcaps, x_axis = "Detection of Capsular Involvement")
-ExploreVariable(prostate, psa_bins, count = FALSE, 
+p2 <- ExploreVariable(prostate, dpros, x_axis = "Results of Digital Rectal Exam")
+
+grid.arrange(p1, p2, nrow = 1, ncol = 2)
+
+@
+\caption{}
+\label{explore1}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=10, fig.height=3>>=
+
+## Target Variable - capsule - histogram  
+p1 <- ExploreVariable(prostate, dcaps, x_axis = "Detection of Capsular Involvement")
+
+p2 <- ExploreVariable(prostate, psa_bins, count = FALSE, 
                 x_axis = "Prostatic Specific Antigen Value (mg/ml)") + 
   scale_x_continuous(breaks = seq(1, 10, 1))
-ExploreVariable(prostate, gleason, x_axis = "Total Gleason Score")
 
-# after the variable exploratory, we can see that 
-# - age don't have a relationship with capsule 
-# - there is little to no relationship with capsule, and unbalance factors
-# - dpros has a strong effect of getting penetration by different levels
-# - dcaps also has strong effect of getting penetration
-# - psa has a strong positive relationship with capsule 
-# - gleason also has a strong positive relationship with capsule 
-# we can continue the analysis using 4 variables: dpros, dcaps, psa, and gleason
+p3 <- ExploreVariable(prostate, gleason, x_axis = "Total Gleason Score")
+
+grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
+
+@
+\caption{}
+\label{explore2}
+\end{center} 
+\end{figure}
 
 
-#### Check Correlation for Continuous variables ####
-corr_table <- prostate %>%
-  select(age, psa, gleason) %>% 
-  cor()
-
-ggcorrplot(corr_table, hc.order = TRUE, 
-           outline.col = "white",
-           colors = c("blue", "white", "red"))
-
-# no high correlation between continuous predictors
-# all variables can be in the same model  
-
+<<model_development, echo = FALSE, message = FALSE, warning=FALSE>>=
 
 #### Model Development ####
 
@@ -247,9 +323,12 @@ for (n_features in 1:4){
 # bind iteration log into a dataframe
 iteration_log <- print_list %>% bind_rows()
 
-# after running the iteration logs, models with variables dpros, psa, and gleason 
-# has the high AUC and low AIC, using train set of 60% prop and test set of 40%
+@
 
+\noindent\textbf{\underline{Model Fitting/Inferences}}: 
+\hfill \break
+
+<<model_building,echo=FALSE, message = FALSE, warning = FALSE>>=
 
 #### Select Model after bootstrap #### 
 
@@ -283,41 +362,16 @@ test_roc <- pROC::roc(response = test$capsule, predictor = test$preds2)
 test_auc <- as.data.frame(pROC::auc(test_roc))
 aic <- fit2$aic
 
-summary(fit2)
-
-stepAIC(fit2, direction = c("both"))
-
-# although auc for this model is high and AIC is low, 
-# each coefficient in the model is not statistically significant 
-# so we're not considering this model to be the final model 
-# also using model selection function stepAIC, 
-# interaction terms are not needed in the model
+fit_int <- stepAIC(fit2, direction = c("both"), trace = FALSE)
 
 #### Final Model ####
 
 fit_final <- fit1
 
-## generate predictions using test set 
-test$preds <- predict(fit_final, newdata = test, type = "response")
+@
 
-## create percentile to generate lift chart 
-test$percentile <- ntile(test$preds, 10)
 
-lift_plot_df <- test %>% 
-  group_by(percentile) %>% 
-  summarise("Empirical" = mean(capsule), 
-            "Indicated" = mean(preds)) %>%  
-  gather("key", "value", -percentile)
-
-## Lift chart to visualize the quality of the model 
-ggplot(lift_plot_df, aes(x = factor(percentile), y = value, color = key, group = key)) + 
-  geom_line(size = 1) + 
-  geom_point(size = 2) + 
-  theme_minimal() + 
-  labs(x = "Percentile", 
-       y = "Average Proportion Penetrated") + 
-  theme(legend.title = element_blank()) + 
-  scale_color_manual(values = c("black", "#3e8ddd"))
+<<final_model_regression_summary, echo = FALSE, message=FALSE, warning=FALSE>>=
 
 ## compute AIC and AUC of final model
 aic <- fit_final$aic
@@ -329,33 +383,60 @@ tidy <- broom::tidy(fit_final) %>%
   cbind(exp(confint(fit_final))) %>% 
   modify_if(is.numeric, round, 4) 
 
-## wald test 
-aod::wald.test(b = coef(fit_final), Sigma = vcov(fit_final), Terms = 4)
-
-
 ## Generate confusion matrix and accuracy  
-test %<>% 
-  mutate(preds = case_when(preds < 0.5 ~ 0.5, TRUE ~ 1.1))
+## generate predictions using test set 
+test$preds <- predict(fit_final, newdata = test, type = "response")
 
-confusion_matrix <- ftable(test$capsule, test$preds)
+## create percentile to generate lift chart 
+test$percentile <- ntile(test$preds, 10)
+
+test %<>% 
+  mutate(preds_flag = case_when(preds < 0.5 ~ 0.5, TRUE ~ 1.1))
+
+confusion_matrix <- ftable(test$capsule, test$preds_flag)
 
 accuracy <- sum(diag(confusion_matrix))/nrow(test)*100
 
-accuracy
+@
 
 
-#### Diagnostics ####
+\begin{center}
+<<echo = FALSE, results='asis'>>=
 
-#### Outliers test ####
-## Bonferonni p-value for most extreme obs
-outlierTest(fit_final) 
+tidy %<>% 
+  xtable(caption = "Summary regression of final model", 
+         label = "reg_summary_final",
+         table.placement="H", 
+         digits = 3)
+
+print(tidy, include.rownames=FALSE)
+  
+@
+\end{center}
 
 
-## Influential Observations
-influencePlot(fit_final, 
-              id.method="identify", 
-              main="Influence Plot", 
-              sub="Circle size is proportial to Cook's Distance" )
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
+
+lift_plot_df <- test %>% 
+  group_by(percentile) %>% 
+  summarise("Empirical" = mean(capsule), 
+            "Indicated" = mean(preds)) %>%  
+  gather("key", "value", -percentile)
+
+## Lift chart to visualize the quality of the model 
+p1 <- ggplot(lift_plot_df, aes(x = factor(percentile), y = value, color = key, group = key)) + 
+  geom_line(size = 1) + 
+  geom_point(size = 2) + 
+  theme_minimal() + 
+  labs(x = "Percentile", 
+       y = "Average Proportion Penetrated") + 
+  theme(legend.title = element_blank(), legend.position = c(.2,.8)) + 
+  scale_color_manual(values = c("black", "#3e8ddd"))
+
+
+#### Diagnostic ####
 
 diag <- augment(fit_final) %>% 
   mutate(Index = 1:nrow(.))
@@ -373,16 +454,28 @@ diag %<>%
       TRUE ~ 0))
 
 ## cook's distant plot
-ggplot(diag, aes(x = Index, y = .cooksd)) + 
-  geom_bar(stat = "identity", fill = "#3e8ddd", col = "white") +
+p2 <- ggplot(diag, aes(x = Index, y = .cooksd)) + 
+  geom_bar(stat = "identity", fill = "#3e8ddd") +
   labs(y = "Cook's Distance") + 
   theme_minimal() +  
   geom_label(data = diag %>% filter(.cooksd > cutoff + .005), 
              aes(label = .rownames), label.size = NA, size = 3)
 
+grid.arrange(p1, p2, nrow = 1, ncol = 2)
+
+@
+\caption{}
+\label{model_plot_1}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
 
 ## standard residual plot
-ggplot(diag, aes(x = Index, y = .std.resid, color = factor(col_stdresid))) + 
+p1 <- ggplot(diag, aes(x = Index, y = .std.resid, color = factor(col_stdresid))) + 
   geom_point(alpha = 0.7) +
   labs(y = "Standard Residuals") + 
   theme_bw() + 
@@ -392,7 +485,7 @@ ggplot(diag, aes(x = Index, y = .std.resid, color = factor(col_stdresid))) +
              aes(label = .rownames), label.size = NA, size = 3, hjust=0.45, vjust=-.15)
 
 ## diagonal hat matrix plot
-ggplot(diag, aes(x = Index, y = .hat, color = factor(high_hat))) + 
+p2 <- ggplot(diag, aes(x = Index, y = .hat, color = factor(high_hat))) + 
   geom_point() +
   labs(y = "Diagonal Hat Matrix") + 
   theme_bw() + 
@@ -401,21 +494,66 @@ ggplot(diag, aes(x = Index, y = .hat, color = factor(high_hat))) +
   geom_label(data = diag %>% filter(.hat > .07), 
              aes(label = .rownames), label.size = NA, size = 3, hjust=0.45, vjust=-.15)
 
-## student residual distribution 
-sresid <- studres(fit_final)
-hist(sresid, freq=FALSE,
-     main="Distribution of Studentized Residuals")
-xfit<-seq(min(sresid),max(sresid),length=40)
-yfit<-dnorm(xfit)
-lines(xfit, yfit, col = "red")
-# looks normal
+grid.arrange(p1, p2, nrow = 1, ncol = 2)
 
-#### Collinearity  ####
-vif(fit_final) # variance inflation factors
-# all VIF are low = no multicolinearity 
+@
+\caption{}
+\label{model_plot_1}
+\end{center} 
+\end{figure}
 
 
-#### Find influential point in data ####
+\noindent\textbf{\underline{Conclusion}}: 
+\hfill \break
+
+\clearpage
+\newpage
+\noindent \Large{{\bf Appendix A: Supplemental Tables}}
+
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE>>=
+
+stargazer(prostate[-1], 
+          title = "Summary Statistics for all numerical independent features", 
+          label="descrips",
+          table.placement = "H")
+@
+\end{center} 
+
+\begin{center}
+<<echo = FALSE, results='asis', message=FALSE, error=FALSE, warning=FALSE>>=
+
+iteration_log %<>%
+  select(random_partition, nrow_train, nrow_test, features, AIC, auc) %>%
+  arrange(desc(auc)) %>%
+  head(10) %>% 
+  xtable(digits = 3,
+         caption = "",
+         label = "reg_bootstrap",
+         table.placement="H")
+
+# align(iteration_log) <- "rp{2in}llll"
+
+print(iteration_log)
+
+@
+\end{center}
+
+\begin{center}
+<<echo = FALSE, results='asis', message=FALSE, error=FALSE, warning=FALSE>>=
+
+xtable(fit2, 
+       caption = "", 
+       label = "reg_summary_int",
+       table.placement="H")
+
+@
+\end{center}
+
+\begin{center}
+<<echo = FALSE, message=FALSE, error=FALSE, warning=FALSE, results = 'asis'>>=
+
+### influential points 
 
 inf_points <- (diag %>% 
                  filter(.std.resid > 2 | .std.resid < -2 | .cooksd > cutoff | .hat > .07))$.rownames %>% 
@@ -425,8 +563,23 @@ prostate[inf_points, ] %>%
   as.data.frame() %>% 
   dplyr::select(capsule, dpros, psa, gleason) %>% 
   mutate(rownames = inf_points) %>% 
-  arrange(rownames)
+  arrange(rownames) %>%  
+  mutate_at("rownames", as.character) %>% 
+  xtable(caption = "", 
+       label = "outlier_obs",
+       table.placement="H")
 
+@
+\end{center}
+
+
+\clearpage
+\newpage
+\noindent \Large{{\bf Appendix B: R Code}}
+\lstinputlisting[language=R, caption = Appendix of Code]{R/dar2-codes.R}
+
+
+\end{document}
 
 
 
