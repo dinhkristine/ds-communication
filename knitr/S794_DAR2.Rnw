@@ -238,62 +238,6 @@ prostate %<>%
 @
 
 
-\noindent\textbf{\underline{Executive Summary}}: 
-\hfill \break
-
-\noindent\textbf{\underline{Introduction}}: 
-\hfill \break
-
-\noindent\textbf{\underline{Methods}}:    
-\hfill \break
-
-\noindent\textbf{\underline{Exploratory Data Analysis}}: 
-\hfill \break
-
-\begin{figure}[h!] 
-\begin{center}
-<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
-
-## Target Variable - capsule - histogram  
-p1 <- ggplot(prostate, aes(factor(capsule))) + 
-  geom_histogram(stat = "count", fill = "#3e8ddd", col = "white") + 
-  theme_bw() + 
-  labs(x = "Capsule", 
-       y = "Count")
-
-p2 <- ExploreVariable(prostate, dpros, x_axis = "Results of Digital Rectal Exam")
-
-grid.arrange(p1, p2, nrow = 1, ncol = 2)
-
-@
-\caption{}
-\label{explore1}
-\end{center} 
-\end{figure}
-
-
-\begin{figure}[h!] 
-\begin{center}
-<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=10, fig.height=3>>=
-
-## Target Variable - capsule - histogram  
-p1 <- ExploreVariable(prostate, dcaps, x_axis = "Detection of Capsular Involvement")
-
-p2 <- ExploreVariable(prostate, psa_bins, count = FALSE, 
-                x_axis = "Prostatic Specific Antigen Value (mg/ml)") + 
-  scale_x_continuous(breaks = seq(1, 10, 1))
-
-p3 <- ExploreVariable(prostate, gleason, x_axis = "Total Gleason Score")
-
-grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
-
-@
-\caption{}
-\label{explore2}
-\end{center} 
-\end{figure}
-
-
 <<model_development, echo = FALSE, message = FALSE, warning=FALSE>>=
 
 #### Model Development ####
@@ -325,8 +269,6 @@ iteration_log <- print_list %>% bind_rows()
 
 @
 
-\noindent\textbf{\underline{Model Fitting/Inferences}}: 
-\hfill \break
 
 <<model_building,echo=FALSE, message = FALSE, warning = FALSE>>=
 
@@ -399,6 +341,78 @@ accuracy <- sum(diag(confusion_matrix))/nrow(test)*100
 
 @
 
+\noindent\textbf{\underline{Executive Summary}}: 
+\hfill \break
+
+\noindent\textbf{\underline{Introduction}}: Prostate cancer is one of the most common cancers among men. The survival rate is vary depending on the stages of the cancer. Prostate cancer has a high probability of being treated if detected at early stages. There are many important characteristics that can predict whether a tumor has penetrated the prostatic capsule. With the results of penetration rate, doctors and nurses would prioritize the patients with the high risk level. On the other hand, if the patients have low rate in penetration, health care workers could find the best treatments for them to slow down prostate growth rate or even treat the patients. With this being said, hostpitals can plan their budget and supplies to focus more on high risk patients and minimize supplies to low risk patients. Knowing penetration rates does not only benefits doctors and nurses, it would also help all men out there to detect if their tumors have penetrated the prostatic capsule. This way, patients would seek professional help at an earlier stage to increase their survival rate. Many questions have proposed in favor of these issues including 1) What variables cause the penetration rate to increase or decrease? 2) What are the likelyhood of penetration rate? 3) How accruate is the model proposed in this analysis? 4) How can we implement the model for everyone to use? and 5) How can we improve the current model? This report will answer all of the questions mentioned above by crucials data analysis process such as data exploratory analysis process to explore the relationship of each variables, model development using multiple logistic regression to built model, and diagnositics process to check the quality of the model. This model will serve the purpose of predicting penetration rate for prostate cancer in men to minimize human errors and provide an effective tool for health care workers.
+\hfill \break
+
+\noindent\textbf{\underline{Methods}}: A subset of data was provided from the Ohio State University Comprehensive Cancer Center to find the variables to predict if a tumor has penetrated the prostatic capsule. This data set contain a total of 380 subjects, out of which, 153 subjects had a cancer that penetrated the capsule. There are three observations contain missing values. After eleminating missing values to build more quality models, the dataset now have a total of 377 observations. These data contains one identification column with numbers of each subject, two demographic columns including age and race of the subjects, and four health measurements such as the results of digital rectal exam, detection of capsular involvement, prostatic specific antigen value, and total gleason score. Health mesurement variables will be explained in details in the exploretory data analysis section. The goal of this analysis is to find the average tumor penetration of prostatic capsule rate. To accomplish this goal, we will first analyze the relationship between each predictor and target variable, build models using bootstraping method, consider interaction terms to be in the final model, check for the quality of the models, and conclude with an interpretaion of the model output. All analysis will be done in R Studio with R version 3.6.2.        
+\hfill \break
+
+\noindent\textbf{\underline{Exploratory Data Analysis}}: Before picking variables for our model development procress, it is important to access the relationship of each response variable with the target variable. Table~A\ref{descrips} shows an descriptive statistics of each independent variable. As seen in this table, the maximum value of Prostatic Specific Antigen value are relatively high compare to the median and mean values suggesting there might be outliers. In addition, there are disproportion weights of each factor in race of the subjects and detection of capsular involvement. This indicates that there might be biased in predicting the outcome if we use these two variables in the models. The rest of the variables seems proportionally balanced and no skewness were detected among them. In terms of the tumor penetration of prostatic capsule, the response variable has a balance proportion of 40\% of tumor has penetrated the prostatic capsule out of 377 subjects. Figure~\ref{explore1}.1 show the histogram of chances of the tumor penetration of prostatic capsule (1 = penetration, 0 = no penetration).  
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
+
+## Target Variable - capsule - histogram  
+p1 <- ggplot(prostate, aes(factor(capsule))) + 
+  geom_histogram(stat = "count", fill = "#3e8ddd", col = "white") + 
+  theme_bw() + 
+  labs(x = "Capsule", 
+       y = "Count")
+
+p2 <- ExploreVariable(prostate, dpros, x_axis = "Results of Digital Rectal Exam")
+
+grid.arrange(p1, p2, nrow = 1, ncol = 2)
+
+@
+\caption{}
+\label{explore1}
+\end{center} 
+\end{figure}
+
+\noindent The results of digital rectal exam is a simple exam to check the prostate to determine the size of the prostate and any abnormalities. Clearly, different abnormalities would have different chances of penetration of prostatic capsule. Figure~\ref{explore1}.2 shows four categories of the results of digital rectal exam including no nodule, unilobar nodule (left), unilobar nodule (right), and bilobar nodule noting using number from 1 to 4, respectively. Here, this variable is identified as categorical variables with four levels instead of a continuous variable. As seen in plot, these four categories obviously have different average penetration rates. For example, a subject with no nodule would be less likely to penetrate compare to a person with bilobar nodule. It makes sense because if there is no nodule detected in the prostate area, then there is less chances of the tumor will penetrate the prostatic capsule. In addition, Figure~\ref{explore1}.2 also depicts the number of subject in each category. Unilobar nodule (left) is the most common and bilobar nodule is the least common among prostate cancer. However, the proportion of each factor for digital rectal exam are not too different. Thus, this variables would provide significant impact for the models.   
+\hfill \break
+
+\noindent Detection of capsular involvement can describe if the tumor involving or extending beying the prostate capsule. The tumor is involved when there is capsular involment present. Clearly, the patients who have capsular involement present can be more risky than patient who do not have capsular involment. Figure~\ref{explore2}.1 shows the count and proportion of penetration for the detection of capsular involement. This variable has two levels (1 = no, 2 = yes) to suggest if a subject has capsular involvement or not. As seen in the figure, patients with capsule involement would be much more likely to have tumor penetrated of prostatic capsule compare to patients that do not have capsule involvement. However, the count for each level is not proportional. The majority of the subject have level 1, no capsular involement. Therefore, this variable could be a good variable for our model since it shows a strong signal, however, cautious about the disproportional need to be consider before finalizing the model.      
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=10, fig.height=3>>=
+
+## Target Variable - capsule - histogram  
+p1 <- ExploreVariable(prostate, dcaps, x_axis = "Detection of Capsular Involvement")
+
+p2 <- ExploreVariable(prostate, psa_bins, count = FALSE, 
+                x_axis = "Prostatic Specific Antigen Value (mg/ml) Decile") + 
+  scale_x_continuous(breaks = seq(1, 10, 1))
+
+p3 <- ExploreVariable(prostate, gleason, x_axis = "Total Gleason Score")
+
+grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
+
+@
+\caption{}
+\label{explore2}
+\end{center} 
+\end{figure}
+
+Prostatic Specific Antigen (PSA) can be found in the prostate gland cells. This screening test measure the amount of prostate-specific antigen in patients' blood using miligram per mililitter (mg/ml). Higher PSA level could lead to a high posibility of diagnosting with prostate cancer. Figure~\ref{explore2}.2 show a plot of the relationship between PSA and the average penetration of prostatic capsule rate. Here, the data point is being sorted from smallest to highest, divided into 10 equal buckets, and assinged a decide for visualization purposes. As on can see, as the decile number increases by one unit, the chances of penetration rate increases, on average. Since PSA in higher buckets are generally the largest, they have higher risk of getting prostate cancer than PSA in lower buckets. Therefore, this proves that PSA could provide signicant relationship for the likelihood of tumor penetrated of prostatic capsule. 
+\hfill \break
+
+Last but not least, total gleason score can measure the abnormality of the cells to see how the cells are arrnaged using a scale of 1 to 10. Higher scores lead to higher posibility of have penetration in prostatic capsule. On the other hand, cancer cells that looks similar to normal cells can be consider as low risk and have lower scores. Figure~\ref{epxplore2}.3 show a histogram of total gleason score overlayed by the average risk of having cancer. Total gleason score seems to have a normal distribution with less subjects having low or high scores and most subjects having median score of 6. In addition, the average penetration rate is increasing as the total gleason score is higher. This mean that if a patient's cancer cells looks similar to normal cells, they have less chances of being diagnosed with prostate cancer. On the other hand, if the gleason scores are high, they would have high risk of being diagnosed with prostate cancer. Therefore, this variable can also provide excelent signal for the response variable. Other variables did not mention aboved have little to no relationship with tumor penetration including age and race of the subjects.   
+\hfill \break
+
+\noindent After accessing the relationship of predictors and response variable, it is important to check the correlation between predictors. Fortunately, all correlation between predictors are less than 40\%. Total gleason score and PSA values have the highest correlation score of 38.60\% which is considered as low. This indicate that all variables can be in the same models without raising the multicolineary issues. However, to make sure, we will check VIF scores after the modeling process. Therefore, we will go ahead and build our model using four variables including results of digital rectal exam ("dpros"), detection ofo capsule involvement ("dcaps"), PSA value ("psa"), and total Gleason score ("gleason").
+\hfill \break
+
+\noindent\textbf{\underline{Model Fitting/Inferences}}: After four variables were detected to be considered as significant, logistic regression will be used in model development process. Bootstrapping method is a common method for variable selection using random partitions. Here, the models are generated using a combination of each variable using different random partition of training and testing data. An average AUC and AIC of each model was computed after to compare. Table~A\ref{reg_bootstrap} shows the top 10 models with the highest AUC scores. Models with three variables results of digital rectal exam, PSA values, and total Gleason scores seems to be the best model with overall AUC above 80\% and low AIC scores compares to other models. Therefore, the model development process will continue using the three variables mentioned previously with a train set of 70\% and hold-out test set of 30\%.
+\hfill \break
+
+\noindent Before finalizing the model, all combination of interaction terms were added to the model with three variables including results of digital rectal exam, PSA values, and total Gleason score. The results of this model are shown in Table~A\ref{reg_summary_int}. The coefficient of all three variables seems to increase in the model with interaction terms. This proves that the model with interaction terms coefficent has steeper slope than the model without interaction terms (see Table~\ref{reg_summary_final}). However, p-values for all interaction terms are quite high suggesting that interaction terms are not needed in the model. To further prove this argument, a stepwise model selection was run using the model with interaction terms using AIC as a validation metric. The best model seems to be the model with the original three variables: results of digital rectal exam, PSA values, and total Gleason score. As seen in Table~\ref{reg_summary_final}, the final model's coefficients are positive consitent with the exploratory analysis. In addition, all variables in this model have low p-values of less than 0.05 and odd ratio confident interval does not contain 1 suggesting all variables are significant. Finally, this model has a low AIC of \Sexpr{round(summary(fit_final)$aic, 2)}, high AUC of \Sexpr{round(test_auc, 2)[1][[1]]}, and high accuracy of \Sexpr{round(accuracy/100, 2)} consistent with high probability of producing accuraate predictions.
+\noindent 
 
 \begin{center}
 <<echo = FALSE, results='asis'>>=
@@ -413,6 +427,12 @@ print(tidy, include.rownames=FALSE)
   
 @
 \end{center}
+
+\noindent To access how good the model fit, ...
+\hfill \break
+
+\noindent Checking the quality of the model is one of the most important step in a data analysis. ...
+\hfill \break
 
 
 \begin{figure}[h!] 
@@ -469,6 +489,8 @@ grid.arrange(p1, p2, nrow = 1, ncol = 2)
 \end{center} 
 \end{figure}
 
+\noindent The student residuals ...  
+\hfill \break
 
 \begin{figure}[h!] 
 \begin{center}
@@ -502,6 +524,8 @@ grid.arrange(p1, p2, nrow = 1, ncol = 2)
 \end{center} 
 \end{figure}
 
+\noindent After finishing model development and validation, the model is ready to be interpreted. ... 
+\hfill \break
 
 \noindent\textbf{\underline{Conclusion}}: 
 \hfill \break
