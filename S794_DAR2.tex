@@ -116,7 +116,7 @@
 
 
 
-\noindent\textbf{\underline{Executive Summary}}: With the common prostate canceri diagnostic among men, the goal of this analysis is to find the variable that could predict the chances of a tumor has penetrated the prostatic capsule. A dataset was provided by the Ohio State University Comprehensive Cancer Center to analyze how demographic and screening results could cause the likelihood of penetration. A tool was built using multiple logistic regression to predict the chances of a patients getting diagnosed with prostate cancer using three variables results of digital rectal exam, Prostatic Specific Antigen value, and total Gleason score. This model was proved to be the best model with an AUC of 0.82, an accuracy of 0.77, Sensitivity of .75, and Specificity of .79. Some interesting findings includes a 269\% increase in chances of having prostate cancer when a patient has a unilobar nodule from the left on their results of digits rectal exam compared to patient with no nodule. Furthermore, patients who has bilobar nodule results after their digital rectal exam will have higher chance of having prostate cancer compared to patient with no nodule, 260\% more to be exact. In addition, patients could gain 133\% more likelihood of being diagnosed with prostate cancer when they have a higher Gleason score. Knowing these three variables (results of digital rectal exam, Prostatic Specific Antigen value, and total Gleason score) are significant factor of the likelihood of penetration rate in protate cancer, health care professionals would be more cautious in treating each patients. In addition, patients could detect their prostate cancer stages earlier and seek help accordingly.      
+\noindent\textbf{\underline{Executive Summary}}: With the common prostate canceri diagnostic among men, the goal of this analysis is to find the variable that could predict the chances of a tumor has penetrated the prostatic capsule. A dataset was provided by the Ohio State University Comprehensive Cancer Center to analyze how demographic and screening results could cause the likelihood of penetration. A tool was built using multiple logistic regression to predict the chances of a patients getting diagnosed with prostate cancer using three variables results of digital rectal exam, Prostatic Specific Antigen value, and total Gleason score. This model was proved to be the best model with an AUC of 0.82, an accuracy of 0.77, Sensitivity of 0.75, and Specificity of 0.79. Some interesting findings includes a 269\% increase in chances of having prostate cancer when a patient has a unilobar nodule from the left on their results of digits rectal exam compared to patient with no nodule. Furthermore, patients who has bilobar nodule results after their digital rectal exam will have higher chance of having prostate cancer compared to patient with no nodule, 260\% more to be exact. In addition, patients could gain 133\% more likelihood of being diagnosed with prostate cancer when they have a higher Gleason score. Knowing these three variables (results of digital rectal exam, Prostatic Specific Antigen value, and total Gleason score) are significant factor of the likelihood of penetration rate in protate cancer, health care professionals would be more cautious in treating each patients. In addition, patients could detect their prostate cancer stages earlier and seek help accordingly.      
 \hfill \break
 
 \noindent\textbf{\underline{Introduction}}: Prostate cancer is one of the most common cancers among men. The survival rate is vary depending on the stages of the cancer. Prostate cancer has a high probability of being treated if detected at early stages. There are many important characteristics that can predict whether a tumor has penetrated the prostatic capsule. With the results of penetration rate, doctors and nurses would prioritize the patients with the high risk level. On the other hand, if the patients have low rate in penetration, health care workers could find the best treatments for them to slow down prostate growth rate or even treat the patients. With this being said, hostpitals can plan their budget and supplies to focus more on high risk patients and minimize supplies to low risk patients. Knowing penetration rates does not only benefits doctors and nurses, it would also help all men out there to detect if their tumors have penetrated the prostatic capsule. This way, patients would seek professional help at an earlier stage to increase their survival rate. Many questions have proposed in favor of these issues including 1) What variables cause the penetration rate to increase or decrease? 2) What are the likelyhood of penetration rate? 3) How accruate is the model proposed in this analysis? 4) How can we implement the model for everyone to use? and 5) How can we improve the current model? This report will answer all of the questions mentioned above by crucials data analysis process such as data exploratory analysis process to explore the relationship of each variables, model development using multiple logistic regression to built model, and diagnositics process to check the quality of the model. This model will serve the purpose of predicting penetration rate for prostate cancer in men to minimize human errors and provide an effective tool for health care workers.
@@ -169,7 +169,7 @@ Prostatic Specific Antigen (PSA) can be found in the prostate gland cells. This 
 
 \begin{center}
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Sun Nov 08 13:09:50 2020
+% Sun Nov 08 13:12:24 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrrrrr}
@@ -233,7 +233,7 @@ term & estimate & std.error & statistic & p.value & OR & 2.5 \% & 97.5 \% \\
 \begin{center}
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Sun, Nov 08, 2020 - 1:09:51 PM
+% Date and time: Sun, Nov 08, 2020 - 1:12:25 PM
 \begin{table}[H] \centering 
   \caption{Summary Statistics for all independent features} 
   \label{descrips} 
@@ -253,7 +253,7 @@ gleason & 377 & 6.379 & 1.092 & 0 & 6 & 7 & 9 \\
 
 \begin{center}
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Sun Nov 08 13:09:51 2020
+% Sun Nov 08 13:12:25 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrlrr}
@@ -280,7 +280,7 @@ gleason & 377 & 6.379 & 1.092 & 0 & 6 & 7 & 9 \\
 
 \begin{center}
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Sun Nov 08 13:09:51 2020
+% Sun Nov 08 13:12:25 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrr}
@@ -310,7 +310,7 @@ gleason & 377 & 6.379 & 1.092 & 0 & 6 & 7 & 9 \\
 
 \begin{center}
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Sun Nov 08 13:09:51 2020
+% Sun Nov 08 13:12:25 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrlrrl}
