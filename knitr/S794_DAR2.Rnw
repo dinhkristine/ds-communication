@@ -42,7 +42,7 @@
 
 \pagestyle{headings}
 
-\title{Penetration Rates for Prostate Cancer\vspace{-5ex}} 
+\title{Tumor Penetration Rates for Prostate Cancer\vspace{-5ex}} 
 \date{November 12, 2020\vspace{-5ex}}
 
 \begin{document} 
@@ -341,7 +341,7 @@ accuracy <- sum(diag(confusion_matrix))/nrow(test)*100
 
 @
 
-\noindent\textbf{\underline{Executive Summary}}: 
+\noindent\textbf{\underline{Executive Summary}}: With the common prostate canceri diagnostic among men, the goal of this analysis is to find the variable that could predict the chances of a tumor has penetrated the prostatic capsule. A dataset was provided by the Ohio State University Comprehensive Cancer Center to analyze how demographic and screening results could cause the likelihood of penetration. A tool was built using multiple logistic regression to predict the chances of a patients getting diagnosed with prostate cancer using three variables results of digital rectal exam, Prostatic Specific Antigen value, and total Gleason score. This model was proved to be the best model with an AUC of \Sexpr{round(test_auc, 2)[1][[1]]}, an accuracy of \Sexpr{round(accuracy/100, 2)}, Sensitivity of .75, and Specificity of .79. Some interesting findings includes a 269\% increase in chances of having prostate cancer when a patient has a unilobar nodule from the left on their results of digits rectal exam compared to patient with no nodule. In addition, patients could gain 133\% more likelihood of being diagnosed with prostate cancer when they have a higher Gleason score. Knowing these three variables (results of digital rectal exam, Prostatic Specific Antigen value, and total Gleason score) are significant factor of the likelihood of penetration rate in protate cancer, health care professionals would be more cautious in treating each patients. In addition, patients could detect their prostate cancer stages earlier and seek help accordingly.      
 \hfill \break
 
 \noindent\textbf{\underline{Introduction}}: Prostate cancer is one of the most common cancers among men. The survival rate is vary depending on the stages of the cancer. Prostate cancer has a high probability of being treated if detected at early stages. There are many important characteristics that can predict whether a tumor has penetrated the prostatic capsule. With the results of penetration rate, doctors and nurses would prioritize the patients with the high risk level. On the other hand, if the patients have low rate in penetration, health care workers could find the best treatments for them to slow down prostate growth rate or even treat the patients. With this being said, hostpitals can plan their budget and supplies to focus more on high risk patients and minimize supplies to low risk patients. Knowing penetration rates does not only benefits doctors and nurses, it would also help all men out there to detect if their tumors have penetrated the prostatic capsule. This way, patients would seek professional help at an earlier stage to increase their survival rate. Many questions have proposed in favor of these issues including 1) What variables cause the penetration rate to increase or decrease? 2) What are the likelyhood of penetration rate? 3) How accruate is the model proposed in this analysis? 4) How can we implement the model for everyone to use? and 5) How can we improve the current model? This report will answer all of the questions mentioned above by crucials data analysis process such as data exploratory analysis process to explore the relationship of each variables, model development using multiple logistic regression to built model, and diagnositics process to check the quality of the model. This model will serve the purpose of predicting penetration rate for prostate cancer in men to minimize human errors and provide an effective tool for health care workers.
@@ -368,7 +368,7 @@ p2 <- ExploreVariable(prostate, dpros, x_axis = "Results of Digital Rectal Exam"
 grid.arrange(p1, p2, nrow = 1, ncol = 2)
 
 @
-\caption{}
+\caption{Histogram of 1 (Left): Tumor Penetration of prostatic capsule (1 = penetration) and 2 (Right): Results of Digital Rectal Exam (1 = no nodule, 2 = unilobar nodule left, 3 = unilobar nodule right, 4 = bilobar nodule) with average penetration rate in black.}
 \label{explore1}
 \end{center} 
 \end{figure}
@@ -386,7 +386,7 @@ grid.arrange(p1, p2, nrow = 1, ncol = 2)
 p1 <- ExploreVariable(prostate, dcaps, x_axis = "Detection of Capsular Involvement")
 
 p2 <- ExploreVariable(prostate, psa_bins, count = FALSE, 
-                x_axis = "Prostatic Specific Antigen Value (mg/ml) Decile") + 
+                x_axis = "PSA (mg/ml) Decile") + 
   scale_x_continuous(breaks = seq(1, 10, 1))
 
 p3 <- ExploreVariable(prostate, gleason, x_axis = "Total Gleason Score")
@@ -394,7 +394,7 @@ p3 <- ExploreVariable(prostate, gleason, x_axis = "Total Gleason Score")
 grid.arrange(p1, p2, p3, nrow = 1, ncol = 3)
 
 @
-\caption{}
+\caption{Plots of each variable with average penetation rate in black of 1 (Left): Dectation of capsular involvement along with the frequency of each factor, 2 (Center): Prostatic Specific Antigen value with mg/ml unit by decile, and 3 (Right): Total Gleason score along with its histogram.}
 \label{explore2}
 \end{center} 
 \end{figure}
@@ -418,7 +418,7 @@ Last but not least, total gleason score can measure the abnormality of the cells
 <<echo = FALSE, results='asis'>>=
 
 tidy %<>% 
-  xtable(caption = "Summary regression of final model", 
+  xtable(caption = "Summary regression of final model with three variables: results of digial rectal exam ('dpros'), PSA scores ('psa'), and total Gleason scores ('gleason'). The columns represent the features names, coefficient estimated values, standard errors, test statistics, significant p-value, odd ratios, 95\% lower confident interval of odd ratios, and 95\% upper confident interval of odd ratios, respectively from left to right.", 
          label = "reg_summary_final",
          table.placement="H", 
          digits = 3)
@@ -428,12 +428,7 @@ print(tidy, include.rownames=FALSE)
 @
 \end{center}
 
-\noindent To access how good the model fit, ...
-\hfill \break
-
-\noindent Checking the quality of the model is one of the most important step in a data analysis. ...
-\hfill \break
-
+\noindent To access how good the model fit, predictions were generated using the hold-out test set. Figure~\ref{model_plot_1}.1 show a lift chart of empirical and indicated likelihood of penetration of prostate capsule. Here, the predicted proportion were sorted from smallest to largest, divided into 10 equal buckets, and assigned a decile number from 1 to 10. The lift chart shows that the average predicted proportion of each bucket are similar to the average empirical values. This indicates that the model is predicting well.  
 
 \begin{figure}[h!] 
 \begin{center}
@@ -450,8 +445,8 @@ p1 <- ggplot(lift_plot_df, aes(x = factor(percentile), y = value, color = key, g
   geom_line(size = 1) + 
   geom_point(size = 2) + 
   theme_minimal() + 
-  labs(x = "Percentile", 
-       y = "Average Proportion Penetrated") + 
+  labs(x = "Decile", 
+       y = "Average Penetrated Rate") + 
   theme(legend.title = element_blank(), legend.position = c(.2,.8)) + 
   scale_color_manual(values = c("black", "#3e8ddd"))
 
@@ -474,32 +469,34 @@ diag %<>%
       TRUE ~ 0))
 
 ## cook's distant plot
-p2 <- ggplot(diag, aes(x = Index, y = .cooksd)) + 
+p2 <- ggplot(diag, aes(x = as.numeric(.rownames), y = .cooksd)) + 
   geom_bar(stat = "identity", fill = "#3e8ddd") +
-  labs(y = "Cook's Distance") + 
-  theme_minimal() +  
+  labs(y = "Cook's Distance", x = "Index") + 
+  theme_minimal() +
   geom_label(data = diag %>% filter(.cooksd > cutoff + .005), 
              aes(label = .rownames), label.size = NA, size = 3)
 
 grid.arrange(p1, p2, nrow = 1, ncol = 2)
 
 @
-\caption{}
+\caption{1 (Left): Lift chart of empirical and indicated penetration rate by decile and 2 (Right): Cook's Distance plot.}
 \label{model_plot_1}
 \end{center} 
 \end{figure}
 
-\noindent The student residuals ...  
+\noindent Checking the quality of the model is one of the most important step in a data analysis. First, multicolineary would not be an issue in this analysis since VIF scores are smaller than 2 for each variable. Secondly, Figure~\ref{model_plot_1}.2 shows the Cook's distance of each observation point. A few observations did not meet the cutoff point of \Sexpr{round(cutoff, 2)} including rows 4, 7, 87, 121, 157, 196, 239, 254, 267, 272, 289, 307, and 365. These points influence all fitted values. In other words, these subjects have huge impact on the chances of getting penetrated of prostate capsule.     
 \hfill \break
+
+\noindent The student residuals are also very important to validate while accessing the quality of the model. Figure~\ref{model_plot_2}.1 portrays a residual plot of the model. The plots is color coded by two section, one for underestimate points and one for over estimate subjects. The number of overestimte values and overestimate values are approximately the same which constructed a mean value for resudials is approximately 0 or \Sexpr{round(mean(diag$.std.resid), 2)} to be exact. Furthermore, there are no pattern to be detected in the residuals consistent with constant variance. Most residuals are between -2 and 2 which is ideal for all residuals. However, there are a few points that clearly have large residuals including rows 87, 239, and 289. This indicates that these three subjects are outliers.         
 
 \begin{figure}[h!] 
 \begin{center}
 <<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
 
 ## standard residual plot
-p1 <- ggplot(diag, aes(x = Index, y = .std.resid, color = factor(col_stdresid))) + 
+p1 <- ggplot(diag, aes(x = as.numeric(.rownames), y = .std.resid, color = factor(col_stdresid))) + 
   geom_point(alpha = 0.7) +
-  labs(y = "Standard Residuals") + 
+  labs(y = "Standard Residuals", x = "Index") + 
   theme_bw() + 
   scale_color_manual(values = c("black", "#3e8ddd")) + 
   theme(legend.position = "none") + 
@@ -507,9 +504,9 @@ p1 <- ggplot(diag, aes(x = Index, y = .std.resid, color = factor(col_stdresid)))
              aes(label = .rownames), label.size = NA, size = 3, hjust=0.45, vjust=-.15)
 
 ## diagonal hat matrix plot
-p2 <- ggplot(diag, aes(x = Index, y = .hat, color = factor(high_hat))) + 
+p2 <- ggplot(diag, aes(x = as.numeric(.rownames), y = .hat, color = factor(high_hat))) + 
   geom_point() +
-  labs(y = "Diagonal Hat Matrix") + 
+  labs(y = "Diagonal Hat Matrix", x = "Index") + 
   theme_bw() + 
   scale_color_manual(values = c("black", "#3e8ddd")) + 
   theme(legend.position = "none") + 
@@ -519,15 +516,18 @@ p2 <- ggplot(diag, aes(x = Index, y = .hat, color = factor(high_hat))) +
 grid.arrange(p1, p2, nrow = 1, ncol = 2)
 
 @
-\caption{}
-\label{model_plot_1}
+\caption{1 (Left): Studendized residuals plot and 2 (Right): Diagonal hat matrix plot.}
+\label{model_plot_2}
 \end{center} 
 \end{figure}
 
-\noindent After finishing model development and validation, the model is ready to be interpreted. ... 
+\noindent Lastly, large hat values show potential outlying observation with respect to each predictors. As seen in Figure~\ref{model_plot_2}, rows 115, 215, 185, and 335. These subjects potentially have really high/low values consisted in one or more of their predictors. To further access the outliers and influential points, Table~A\ref{outlier_obs} was constructed to show the details of each observation that were detected as outliers or influential points. Most subjects noticibly have really high PSA scores compare to the mean PSA scores of \Sexpr{round(mean(prostate$psa), 2)}. However, all subjects were decided to be kept in the model since there are no valid reasons to remove them from the model.       
 \hfill \break
 
-\noindent\textbf{\underline{Conclusion}}: 
+\noindent After finishing model development and validation, the model is ready for interpretation. All interpretaion values used in this section are from Table~\ref{reg_summary_final}. The results of digital exam has great impact on penetration. For instant, a patient with a unilobar nodule (left) would be 2.28 times or 128\% riskier than a patient without a nodule. A person with a unilobar nodule (right) would be 3.69 times or 269\% more likely to have their tumor penetrated with prostate capsule. Lastly, a person with bilobar nodule would be more likely to be diagnosed with prostate cancer 3.60 times compared to patients with no nodule. In addition, a patient as PSA scores increases by 1 mg/ml, on average, the patient will have 4\% increase in the risk of having a prostate cancer. Last but not least, having a low Gleason score would decrease the chances of having cancer since an increase of 1-unit in Gleason score would cause the patient to be 2.33 times riskier.   
+\hfill \break
+
+\noindent\textbf{\underline{Conclusion}}: Generally, there are protocols for doctors and nurses to follow when it comes to important diagnosis like prostate cancer. Manually, it is quite difficult to avoid human error when providing a dignostic to a patient. With this model, health professionals can be able to minimize predicting errors and generate the likelihood of a men getting prostate cancer efficiently. The three main factors that change the chance of a tumor have pentrated of prostate capsule are the results of digital rectal exam, PSA scores, and total Gleason scores. Penetration rate are likely to inscrease as the results of digital rectal exam are in a critical nodule, PSA are higher, and total Gleason scores are larger. On the other hand, having no nodule in the results of digital rectal exam, low PSA scores, and low Gleason scores would cause the likelihood of penetration to be very low. This leads to lower risk of having prostate cancer. With an AUC of \Sexpr{round(test_auc, 2)[1][[1]]} and accuracy of \Sexpr{round(accuracy/100, 2)}, we can consider this model to be the best model that can provide the likelihood of penetration rate in men. There are many limiations for this models. First, the sample size in this dataset is relatively small. The subset of this small sample size could cause the results to be not as accurate as the full dataset. If we have access to the full dataset from the Ohio State University Comprehensive Cancer Center, then our results might be different. In addition, there were only 6 preditors provided to use in the model. If there is more variables, the model could provide better results. For example, we can consider genetic could also be a factor that cause the risk of having prostate cancer in the family of the patient to improve the current model.          
 \hfill \break
 
 \clearpage
@@ -537,8 +537,8 @@ grid.arrange(p1, p2, nrow = 1, ncol = 2)
 \begin{center}
 <<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE>>=
 
-stargazer(prostate[-1], 
-          title = "Summary Statistics for all numerical independent features", 
+stargazer(prostate %>% dplyr::select(-id, -psa_bins, -capsule), 
+          title = "Summary Statistics for all independent features", 
           label="descrips",
           table.placement = "H")
 @
@@ -552,7 +552,7 @@ iteration_log %<>%
   arrange(desc(auc)) %>%
   head(10) %>% 
   xtable(digits = 3,
-         caption = "",
+         caption = "Iteration log of model bootstraping process. Showing the top 10 models that have the highest AUC scores. The columns represent random partition for train set, number of rows in the training data, number of rows in the testing data, predictors, AIC scores, and AUC scores, respectively from left to right.",
          label = "reg_bootstrap",
          table.placement="H")
 
@@ -567,7 +567,7 @@ print(iteration_log)
 <<echo = FALSE, results='asis', message=FALSE, error=FALSE, warning=FALSE>>=
 
 xtable(fit2, 
-       caption = "", 
+       caption = "Summary regresson of the final model with all combination of interaction terms. The columns represent the variables, coefficient estimated values, standard error, test statistics, and signficant p-values, respectively from left to right.", 
        label = "reg_summary_int",
        table.placement="H")
 
@@ -589,7 +589,7 @@ prostate[inf_points, ] %>%
   mutate(rownames = inf_points) %>% 
   arrange(rownames) %>%  
   mutate_at("rownames", as.character) %>% 
-  xtable(caption = "", 
+  xtable(caption = "Table of all potential outlier and influential values. The columns represent the tumor penetration of prostatic capsule, results of digital rectal exam, PSA scores, total Gleason scores, and row number of each subject, respectively from left to right.", 
        label = "outlier_obs",
        table.placement="H")
 
