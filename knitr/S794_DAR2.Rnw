@@ -42,7 +42,7 @@
 
 \pagestyle{headings}
 
-\title{Tumor Penetration Rates for Prostate Cancer\vspace{-5ex}} 
+\title{Tumor Penetration Rates for Prostate Capsule\vspace{-5ex}} 
 \date{November 12, 2020\vspace{-5ex}}
 
 \begin{document} 
