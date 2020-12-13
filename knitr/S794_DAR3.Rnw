@@ -195,13 +195,13 @@ corr_table <- avocado %>%
 \noindent\textbf{\underline{Executive Summary}}:      
 \hfill \break
 
-\noindent\textbf{\underline{Introduction}}: 
+\noindent\textbf{\underline{Introduction}}: Avocado is a fruit that is originated from southern America. This fruit is extremaly health and have a lot of benefits and nutritions. Individuals can use avocados with any other ingridients to complete a meal such as toast and salad. In addition, avocados can also be used to make healthy oil or desserts like avocado ice cream or smoothie. Knowing the fact that avocados are health for a human body, avocados have been the rise of American's new favorites fruits since the last decade. The amount of avocados have been sold in America are higher and higher everyday. With this being said, knowing the variables that cause the price of avocados to go up and down would benefits all consumers and restaurants owner. For example, a restaurants that have avocado toast or guacamole on their menu would have a better understanding of where to get cheaper avocados to maximize their profit. Knowing the cost of avocado can also help restaurants owner create budget for their restaurant and cost of a dish on their menu. In addition, individuals who like avocado would also know where and when to get type of avocado they desire. There are many questions asked in favor of these issues including 1) What factor impact the average price of avocados? 2) Are characteristics of an avocado important in pricing decision? 3) How good is the model? 4) How can we improve the model? and 5) How can we implement the model for the consumer to gain easy access? This analysis will attempt to answer all these questions by starting with a variable data analysis, developing the model using a multiple linear regression, assessing the quality of the model, and providing significant results of the model. The purpose of this model is to predict the average avocado prices using various variables provided in the dataset.         
 \hfill \break
 
-\noindent\textbf{\underline{Methods}}: 
+\noindent\textbf{\underline{Methods}}: A dataset was retrieved from Kaggle, a website that have input and output from scientists and college students. This dataset has a large sample size of 30,021 observations from 2015 to 2020. The data was originally collected from the Hass Avocado Broad (HAB) website. There are no missing values for all the variables in the dataset. This dataset has historical data of avocado prices and characteristics. The dataset contains two time series columns including date of observation and year of observation, one characteristic variable including type of the avocado, and one geographical variable. In addition, there are eight quantitative predictors including total number of avocados sold, total number of avocados with Price Look-Up (PLU) code 4046 sold, total number of avocados with PLU code 4226 sold, total number of avocados with PLU code 4770 sold, total number of bags sold, total number of small bags sold, total number of large bags sold, and total number of extra large bags sold. There are 54 distinct geographical regions of where the avocados are from with different average prices for different time of the year. The goal of this analysis is to find the relationship between predictors and average avocado prices. To build a model with average avocado price, a multiple linear regression with signficant predictors will be used. Before building a model, we will explore how each variable impact the average of avocado prices. Then, using the "best" model, we will predict the avocado price to validate our model. All analysis will be done in R Studio with version 3.6.2.  
 \hfill \break
 
-\noindent\textbf{\underline{Exploratory Data Analysis}}:  
+\noindent\textbf{\underline{Exploratory Data Analysis}}: Before building a model, it is important to explore the distribution of average avocado prices and the relationship of it with each of the predictor.  
 
 \begin{figure}[h!] 
 \begin{center}
@@ -498,6 +498,12 @@ grid.arrange(p1, p2, nrow = 1)
 
 \noindent\textbf{\underline{Conclusion}}: 
 \hfill \break
+
+
+\clearpage
+\noindent\textbf{\underline{Introduction}}:
+\hfill \break
+
 
 \clearpage
 \newpage
