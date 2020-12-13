@@ -12,7 +12,7 @@ library(tidyverse)
 
 #### Parameters ####
 
-avocado_color <- "#D8D881"
+avocado_color <- "#A3B958"
 
 
 #### Functions ####

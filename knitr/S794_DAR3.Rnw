@@ -1,0 +1,574 @@
+\documentclass[11pt]{article}
+
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage[belowskip=-15pt,aboveskip=0pt]{caption}
+
+\setlength\topmargin{-.56in}
+\setlength\evensidemargin{0in}
+\setlength\oddsidemargin{0in}
+\setlength\textwidth{6.49in}
+\setlength\textheight{8.6in}
+\setlength{\intextsep}{10pt plus 1pt minus 4pt}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstset{style=mystyle}
+
+\pagestyle{headings}
+
+\title{Predictive Model for Average Avocado Prices\vspace{-5ex}} 
+\date{December 16, 2020\vspace{-5ex}}
+
+\begin{document} 
+\maketitle
+\hfill \break
+
+<<packages, include = FALSE>>=
+
+library(magrittr)
+library(tidymodels)
+library(lubridate)
+library(corrplot)
+library(MASS)
+library(broom)
+library(car)
+library(tidyverse)
+library(gridExtra)
+library(ggcorrplot)
+library(xtable)
+library(stargazer)
+
+@
+
+
+<<parameters, include = FALSE>>=
+
+avocado_color <- "#A3B958"
+
+@
+
+
+<<functions, include = FALSE>>=
+
+ExploreVariable <- function(df, xvar, count = TRUE, x_axis){
+  
+  group_df <- df %>% 
+    group_by({{xvar}}) %>% 
+    summarise(average_price = mean(average_price),
+              count = n(), 
+              .groups = "drop")
+  
+  ratio <- max(group_df$count) / max(group_df$average_price)
+  
+  if(count == TRUE){
+    p <- ggplot(group_df, aes(x = factor({{xvar}}), group = 1)) +
+      geom_bar(aes(y = count), stat = "identity", fill = avocado_color, col = "white") +
+      geom_point(aes(y = average_price * ratio), size = 2, color = "black") + 
+      geom_line(aes(y = average_price * ratio), size = 1, color = "black") +
+      scale_y_continuous(sec.axis = sec_axis(~./ratio, name = "Average Avocado Price in Dollars"), 
+                         label = scales::comma)
+    
+    y_lab <- "Count"
+    
+  } else {
+    p <- ggplot(group_df, aes(x = {{xvar}}, group = 1)) +
+      geom_point(aes(y = average_price), size = 2, color = "black") + 
+      geom_line(aes(y = average_price), size = 1, color = "black") 
+    
+    y_lab <- "Average Avocado Price in Dollars"
+  }
+  p +
+    labs(y = y_lab, x = x_axis) +
+    theme_bw()
+}
+
+
+ValidationTable <- function(fit, model_type){
+  mod <- fit
+  fit_summary <- tibble(Model = model_type, 
+                        "Number of Features" = length((coef(mod) %>% names())[-1]), 
+                        MSE = mean(mod$residuals^2), 
+                        Adj.R.squared = summary(mod)$adj.r.squared, 
+                        F.statistics = summary(mod)$fstatistic[[1]], 
+                        AIC = AIC(mod))
+  return(fit_summary)
+}
+
+@
+
+
+<<load_data, echo = FALSE, warning = FALSE, message = FALSE>>=
+
+avocado <- read_csv(here::here("data/avocado-updated-2020.csv"))
+
+avocado_new <- avocado
+
+# add deciles to continuous response 
+
+avocado %<>% 
+  mutate(
+    total_volume_bins = as_factor(cut(total_volume, breaks = 10, 
+                                      include.lowest = TRUE, labels = FALSE)), 
+    "4046_bins" = as_factor(cut(`4046`, breaks = 10, 
+                                include.lowest = TRUE, labels = FALSE)), 
+    "4225_bins" = as_factor(cut(`4225`, breaks = 10, 
+                                include.lowest = TRUE, labels = FALSE)), 
+    "4770_bins" = as_factor(cut(`4770`, breaks = 10, 
+                                include.lowest = TRUE, labels = FALSE)), 
+    total_bags_bins = as_factor(cut(total_bags, breaks = 10, 
+                                    include.lowest = TRUE, labels = FALSE)), 
+    small_bags_bins = as_factor(cut(small_bags, breaks = 10, 
+                                    include.lowest = TRUE, labels = FALSE)), 
+    large_bags_bins = as_factor(cut(large_bags, breaks = 10, 
+                                    include.lowest = TRUE, labels = FALSE)), 
+    xlarge_bags_bins = as_factor(cut(xlarge_bags, breaks = 10, 
+                                     include.lowest = TRUE, labels = FALSE)))
+
+# add month
+
+avocado %<>% 
+  mutate(month = factor(month(date)))
+
+
+# feature engineer 
+
+price_by_location <- avocado %>% 
+  group_by(geography) %>% 
+  summarise(average_price = mean(average_price), 
+            .groups = "drop") %>% 
+  mutate(average_price_bins = cut(average_price, breaks = 4, 
+                                  include.lowest = TRUE, labels = FALSE)) %>% 
+  dplyr::select(geography, geography_bins = average_price_bins) %>% 
+  distinct()
+
+avocado %<>% 
+  left_join(price_by_location, by = "geography") %>% 
+  modify_at("geography_bins", as_factor)
+
+
+# log tranformation of total_volume
+
+avocado %<>% 
+  mutate(log_total_volume = log(total_volume)) %>% 
+  mutate(log_total_volume_bins = as_factor(cut(log_total_volume, breaks = 10,
+                                               include.lowest = TRUE, labels = FALSE)))
+
+@
+
+
+<<exploratory_items, echo = FALSE, message = FALSE, warning=FALSE>>=
+
+corr_table <- avocado %>% 
+  dplyr::select(`4046`, `4225`, `4770`, total_bags, small_bags, 
+                large_bags, xlarge_bags, average_price) %>% 
+  cor()
+
+@
+
+
+\noindent\textbf{\underline{Executive Summary}}:      
+\hfill \break
+
+\noindent\textbf{\underline{Introduction}}: 
+\hfill \break
+
+\noindent\textbf{\underline{Methods}}: 
+\hfill \break
+
+\noindent\textbf{\underline{Exploratory Data Analysis}}:  
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
+
+p1 <- ggplot(avocado, aes(average_price)) + 
+  geom_histogram(fill = avocado_color, bins = 30, col = "white") + 
+  theme_bw() + 
+  labs(x = "Average Avocado Price in Dollars", y = "Count") + 
+  scale_y_continuous(label = scales::comma)
+
+p2 <- ExploreVariable(avocado, log_total_volume_bins, count = FALSE, 
+                x_axis = "Log of Total Number of Avocados Sold")
+
+grid.arrange(p1, p2, nrow = 1)
+
+@
+\caption{}
+\label{explore1}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
+
+p1 <- ExploreVariable(avocado, type, count = TRUE, 
+                x_axis = "Avocado Type")
+
+p2 <- ExploreVariable(avocado, month, count = TRUE, 
+                x_axis = "Month of Observation")
+
+grid.arrange(p1, p2, nrow = 1)
+
+@
+\caption{}
+\label{explore2}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
+
+p1 <- ExploreVariable(avocado, geography_bins, count = TRUE, 
+                x_axis = "Geography of the Avocado Group")
+
+p2 <- ggcorrplot(corr_table, hc.order = TRUE, 
+                 outline.col = "white",
+                 colors = c("#D8D881", avocado_color, "#858842"), type = "upper") + 
+  theme(plot.subtitle = element_text(hjust = .5))
+
+grid.arrange(p1, p2, nrow = 1)
+
+@
+\caption{}
+\label{explore3}
+\end{center} 
+\end{figure}
+
+
+<<model_development, echo = FALSE, message = FALSE, warning=FALSE>>=
+
+# select significant variables 
+
+avocado %<>% 
+  dplyr::select(average_price, 
+                log_total_volume, 
+                month, 
+                type, 
+                geography_bins)
+
+
+# split data into train and test set 
+
+set.seed(123)
+
+avocado_split <- initial_split(avocado, strata = average_price)
+
+avocado_train <- training(avocado_split)
+
+avocado_test <- testing(avocado_split)
+
+
+# Initial model with all predictors
+
+init_fit <- lm(average_price ~ ., 
+               data = avocado_train)
+
+
+# variable selection using stepAIC 
+
+step_fit <- stepAIC(init_fit, direction = "both", trace = FALSE)
+
+
+# interaction 
+
+int_fit <- lm(average_price ~ .*., 
+              data = avocado_train)
+
+
+# variable selection for interaction model 
+
+int_step_fit <- stepAIC(int_fit, direction = "both", trace = FALSE)
+
+
+# generate iteration log 
+
+init_fit_summary <- ValidationTable(init_fit, "Initial Model")
+step_fit_summary <- ValidationTable(step_fit, "Stepwise Model")
+int_fit_summary <- ValidationTable(int_fit, "Model with Interaction Terms")
+int_step_fit_summary <- ValidationTable(int_step_fit, "Stepwise Model with Interaction Terms")
+
+
+# final model
+
+final_fit <- init_fit 
+
+@
+
+
+\begin{center}
+<<echo = FALSE, results='asis'>>=
+
+fit_final_table <- final_fit %>% 
+  tidy %>%  
+  cbind(confint(final_fit)) %>% 
+  modify_if(is.numeric, round, 3)
+  
+colnames(fit_final_table) <- c("Term", "Coef", "SdError", "F-Stat", 
+                               "pValue", "2.5% CI", "97.5% CI")
+
+fit_final_table %<>% 
+  xtable(caption = "Summary regression of final model", 
+         label = "final_fit",
+         table.placement="H", 
+         digits = 3)
+
+print(fit_final_table, include.rownames=FALSE)
+  
+@
+\end{center}
+
+
+<<model_diagnostics,echo=FALSE, message = FALSE, warning = FALSE>>=
+
+# add rownames 
+
+avocado_train %<>%
+  rownames_to_column()
+
+# Residuals
+
+avocado_train %<>% 
+  mutate(predict = predict(final_fit), 
+         rstudent = rstudent(final_fit))
+
+
+## Influential Observations
+## Cook's D plot
+## identify D values > 4/(n-p-1) as a guide; 
+## Cook and Weisberg recommend 0.5 and 1 (R uses these guides in default diagnostic plots below)
+
+cutoff <- 4/((nrow(avocado_train) - length(final_fit$coefficients) - 2))
+
+diag <- augment(final_fit) %>% 
+  mutate(Index = 1:nrow(.))
+
+diag %<>% 
+  mutate(high_cooksd = case_when(
+    .cooksd > cutoff ~ 1, TRUE ~ 0), 
+    col_stdresid = case_when(
+      .std.resid > 0 ~ 1, 
+      .std.resid < 0 ~ 0), 
+    high_hat = case_when(
+      .hat > .1 ~ 1, 
+      TRUE ~ 0))
+
+@
+
+
+<<predictions, echo = FALSE, message=FALSE, warning=FALSE>>=
+
+# Account for sigma^2
+
+sd_fit <- sd(final_fit$resid)
+
+
+# predict 
+
+avocado_test %<>%
+  mutate(average_price_preds = predict(final_fit, newdata = .))
+
+
+# errors 
+
+avocado_test %<>%
+  mutate(average_price_error = average_price - average_price_preds)
+
+mse <- mean(avocado_test$average_price_error)^2
+
+
+# create lift chart 
+
+avocado_test %<>%
+  mutate(average_price_decile = ntile(average_price_preds, n = 10))
+
+decile_price <- avocado_test %>% 
+  group_by(average_price_decile) %>% 
+  summarise(Actual = mean(average_price), 
+            Predicted = mean(average_price_preds), 
+            .groups = "drop") %>% 
+  gather(key, price, -average_price_decile)
+
+@
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
+
+## Normality of Residuals
+
+p1 <- ggplot(diag, aes(x = .std.resid)) + 
+  geom_histogram(bins = 30, col = "white", fill = avocado_color) + 
+  theme_bw() + 
+  labs(x = "Studentized Residuals", 
+       y = "Count") + 
+  scale_y_continuous(label = scales::comma)
+
+
+# studentize residual plot 
+
+p2 <- ggplot(diag, aes(x = Index, y = .std.resid)) + 
+  geom_point(alpha = 0.2, col = avocado_color) +
+  labs(y = "Standard Residuals", x = "Index") + 
+  theme_bw() +  
+  theme(legend.position = "none") + 
+  geom_label(data = diag %>% filter(.std.resid > 5 | .std.resid < -5), 
+             aes(label = Index), label.size = NA, size = 3, hjust=-.25, vjust=.3) + 
+  scale_x_continuous(label = scales::comma)
+
+
+grid.arrange(p1, p2, nrow = 1)
+
+@
+\caption{}
+\label{explore3}
+\end{center} 
+\end{figure}
+
+
+\begin{figure}[h!] 
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=8, fig.height=3>>=
+
+## Cooks Distance
+
+p1 <- ggplot(diag, aes(x = as.numeric(Index), y = .cooksd)) + 
+  geom_bar(stat = "identity", col = avocado_color) +
+  labs(y = "Cook's Distance") + 
+  theme_minimal() + 
+  geom_label(data = diag %>% filter(.cooksd > cutoff + .001), 
+             aes(label = Index), label.size = NA, size = 3) + 
+  scale_x_continuous(label = scales::comma)
+
+
+# lift chart
+
+p2 <- ggplot(decile_price, 
+       aes(x = factor(average_price_decile), y = price, 
+           group = key, color = key)) + 
+  geom_line(size = 1) + 
+  geom_point(size = 2) +
+  theme_bw() + 
+  scale_color_manual(values = c("black", avocado_color)) + 
+  labs(x = "Decile", 
+       y = "Average Avocado Price in Dollars") + 
+  theme(legend.title = element_blank(), legend.position = c(0.15,.8))
+
+grid.arrange(p1, p2, nrow = 1)
+
+@
+\caption{}
+\label{explore3}
+\end{center} 
+\end{figure}
+
+
+\noindent\textbf{\underline{Model Fitting/Inferences}}: 
+\hfill \break
+
+\noindent\textbf{\underline{Conclusion}}: 
+\hfill \break
+
+\clearpage
+\newpage
+\noindent \Large{{\bf Appendix A: Supplemental Tables}}
+
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE>>=
+
+stargazer(avocado_new %>% 
+            as.data.frame() %>% 
+            dplyr::select(total_volume, 
+                             `4046`, 
+                             `4225`, 
+                             `4770`, 
+                             total_bags, 
+                             small_bags, 
+                             large_bags, 
+                             xlarge_bags),
+          title = "Summary Statistics for all numerical independent features",
+          label="",
+          table.placement = "H", 
+          digits = 0)
+  
+@
+\end{center}
+
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE>>=
+
+reg_table <- bind_rows(init_fit_summary,
+          step_fit_summary,
+          int_fit_summary,
+          int_step_fit_summary) %>%
+  modify_if(is.numeric, round, 3) %>%
+  xtable(digits = 3,
+         caption = "Regression validation metrics including MSE, R-squared adjusted, and AIC",
+         label = "reg_vali_metric",
+         table.placement="H")
+
+align(reg_table) <- "rp{1.5in}p{.8in}llll"
+
+print(reg_table)
+
+@
+\end{center} 
+
+
+\begin{center}
+<<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE>>=
+
+vif_table <- vif(final_fit) %>%
+  xtable(digits = 3,
+         caption = "",
+         label = "vif_table",
+         table.placement="H")
+
+print(vif_table)
+
+@
+\end{center} 
+
+\clearpage
+\newpage
+\noindent \Large{{\bf Appendix B: R Code}}
+\lstinputlisting[language=R, caption = Appendix of Code]{R/dar3-codes.R}
+
+
+\end{document}
+
+
+
+
+
+
