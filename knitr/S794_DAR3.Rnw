@@ -186,7 +186,7 @@ avocado %<>%
 
 corr_table <- avocado %>% 
   dplyr::select(`4046`, `4225`, `4770`, total_bags, small_bags, 
-                large_bags, xlarge_bags, average_price) %>% 
+                large_bags, xlarge_bags) %>% 
   cor()
 
 regions <- avocado %>% 
@@ -227,7 +227,7 @@ p3 <- ExploreVariable(avocado, type, count = TRUE,
 grid.arrange(p1, p2, p3, nrow = 1)
 
 @
-\caption{}
+\caption{1 (left): Histogram of average avocado price; 2 (center): Average avocado price by log of total number of avocados sold in each decile; and 3 (right): Average avocado price by type with histogram of avocodo types.}
 \label{explore1}
 \end{center} 
 \end{figure}
@@ -246,7 +246,7 @@ grid.arrange(p1, p2, p3, nrow = 1)
 \begin{center}
 <<results='asis', echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, fig.width=10, fig.height=3>>=
 
-p3 <- ExploreVariable(avocado, month, count = TRUE, 
+p1 <- ExploreVariable(avocado, month, count = TRUE, 
                 x_axis = "Month of Observation")
 
 p2 <- ExploreVariable(avocado, geography_bins, count = TRUE, 
@@ -261,7 +261,7 @@ p3 <- ggcorrplot(corr_table, hc.order = TRUE,
 grid.arrange(p1, p2, p3, nrow = 1)
 
 @
-\caption{}
+\caption{1 (left): Average avocado price by month of observation with histogram of month of observation; 2 (center): Average avocado price by geographical group with histogram of geographical location of avocados; and 3 (right): Correlation plot of all continuous independent variables (small\_bags/total\_bags/large\_bags/xlarge\_bags = total number of small/all/large/extra large bags sold, respectively; 4225/4046/4770 = total number of avocados sold with PLU 4225/4046/4770, respectively)}
 \label{explore2}
 \end{center} 
 \end{figure}
@@ -347,7 +347,7 @@ colnames(fit_final_table) <- c("Term", "Coef", "SdError", "F-Stat",
                                "pValue", "2.5% CI", "97.5% CI")
 
 fit_final_table %<>% 
-  xtable(caption = "Summary regression of final model", 
+  xtable(caption = "Summary regression of final model with four variables log of total number of avocados sold, month of observation, avocado type, geographical group. The columns represent feature name, coefficient estimate, standard error, test statistics, p-value, lower 95 confident interval, and upper 95 confident interval, respectively from left to right.", 
          label = "final_fit",
          table.placement="H", 
          digits = 3)
@@ -364,7 +364,7 @@ print(fit_final_table, include.rownames=FALSE)
 \noindent An interaction model was also constructed using all combination of variables in the previous model. A stepwise selection method was also applied to the interaction model to select the best variables among them using AIC methods. Looking at Table~A\ref{reg_vali_metric}, model with interaction terms and stepwise model with interaction terms have much lower AIC. However, adjusted R-squared is only a slightly better, 1.6\% to be exact. In addition, MSE values for interaction models are also slight better than models without interaction terms. With a slightly better in MSE and adjusted R-square, it would be better off to choose the initial model. In addition, models with interaction terms have 77 coefficients, which is too many variables to deal with in a model. The models without interaction terms only have  16 coefficients. Therefore, this analysis will choose the initial model to be the final model with four variables total volume, month of the year, avocado type, and location.      
 \hfill \break
 
-\noindent After choosing a model, it is important to assess the robustness of the model. In the model diagnostics stage, there were four criteron used to assess the quality of the model including studentized residuals, Cook's distance, and variance inflation factor (VIF) scores. First of all, studentize residuals gives the residuals values between actual and predicted average avocado price. Studentize residuals can give us the outliers with respect to the target variable, average price. As seen in Figure~\ref{diag1}.1, the studentized residuals are approximately normal with the mode at 0. This passed the mean assumption for studentized residuals of a model. Moreover, looking at Figure~B\ref{diag3}, the residuals seem to be random with an similar amount of positive and negative residuals. In addition, this plots depicts that residuals are more likely to be within absolute value of 2.5. There are some values that have extremely high residuals including observations 7339, 9608, 9640, and 11523. These observations have very high average avocado price compare to other, see Table~A\ref{outliers_table}.       
+\noindent After choosing a model, it is important to assess the robustness of the model. First of all, studentize residuals gives the residuals values between actual and predicted average avocado price. Studentize residuals can give us the outliers with respect to the target variable, average price. As seen in Figure~\ref{diag1}.1, the studentized residuals are approximately normal with the mode at 0. This passed the mean assumption for studentized residuals of a model. Moreover, looking at Figure~B\ref{diag3}, the residuals seem to be random with an similar amount of positive and negative residuals. In addition, this plots depicts that residuals are more likely to be within absolute value of 2.5. There are some values that have extremely high residuals including observations 7339, 9608, 9640, and 11523. These observations have very high average avocado price compare to other, see Table~A\ref{outliers_table}.       
 
 <<model_diagnostics,echo=FALSE, message = FALSE, warning = FALSE>>=
 
@@ -474,13 +474,13 @@ p3 <- ggplot(decile_price,
   scale_color_manual(values = c("black", avocado_color)) + 
   labs(x = "Decile", 
        y = "Average Avocado Price in Dollars") + 
-  theme(legend.title = element_blank(), legend.position = c(0.15,.8))
+  theme(legend.title = element_blank(), legend.position = c(0.25,.8))
 
 
 grid.arrange(p1, p2, p3, nrow = 1)
 
 @
-\caption{}
+\caption{1 (left): Histogram of studentized residuals; 2 (center): Cook's distance plot; and 3 (right): Lift chart of emperical and indicanted average avocado price by decile.}
 \label{diag1}
 \end{center} 
 \end{figure}
@@ -492,7 +492,7 @@ grid.arrange(p1, p2, p3, nrow = 1)
 \hfill \break
 
 
-\noindent Now that we have built the model and checked the quality of the model, an interpretation of the model will be present in this section. All values mentioned in this section are from Table~\ref{final_fit}. The final model is consisted of four variables including total number of avocado sold, month of observation, avocado type, and geographical group. This model has an adjusted R-squared of 0.57 indicating that 57\% of the data in the target variable can be explained by four predictors. Total volume has a negative relationship with total average price, according to the model. On average, if total number of avocado sold increases by one percent, the average price will decreases by \$0.0003. Moreover, the month of observation also have signficant impact on the price of avocado. As mentioned before, avocados would be cheaper during avocado seasons. Different months of the year would generate a different revenue for avocados. For example, February would have lower avocado price than January by 0.037 times, while March has higher avocado price than January by 0.031 times. The values for the rest of the months can be retrieved at Table~\ref{final_fit}. Moving on to the next variable avocado type. How the avocados grow have greately impacted the price of the avocados. An organic avocado would increase the avocado price by 0.367 times compared to conventional avocado. This makes sense because the money goes with the quality. Last but not least, the region of where the avocados were sold are also a significant factor in the model. Regions and cities for each geographical group can be found in Table~A\ref{region}. In general, if an avocado is sold from region 2, the price of avocado inreases by 0.160 times compared to region 1. In addition, the price would increase by 0.309 and 0.0563 times if an avocado is sold from region 3 and 4, respectively, compared to region 1.
+\noindent Now that we have built the model and checked the quality of the model, an interpretation of the model will be present in this section. All values mentioned in this section are from Table~\ref{final_fit}. This model has an adjusted R-squared of 0.57 indicating that 57\% of the data in the target variable can be explained by four predictors. Total volume has a negative relationship with total average price, according to the model. On average, if total number of avocado sold increases by one percent, the average price will decreases by \$0.0003. Moreover, the month of observation also have signficant impact on the price of avocado. As mentioned before, avocados would be cheaper during avocado seasons. Different months of the year would generate a different revenue for avocados. For example, February would have lower avocado price than January by 0.037 times, while March has higher avocado price than January by 0.031 times. The values for the rest of the months can be retrieved at Table~\ref{final_fit}. Moving on to the next variable avocado type. How the avocados grow have greately impacted the price of the avocados. An organic avocado would increase the avocado price by 0.367 times compared to conventional avocado. This makes sense because the money goes with the quality. Last but not least, the region of where the avocados were sold are also a significant factor in the model. Regions and cities for each geographical group can be found in Table~A\ref{region}. In general, if an avocado is sold from region 2, the price of avocado inreases by 0.160 times compared to region 1. In addition, the price would increase by 0.309 and 0.0563 times if an avocado is sold from region 3 and 4, respectively, compared to region 1.
 \hfill \break
 
 
@@ -535,7 +535,7 @@ stargazer(avocado_new %>%
                              small_bags, 
                              large_bags, 
                              xlarge_bags),
-          title = "Summary Statistics for all numerical independent features",
+          title = "Descriptive Statistics for all continous independent features",
           label="desc_stat_ind",
           table.placement = "H", 
           digits = 0)
@@ -552,7 +552,7 @@ reg_table <- bind_rows(init_fit_summary,
           int_step_fit_summary) %>%
   modify_if(is.numeric, round, 3) %>%
   xtable(digits = 3,
-         caption = "Regression validation metrics including MSE, R-squared adjusted, and AIC",
+         caption = "Summary of all regression models including initial model with four variables (log of total number of avocados sold, month of observation, avocado type, and geographical group), stepwise variable selection based on initial model, model with interaction terms, and stepwise varible seclection based on model with interaction terms. The columns represent the name of the model, number of coefficients, mean square error, adjusted R-square, F statistics, and Akaike information criterion values, respectively from left to right.",
          label = "reg_vali_metric",
          table.placement="H")
 
@@ -571,7 +571,7 @@ diag %>%
   filter(.std.resid > 5 | .std.resid < -5 | .cooksd > cutoff + .001) %>% 
   dplyr::select(Index, average_price, log_total_volume, month, type, geography_bins) %>% 
   xtable(digits = 3,
-         caption = "",
+         caption = "Outliers and influential points table. The columns represent the row names, average avocado price, log of total volume, month of observation, avocado type, and geographical group, respectively from left to right.",
          label = "outliers_table",
          table.placement="H")
 
@@ -585,7 +585,7 @@ diag %>%
 
 vif_table <- vif(final_fit) %>%
   xtable(digits = 3,
-         caption = "",
+         caption = "Variance inflation factor of each variable in the model.",
          label = "vif_table",
          table.placement="H")
 
@@ -593,6 +593,7 @@ print(vif_table)
 
 @
 \end{center} 
+\hfill \break
 
 
 \begin{center}
@@ -604,7 +605,7 @@ regions_table <- regions %>%
   distinct() %>% 
   dplyr::select(Group = geography_bins, Region = geography) %>% 
   xtable(digits = 3,
-         caption = "",
+         caption = "Regions/cities of avocados by geographical group",
          label = "region",
          table.placement="H")
 
@@ -636,7 +637,7 @@ ggplot(diag, aes(x = Index, y = .std.resid)) +
   scale_x_continuous(label = scales::comma)
 
 @
-\caption{}
+\caption{Plot of standardize residuals for each observation in training set with outliers labeled in numbers}
 \label{diag3}
 \end{center} 
 \end{figure}
