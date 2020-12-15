@@ -92,7 +92,7 @@
 
 \pagestyle{headings}
 
-\title{Predictive Model for Average Avocado Prices\vspace{-5ex}} 
+\title{Predictive Modeling for Average Avocado Prices\vspace{-5ex}} 
 \date{December 16, 2020\vspace{-5ex}}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document} 
@@ -114,7 +114,7 @@
 
 
 
-\noindent\textbf{\underline{Executive Summary}}:      
+\noindent\textbf{\underline{Executive Summary}}: Avocados have been a trending fruit since these past decades in America. Many people want to buy avocados to use for many different purposes. The problem is people are not aware of what cause an avocado price to go up and down. Therefore, a preditive tool was built in this analysis to predict the average price of avocados. This model has an adjusted R-square of .57 using four variables including month of observation, total number of avocados sold, avocado types, and geographical region. To construct the model, a training set was used with a .75 proportion of the data. A hold-out test set of .25 was used to generate prediction to validate the model. There are some signficant findings in the analysis. Average avocado price can inrease by .37 times if an avocado is organic compared to a conventional avocado. In addition, purchasing avocados from the first half of the years tends to be cheaper than the second half of the year. Furthermore, the amount of avocados sold in the stores also have an huge negative impact on the price of avocados. In other words, one percent increase in total number of avocados sold would cause the average price to decrease by \$0.0003. Last but not least, the location of where consumers purchase avocados is also important to the price. The regions that have lower living expenses would be more likely to sell cheaper avocados compared to regions that have higher living expenses. Knowing the cost of an avocados would help consumers know more about their grocerries budget and guide restaurant owner to be more aware of the price for their menu items.             
 \hfill \break
 
 \noindent\textbf{\underline{Introduction}}: Avocado is a fruit that is originated from southern America. This fruit is extremaly health and have a lot of benefits and nutritions. Individuals can use avocados with any other ingridients to complete a meal such as toast and salad. In addition, avocados can also be used to make healthy oil or desserts like avocado ice cream or smoothie. Knowing the fact that avocados are health for a human body, avocados have been the rise of American's new favorites fruits since the last decade. The amount of avocados have been sold in America are higher and higher everyday. With this being said, knowing the variables that cause the price of avocados to go up and down would benefits all consumers and restaurants owner. For example, a restaurants that have avocado toast or guacamole on their menu would have a better understanding of where to get cheaper avocados to maximize their profit. Knowing the cost of avocado can also help restaurants owner create budget for their restaurant and cost of a dish on their menu. In addition, individuals who like avocado would also know where and when to get type of avocado they desire. There are many questions asked in favor of these issues including 1) What factor impact the average price of avocados? 2) Are characteristics of an avocado important in pricing decision? 3) How good is the model? 4) How can we improve the model? and 5) How can we implement the model for the consumer to gain easy access? This analysis will attempt to answer all these questions by starting with a variable data analysis, developing the model using a multiple linear regression, assessing the quality of the model, and providing significant results of the model. The purpose of this model is to predict the average avocado prices using various variables provided in the dataset.         
@@ -142,6 +142,7 @@
 \hfill \break
 
 \noindent Month of observation is the time where the avocado is observed. Time of the year is important for fruits and vegitables because majority of the fruit only grow in a certain months or their season. Therefore, we would expect to have more avocados during avocado season and less avocados otherwise. As mentioned before, the price of avocado would be more like to increase if there are less avocados in supply. This means that, the average price would increase during non-avocado seasons and decrease during avocado seasons. Figure~\ref{explore2}.1 shows a plot of average avocado price by month of observation with its frequency. As one can see, avocado seasons can be assume to be between January and May with the highest number of observations. On the other hand, non-avocado seasons are likely to be in between the month of June to December with lower number of avocados observed. In addition, a black line depicts lower average prices from January to May and higher prices from June to December. This indicates that during avocados season, the price of avocados are lower because there are more avocados in supply. On the other hand, the low supply of avocados from June to December causes the average price to go up. Therefore, this variable month of the year could contribute significant relationship with average price in the linear regression model.
+\hfill \break
 
 
 \begin{figure}[h!] 
@@ -154,10 +155,10 @@
 \end{center} 
 \end{figure}
 
-Last but not least, location of the avocados sold could also be significant to the model. The geography of the avocado is the region or city the avocado is sold. Different cities and states have different living expenses resulting in different prices of the avocados. For example, the living expenses in California is higher than Texas. Thus, the price of avocados in California cities would be higher than the prices of avocados in Texas. Figure~\ref{explore2}.2 depicts a relationship between average avocado prices and geographical location. This variables is sorted from smallest to highest average price and assign four geographical group. The first geographical group sells cheapest avocados. The regions in the first group include Cincinnati, Columbus, Dallas, Houston, Nashville, New Orleans, Phoenix, Roanoke, and South Central. Furthermore, the last geographical group sells the most expensive avocados. Those regions include Hartford, New York, and San Francisco. Knowing the location of the market, the model can provide more variation of the average price.         
+\noindent Last but not least, location of the avocados sold could also be significant to the model. The geography of the avocado is the region or city the avocado is sold. Different cities and states have different living expenses resulting in different prices of the avocados. For example, the living expenses in California is higher than Texas. Thus, the price of avocados in California cities would be higher than the prices of avocados in Texas. Figure~\ref{explore2}.2 depicts a relationship between average avocado prices and geographical location. This variables is sorted from smallest to highest average price and assign four geographical group. The first geographical group sells cheapest avocados. The regions in the first group include Cincinnati, Columbus, Dallas, Houston, Nashville, New Orleans, Phoenix, Roanoke, and South Central. Furthermore, the last geographical group sells the most expensive avocados. Those regions include Hartford, New York, and San Francisco. Knowing the location of the market, the model can provide more variation of the average price.         
 \hfill \break
 
-Other variables like total number of avocados with Price Look-Up (PLU) code 4046 sold, total number of avocados with PLU code 4226 sold, total number of avocados with PLU code 4770 sold, total number of bags sold, total number of small bags sold, total number of large bags sold, and total number of extra large bags sold also have a strong negative relationship with the average prices. However, the correlation of all the continuous independent variable are very high, majority above .80, see Figure~\ref{explore2}.3. If all high correlated variables are used within the same model, multicolinarity issues will arise. This leads the coefficients of each predictors to be unstable. Therefore, only total number of avocados sold will be use in the model. Total volume would describe total number of all different categories added up. In other words, the variables total number of avocados with Price Look-Up (PLU) code 4046 sold, total number of avocados with PLU code 4226 sold, total number of avocados with PLU code 4770 sold, total number of bags sold, total number of small bags sold, total number of large bags sold, and total number of extra large bags sold are a component of total volume. Using just one variable total volume alone would be good enough to cover the details of each components. Other variables did not mentions in the exploratory analysis have little to no relationship with avaerage avocado prices.  
+\noindent Other variables like total number of avocados with Price Look-Up (PLU) code 4046 sold, total number of avocados with PLU code 4226 sold, total number of avocados with PLU code 4770 sold, total number of bags sold, total number of small bags sold, total number of large bags sold, and total number of extra large bags sold also have a strong negative relationship with the average prices. However, the correlation of all the continuous independent variable are very high, majority above .80, see Figure~\ref{explore2}.3. If all high correlated variables are used within the same model, multicolinarity issues will arise. This leads the coefficients of each predictors to be unstable. Therefore, only total number of avocados sold will be use in the model. Total volume would describe total number of all different categories added up. In other words, the variables total number of avocados with Price Look-Up (PLU) code 4046 sold, total number of avocados with PLU code 4226 sold, total number of avocados with PLU code 4770 sold, total number of bags sold, total number of small bags sold, total number of large bags sold, and total number of extra large bags sold are a component of total volume. Using just one variable total volume alone would be good enough to cover the details of each components. Other variables did not mentions in the exploratory analysis have little to no relationship with avaerage avocado prices.  
 \hfill \break
 
 
@@ -168,7 +169,7 @@ Other variables like total number of avocados with Price Look-Up (PLU) code 4046
 
 \begin{center}
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Sun Dec 13 20:53:59 2020
+% Mon Dec 14 17:51:01 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrrrr}
@@ -226,6 +227,7 @@ Term & Coef & SdError & F-Stat & pValue & 2.5\% CI & 97.5\% CI \\
 \end{figure}
 
 \noindent Cook's distance is also one of the most important criteria to check the influential points wih respect to the predictors. If Cook's distance for an observation is relative high, this observation could be an influential point. Figure~\ref{diag1}.2 depicts a Cook's distance plot for each observation point in the training data. All points are mostly smaller than 0.0005. However, there are five extremely high Cook's distance that needed attention include 7928, 7846, 7683, 9208, and 9640. These values are influential points that originated from independent variables. As seen in Table~A\ref{outliers_table}, total number of avocados sold should be higher in the first half of the year. However, none of the observations were decided to remove from the data since there are no sufficient reasons to remove them. Last but not least, the VIF scores was generated to check if there is any multicolineary issue presented in the model. However, there are no signal saying that there would be multicolinarity issues in the model. Table~A\ref{vif_table} shows all VIF values are below 2 which indicate there are no multicolinearity issues. 
+\hfill \break
 
 \noindent A .25 proportion of data was hold out to use as a test set to validate the model. After genearting prediction, an MSE score was computed to be approximately 0. This indicates the model is predicting really well with an overall mean square error of nearly 0. To further prove this point, a lift chart was constructed. The predicted average avocado price was sorted from smallest to higher then divided into 10 equal deciles. The actual and predicted average price was computed by decile to compare. Figure~\ref{diag1}.3 shows a lift chart of empirical and indicated values of average avocado price. In this plot, the two lines are very closed to each other consistent with the model is robust. Therefore, this model can be use to predict the price of avocados.   
 \hfill \break
@@ -235,7 +237,7 @@ Term & Coef & SdError & F-Stat & pValue & 2.5\% CI & 97.5\% CI \\
 \hfill \break
 
 
-\noindent\textbf{\underline{Conclusion}}: 
+\noindent\textbf{\underline{Conclusion}}: In conclusion, price tag is one of the most important aspects that every individuals look for when making a purchase. Having the model that help determine average avocado price would be benefitcial to not only the consumers, but also the restaurant owners. A robust model with an adjusted R-squared of .57 and an AIC of 1,422 using four predictors including log of total number of avocados sold, avocado types, geographical groups, and month of observations. The type of avocados can increase of decrease the price of an avocado significantly. The model intends to help individuals buy avocados with the best price. For example, if consumers want to buy cheap avocados, they should buy conventional avocado during avocado seasons in Texas and at a market that have a lot of avocados. There are many limitations to this analysis. The location groups were being sorted by average avocado sold. Hence, this variable did not account for the characteristics of each location. Location in each group are not nessessarity the same. In addition, this study did not account for the time series analysis of the price of avocados. Overtime, money have inflated and the cost of an avocados would be higher each year. This analysis did not take inflation into account. Therefore, an analysis on inflation and time series would be consisder in future analysis. In addition, we can implement this model by hosting an application programming interface (API) for everyone to use. They can go to this server, input the value for the four variables, and generate a prediction for their avocado price. This way, it would be much easier to plan their budget when they want to purchase or sell avocados.      
 \hfill \break
 
 
@@ -251,7 +253,7 @@ Term & Coef & SdError & F-Stat & pValue & 2.5\% CI & 97.5\% CI \\
 \begin{center}
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Sun, Dec 13, 2020 - 8:54:08 PM
+% Date and time: Mon, Dec 14, 2020 - 5:51:09 PM
 \begin{table}[H] \centering 
   \caption{Summary Statistics for all numerical independent features} 
   \label{desc_stat_ind} 
@@ -276,7 +278,7 @@ xlarge\_bags & 30,021 & 6,223 & 38,137 & 0 & 0 & 560 & 1,022,564 \\
 
 \begin{center}
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Sun Dec 13 20:54:09 2020
+% Mon Dec 14 17:51:10 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rp{1.5in}p{.8in}llll}
@@ -298,7 +300,7 @@ xlarge\_bags & 30,021 & 6,223 & 38,137 & 0 & 0 & 560 & 1,022,564 \\
 
 \begin{center}
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Sun Dec 13 20:54:09 2020
+% Mon Dec 14 17:51:10 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrlll}
@@ -324,7 +326,7 @@ xlarge\_bags & 30,021 & 6,223 & 38,137 & 0 & 0 & 560 & 1,022,564 \\
 
 \begin{center}
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Sun Dec 13 20:54:09 2020
+% Mon Dec 14 17:51:10 2020
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrr}
@@ -346,88 +348,21 @@ log\_total\_volume & 2.713 & 1.000 & 1.647 \\
 
 \begin{center}
 % latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Sun Dec 13 20:54:09 2020
+% Mon Dec 14 17:51:10 2020
 \begin{table}[ht]
 \centering
-\begin{tabular}{rll}
+\begin{tabular}{cp{5in}}
   \hline
- & geography & geography\_bins \\ 
+Group & Region \\ 
   \hline
-1 & Cincinnati/Dayton & 1 \\ 
-  2 & Columbus & 1 \\ 
-  3 & Dallas/Ft. Worth & 1 \\ 
-  4 & Houston & 1 \\ 
-  5 & Nashville & 1 \\ 
-  6 & New Orleans/Mobile & 1 \\ 
-  7 & Phoenix/Tucson & 1 \\ 
-  8 & Roanoke & 1 \\ 
-  9 & South Central & 1 \\ 
-  10 & Atlanta & 2 \\ 
-  11 & Buffalo/Rochester & 2 \\ 
-  12 & Denver & 2 \\ 
-  13 & Detroit & 2 \\ 
-  14 & Great Lakes & 2 \\ 
-  15 & Harrisburg/Scranton & 2 \\ 
-  16 & Indianapolis & 2 \\ 
-  17 & Jacksonville & 2 \\ 
-  18 & Las Vegas & 2 \\ 
-  19 & Los Angeles & 2 \\ 
-  20 & Louisville & 2 \\ 
-  21 & Miami/Ft. Lauderdale & 2 \\ 
-  22 & Midsouth & 2 \\ 
-  23 & Orlando & 2 \\ 
-  24 & Pittsburgh & 2 \\ 
-  25 & Plains & 2 \\ 
-  26 & Portland & 2 \\ 
-  27 & Richmond/Norfolk & 2 \\ 
-  28 & South Carolina & 2 \\ 
-  29 & Southeast & 2 \\ 
-  30 & Tampa & 2 \\ 
-  31 & Total U.S. & 2 \\ 
-  32 & West & 2 \\ 
-  33 & West Tex/New Mexico & 2 \\ 
-  34 & Albany & 3 \\ 
-  35 & Baltimore/Washington & 3 \\ 
-  36 & Boise & 3 \\ 
-  37 & Boston & 3 \\ 
-  38 & California & 3 \\ 
-  39 & Charlotte & 3 \\ 
-  40 & Chicago & 3 \\ 
-  41 & Grand Rapids & 3 \\ 
-  42 & Northeast & 3 \\ 
-  43 & Northern New England & 3 \\ 
-  44 & Philadelphia & 3 \\ 
-  45 & Raleigh/Greensboro & 3 \\ 
-  46 & Sacramento & 3 \\ 
-  47 & San Diego & 3 \\ 
-  48 & Seattle & 3 \\ 
-  49 & Spokane & 3 \\ 
-  50 & St. Louis & 3 \\ 
-  51 & Syracuse & 3 \\ 
-  52 & Hartford/Springfield & 4 \\ 
-  53 & New York & 4 \\ 
-  54 & San Francisco & 4 \\ 
+1 & Cincinnati/Dayton, Columbus, Dallas/Ft. Worth, Houston, Nashville, New Orleans/Mobile, Phoenix/Tucson, Roanoke, South Central \\ 
+  2 & Atlanta, Buffalo/Rochester, Denver, Detroit, Great Lakes, Harrisburg/Scranton, Indianapolis, Jacksonville, Las Vegas, Los Angeles, Louisville, Miami/Ft. Lauderdale, Midsouth, Orlando, Pittsburgh, Plains, Portland, Richmond/Norfolk, South Carolina, Southeast, Tampa, Total U.S., West, West Tex/New Mexico \\ 
+  3 & Albany, Baltimore/Washington, Boise, Boston, California, Charlotte, Chicago, Grand Rapids, Northeast, Northern New England, Philadelphia, Raleigh/Greensboro, Sacramento, San Diego, Seattle, Spokane, St. Louis, Syracuse \\ 
+  4 & Hartford/Springfield, New York, San Francisco \\ 
    \hline
 \end{tabular}
 \caption{} 
 \label{region}
-\end{table}
-% latex table generated in R 3.6.2 by xtable 1.8-4 package
-% Sun Dec 13 20:54:09 2020
-\begin{table}[ht]
-\centering
-\begin{tabular}{rrrr}
-  \hline
- & GVIF & Df & GVIF\verb|^|(1/(2*Df)) \\ 
-  \hline
-log\_total\_volume & 2.713 & 1.000 & 1.647 \\ 
-  month & 1.007 & 11.000 & 1.000 \\ 
-  type & 2.673 & 1.000 & 1.635 \\ 
-  geography\_bins & 1.031 & 3.000 & 1.005 \\ 
-   \hline
-\end{tabular}
-\caption{} 
-\label{vif_table}
 \end{table}
 
 \end{center} 
